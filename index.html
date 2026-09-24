@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>All The Tools</title>
+<meta name="description" content="A self-contained toolbox of browser-only utilities for documents, media, text, code, numbers and everyday life. Nothing is uploaded anywhere.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+
+<a class="skip-link" href="#view">Skip to content</a>
+
+<header class="topbar">
+  <a class="brand" href="#/" aria-label="All The Tools home">
+    <svg viewBox="0 0 64 64" aria-hidden="true" width="28" height="28">
+      <rect width="64" height="64" rx="14" fill="currentColor"/>
+      <g fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 18 12 32l10 14"/><path d="M42 18l10 14-10 14"/><path d="M36 14 28 50"/>
+      </g>
+    </svg>
+    <span>All The Tools</span>
+  </a>
+
+  <button id="search-trigger" class="search-trigger" type="button" aria-label="Search tools">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+      <circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/>
+    </svg>
+    <span>Search tools…</span>
+    <kbd>Ctrl K</kbd>
+  </button>
+
+  <div class="topbar-actions">
+    <a id="region-link" class="icon-btn" href="#/settings" aria-label="Regional settings" title="Regional settings"></a>
+    <button id="density-toggle" class="icon-btn" type="button" aria-label="Switch card density" title="Switch card density"></button>
+    <button id="theme-toggle" class="icon-btn" type="button" aria-label="Switch colour theme" title="Switch colour theme"></button>
+    <button id="menu-toggle" class="icon-btn menu-only" type="button" aria-label="Toggle navigation" aria-expanded="false" title="Menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+        <path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<div class="layout">
+  <nav id="sidebar" class="sidebar" aria-label="Tool categories"></nav>
+  <main id="view" class="view" tabindex="-1"></main>
+  <aside id="related" class="related" aria-label="Related tools" hidden></aside>
+</div>
+
+<footer class="sitefoot">
+  <span>Everything runs in your browser. No accounts and no uploads.</span>
+  <span id="tool-count"></span>
+</footer>
+
+<div id="toaster" class="toaster" role="status" aria-live="polite"></div>
+
+<script src="assets/js/core.js"></script>
+<script src="assets/js/shelves.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/prefs.js"></script>
+<script src="assets/js/region.js"></script>
+
+<script src="assets/js/lib/hash.js"></script>
+<script src="assets/js/lib/csv.js"></script>
+<script src="assets/js/lib/diff.js"></script>
+<script src="assets/js/lib/markdown.js"></script>
+<script src="assets/js/lib/units.js"></script>
+<script src="assets/js/lib/qr.js"></script>
+<script src="assets/js/lib/pdfwriter.js"></script>
+
+<!-- Tool modules. A "-b" (or "-c", "-d") file extends the module before it
+     and may use helpers it exports, so order matters. Add ?only=a,b to the
+     URL to load just those files (the test harness uses this to check one
+     group in isolation). -->
+<script>
+(function () {
+  var files = ["video", "video-b", "audio-b", "pdf", "pdf-b", "file", "file-b", "image", "image-b", "text",
+    "text-b", "seo", "seo-b", "developer-a", "developer-b", "developer-c", "developer-d", "data-b", "math",
+    "math-b", "science", "finance", "finance-b", "converters", "electronics", "geo", "home", "color",
+    "color-b", "css-b", "crypto", "crypto-b", "network", "network-b", "generators", "generators-b", "games",
+    "time", "time-b", "health", "productivity", "social", "social-b", "devices", "devices-b", "brain",
+    "brain-b", "ai"];
+  var only = /[?&]only=([^&#]*)/.exec(location.search);
+  if (only) files = files.filter(function (f) { return decodeURIComponent(only[1]).split(',').indexOf(f) > -1; });
+  files.forEach(function (f) { document.write('<script src="assets/js/tools/' + f + '.js"><\/script>'); });
+})();
+</script>
+
+<script src="assets/js/palette.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+# Editors
+.vscode/
+.idea/
+*.swp
+*~
+
+# OS noise
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node (only used for the optional checks; there are no runtime dependencies)
+node_modules/
+npm-debug.log*
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Local scratch
+/tmp/
+*.local
+serve.log
+
+# The vendored libraries and the ML models the tools use are committed, so
+# the site works straight after a clone; `npm run vendor -- --models`
+# recreates them. The optional large models fetched by `--models=all` are not.
+assets/models/Xenova/opus-mt-*/
+assets/models/Xenova/vit-gpt2-image-captioning/
