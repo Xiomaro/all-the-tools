@@ -421,11 +421,30 @@
         })));
       }
 
+      /* HEAD keeps the server from building a whole page, which otherwise
+         dominates the timing (google.com: ~150ms GET vs ~30ms HEAD). */
       function once(h) {
         var t0 = performance.now();
-        return fetchTimeout('https://' + h + '/?_=' + Date.now(), { mode: 'no-cors' }, 5000)
+        return fetchTimeout('https://' + h + '/?_=' + Date.now() + Math.random(), { mode: 'no-cors', method: 'HEAD' }, 5000)
           .then(function () { return { ok: true, ms: Math.round(performance.now() - t0) }; },
             function (e) { return { ok: false, err: e.name === 'AbortError' ? 'timeout' : 'unreachable' }; });
+      }
+
+      /* The first request to a host pays for DNS, TCP and TLS setup, so it is
+         sent untimed. Bare domains often 301 to www (google.com, amazon.com),
+         doubling every round trip, and no-cors hides redirects — so warm up
+         both and time whichever answers faster. */
+      function pickTarget(h) {
+        var cands = [h];
+        if (!/^www\./i.test(h) && /\.[a-z]{2,}$/i.test(h)) cands.push('www.' + h);
+        return Promise.all(cands.map(function (c) {
+          return once(c).then(function () { return once(c); }).then(function (r) { return { host: c, r: r }; });
+        })).then(function (list) {
+          var ok = list.filter(function (x) { return x.r.ok; });
+          if (!ok.length) return h;
+          ok.sort(function (a, b) { return a.r.ms - b.r.ms; });
+          return ok[0].host;
+        });
       }
 
       function run(h) {
@@ -433,17 +452,21 @@
         if (!h || !/^[a-z0-9.-]+$|^\[[0-9a-f:]+\]$/i.test(h)) { status.className = 'note err'; status.textContent = 'Enter a valid host name or IP.'; return; }
         busy = true; stopped = false; btn.disabled = true;
         status.className = 'note';
-        var i = 0;
-        (function next() {
-          if (stopped || i >= 4) { busy = false; btn.disabled = false; status.textContent = stopped ? '' : 'Done — 4 requests to ' + h; return; }
-          i++;
-          status.textContent = 'Pinging ' + i + '/4…';
-          once(h).then(function (r) {
-            r.host = h; r.time = new Date().toLocaleTimeString();
-            results.push(r); drawStats();
-            setTimeout(next, 1000);
-          });
-        })();
+        status.textContent = 'Connecting to ' + h + '…';
+        pickTarget(h).then(function (target) {
+          var via = target === h ? '' : ' (via ' + target + ', ' + h + ' redirects or is slower)';
+          var i = 0;
+          (function next() {
+            if (stopped || i >= 4) { busy = false; btn.disabled = false; status.textContent = stopped ? '' : 'Done — 4 requests to ' + h + via; return; }
+            i++;
+            status.textContent = 'Pinging ' + i + '/4…' + via;
+            once(target).then(function (r) {
+              r.host = target; r.time = new Date().toLocaleTimeString();
+              results.push(r); drawStats();
+              setTimeout(next, 1000);
+            });
+          })();
+        });
       }
       U.onTeardown(root, function () { stopped = true; });
 
@@ -451,7 +474,7 @@
         return U.button(d, function () { host.value = d; run(d); }, 'ghost');
       }));
       drawStats();
-      root.appendChild(U.panel('', el('p', { class: 'note', text: 'ℹ Browser ping uses HTTP fetch (no-cors), not ICMP. Results show HTTP reachability and latency, not raw network ping.' }),
+      root.appendChild(U.panel('', el('p', { class: 'note', text: 'ℹ Browser ping uses HTTP HEAD requests, not ICMP. Connection setup is excluded, but server response time is included, so expect results somewhat higher than the ping command.' }),
         U.row(el('div', { class: 'grow' }, host), btn, U.button('Clear', function () { results = []; drawStats(); status.textContent = ''; }, 'ghost')),
         el('div', { class: 'row' }, el('span', { text: 'Quick test:' }), quick), status));
       root.appendChild(U.panel('Results', stats, log));
