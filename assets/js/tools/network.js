@@ -856,8 +856,11 @@
           if (stopped) return;
           if (i >= 6) return download(pings);
           var t0 = performance.now();
-          fetchTimeout('https://www.cloudflare.com/cdn-cgi/trace?_=' + Date.now(), {}, 5000)
-            .then(function (r) { return r.text(); })
+          /* www.cloudflare.com/cdn-cgi/trace sends no CORS header, so browsers
+             refuse to hand the response to the page; a zero-byte __down request
+             to the speed server is CORS-enabled and measures the same round trip. */
+          fetchTimeout('https://speed.cloudflare.com/__down?bytes=0&_=' + Date.now(), {}, 5000)
+            .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
             .then(function () { if (i > 0) pings.push(performance.now() - t0); i++; prog.set('Measuring latency…', i / 6 * 0.2); ping(); })
             .catch(function (e) { fail(e); });
         })();
@@ -902,7 +905,14 @@
       }
 
       function fail(e) {
-        prog.fail('Speed test failed: ' + (e && e.name === 'AbortError' ? 'timed out' : (e && e.message) || e) + '. Check your internet connection.');
+        /* fetch() rejects with a bare TypeError ("Failed to fetch" in Chrome,
+           "NetworkError when attempting to fetch resource" in Firefox) when the
+           request is blocked before any response, which is more often a content
+           blocker or firewall than a dead connection. */
+        var why = e && e.name === 'AbortError' ? 'timed out. Check your internet connection.'
+          : e instanceof TypeError ? 'could not reach speed.cloudflare.com. Check your connection, and that an ad blocker or firewall is not blocking it.'
+          : ((e && e.message) || e) + '. Check your internet connection.';
+        prog.fail('Speed test failed: ' + why);
         btn.disabled = false;
       }
       U.onTeardown(root, function () { stopped = true; });
