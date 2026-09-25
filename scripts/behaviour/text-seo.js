@@ -163,6 +163,9 @@ module.exports = [
   } },
   { name: 'ascii-art-text: block font and double box', tool: 'ascii-art-text', run: async page => {
     const a = await get(page, 'out');
+    await set(page, 'font', 'plain');
+    const p = await get(page, 'out');
+    if (p.split('\n')[0] !== '# # ### #   #   ###' || /[^#\s]/.test(p)) return res(false, JSON.stringify(p));
     await chip(page, 'mode', 'Text Box');
     await set(page, 'in', 'Hi');
     const b = await get(page, 'out');
