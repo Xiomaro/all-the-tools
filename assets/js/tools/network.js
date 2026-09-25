@@ -50,11 +50,40 @@
 
   /* --- IP Address Info (online) ----------------------------------------------- */
 
+  /* ipwho.is is the main source; ipinfo.io (keyless tier, fewer fields) is the
+     fallback. Both are normalised to the same shape. A provider-side error such
+     as "Invalid IP address" is final and isn't retried on the fallback. */
+  function ipLookup(ip) {
+    var path = ip ? encodeURIComponent(ip) : '';
+    return fetchTimeout('https://ipwho.is/' + path)
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (d) {
+        if (d.success === false) { var e = new Error(d.message || 'Lookup failed'); e.final = true; throw e; }
+        var c = d.connection || {}, tz = d.timezone || {};
+        return { source: 'ipwho.is', ip: d.ip, country: d.country, countryCode: d.country_code, region: d.region, city: d.city,
+          postal: d.postal, org: c.isp || c.org, asn: c.asn ? 'AS' + c.asn : '', domain: c.domain, timezone: tz.id,
+          utcOffset: tz.utc, lat: d.latitude, lon: d.longitude, version: d.type };
+      })
+      .catch(function (e) {
+        if (e.final) throw e;
+        return fetchTimeout('https://ipinfo.io/' + (path ? path + '/' : '') + 'json')
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (d) {
+            if (d.bogon) { var b = new Error(d.ip + ' is a private or reserved address'); b.final = true; throw b; }
+            if (d.error) throw new Error(d.error.message || d.error.title || 'Lookup failed');
+            var loc = (d.loc || '').split(','), m = /^(AS\d+)\s*(.*)$/.exec(d.org || '');
+            return { source: 'ipinfo.io', ip: d.ip, country: '', countryCode: d.country, region: d.region, city: d.city,
+              postal: d.postal, org: m ? m[2] : d.org, asn: m ? m[1] : '', domain: d.hostname, timezone: d.timezone,
+              utcOffset: '', lat: loc[0], lon: loc[1], version: d.ip && d.ip.indexOf(':') >= 0 ? 'IPv6' : 'IPv4' };
+          });
+      });
+  }
+
   Tools.register({
     id: 'ip-address', category: 'network', name: 'IP Address Info',
     description: 'Show your public IP, or look up any IP, with location, ISP and time zone.',
     keywords: ['ip', 'my ip', 'geolocation', 'isp', 'lookup', 'whats my ip'],
-    online: 'looks up IP addresses with ipapi.co',
+    online: 'looks up IP addresses with ipwho.is (falling back to ipinfo.io)',
     render: function (root) {
       root.classList.add('g-net');
       var input = el('input', { type: 'text', placeholder: 'Enter IP address (leave blank for your IP)' });
@@ -66,21 +95,19 @@
         if (ip && !/^[0-9a-f:.]+$/i.test(ip)) { out.replaceChildren(U.note('Enter a valid IPv4 or IPv6 address.', 'err')); return; }
         out.replaceChildren(U.note(ip ? 'Looking up ' + ip + '…' : 'Loading your IP info…'));
         btn.disabled = true;
-        fetchTimeout(ip ? 'https://ipapi.co/' + encodeURIComponent(ip) + '/json/' : 'https://ipapi.co/json/')
-          .then(function (r) { return r.json(); })
+        ipLookup(ip)
           .then(function (d) {
-            if (d.error) throw new Error(d.reason || 'Lookup failed');
             out.replaceChildren(
               el('div', { class: 'big', dataset: { out: 'ip' }, text: d.ip }),
-              U.note((d.country_code || '') + ' · ' + (ip ? 'Looked-up IP' : 'Your IP')),
-              kv([['Country', d.country_name ? d.country_name + ' (' + d.country_code + ')' : ''], ['Region', d.region], ['City', d.city],
-                ['Postal code', d.postal], ['Organization / ISP', d.org], ['ASN', d.asn], ['Timezone', d.timezone],
-                ['UTC offset', d.utc_offset], ['Currency', d.currency], ['Coordinates', d.latitude != null ? d.latitude + ', ' + d.longitude : ''],
-                ['IP version', d.version], ['Network', d.network]]),
+              U.note((d.countryCode || '') + ' · ' + (ip ? 'Looked-up IP' : 'Your IP') + ' · via ' + d.source),
+              kv([['Country', d.country ? d.country + ' (' + d.countryCode + ')' : d.countryCode], ['Region', d.region], ['City', d.city],
+                ['Postal code', d.postal], ['Organization / ISP', d.org], ['ASN', d.asn], ['Domain / hostname', d.domain],
+                ['Timezone', d.timezone], ['UTC offset', d.utcOffset],
+                ['Coordinates', d.lat != null && d.lat !== '' ? d.lat + ', ' + d.lon : ''], ['IP version', d.version]]),
               U.btnrow(U.copyBtn('Copy IP', d.ip)));
           })
           .catch(function (e) {
-            out.replaceChildren(U.note('Could not reach ipapi.co (' + (e.name === 'AbortError' ? 'timed out' : e.message) + '). Check your connection or try again in a minute — the free service is rate limited.', 'err'));
+            out.replaceChildren(U.note(e.final ? e.message + '.' : 'Could not look up the IP (' + (e.name === 'AbortError' ? 'timed out' : e.message) + '). Check your connection or try again in a minute — the free services are rate limited.', 'err'));
           })
           .then(function () { btn.disabled = false; });
       }

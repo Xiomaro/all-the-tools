@@ -78,12 +78,13 @@
      group in isolation). -->
 <script>
 (function () {
-  var files = ["video", "video-b", "audio-b", "pdf", "pdf-b", "file", "file-b", "image", "image-b", "text",
-    "text-b", "seo", "seo-b", "developer-a", "developer-b", "developer-c", "developer-d", "data-b", "math",
-    "math-b", "science", "finance", "finance-b", "converters", "electronics", "geo", "home", "color",
-    "color-b", "css-b", "crypto", "crypto-b", "network", "network-b", "generators", "generators-b", "games",
-    "time", "time-b", "health", "productivity", "social", "social-b", "devices", "devices-b", "brain",
-    "brain-b", "ai"];
+  var files = ["video", "video-b", "audio-b", "audio-c", "pdf", "pdf-b", "pdf-c", "file", "file-b", "file-c", "image",
+    "image-b", "image-c", "text", "text-b", "text-c", "seo", "seo-b", "developer-a", "developer-b",
+    "developer-c", "developer-d", "data-b", "data-c", "math", "math-b", "science", "finance", "finance-b",
+    "finance-c", "converters", "converters-b", "electronics", "geo", "geo-b", "home", "home-b", "color",
+    "color-b", "css-b", "crypto", "crypto-b", "crypto-c", "network", "network-b", "generators",
+    "generators-b", "games", "games-b", "games-c", "time", "time-b", "time-c", "health", "productivity",
+    "productivity-b", "social", "social-b", "devices", "devices-b", "brain", "brain-b", "ai"];
   var only = /[?&]only=([^&#]*)/.exec(location.search);
   if (only) files = files.filter(function (f) { return decodeURIComponent(only[1]).split(',').indexOf(f) > -1; });
   files.forEach(function (f) { document.write('<script src="assets/js/tools/' + f + '.js"><\/script>'); });

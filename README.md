@@ -1,6 +1,6 @@
 # All The Tools
 
-A local, browser-only toolbox: **516 tools in 29 categories**, grouped into six sections.
+A local, browser-only toolbox: **537 tools in 29 categories**, grouped into six sections.
 Everything runs in the tab. Nothing you paste, type or drop in is uploaded, apart from the handful
 of tools that exist to talk to the network (listed below).
 
@@ -31,7 +31,7 @@ WebCrypto don't work on `file://`, so many tools need a real `http://` origin.
 
 ## Finding a tool
 
-516 tools is too many for one list, so there are several ways in:
+537 tools is too many for one list, so there are several ways in:
 
 - **Search.** <kbd>Ctrl</kbd>+<kbd>K</kbd> (or <kbd>/</kbd>) opens a command palette from
   anywhere, including from inside a tool. It matches names, ids, keywords and descriptions,
@@ -62,14 +62,14 @@ the tool that replaced it (see `ALIASES` in `assets/js/core.js`).
 
 | Section | Category | Tools | What's there |
 |---|---|---|---|
-| **Documents & media** | PDF Tools | 22 | Merge, split, organise, sign, protect, compare and OCR PDFs. |
-|  | Image Tools | 30 | Compress, resize, convert, crop, annotate, redact and edit pictures. |
+| **Documents & media** | PDF Tools | 23 | Merge, split, organise, sign, protect, compare and OCR PDFs, and turn Markdown or HTML into PDF. |
+|  | Image Tools | 31 | Compress, resize, convert, crop, annotate, redact and edit pictures, plus a pixel art editor. |
 |  | Video Tools | 27 | Trim, convert, compress, crop, caption and record video. |
-|  | Audio & Music | 20 | Cut, convert, fade, tag, analyse and record audio, plus a tuner and metronome. |
-|  | File Tools | 8 | Unzip archives, split and join files, rename in bulk, find duplicates and inspect bytes. |
+|  | Audio & Music | 21 | Cut, convert, fade, tag, analyse and record audio, plus a tuner, metronome and piano. |
+|  | File Tools | 9 | Unzip archives, split and join files, rename in bulk, find duplicates, inspect bytes and view fonts. |
 |  | On-Device AI | 8 | Transcribe, translate, summarise, describe images, detect objects and remove backgrounds, all in the tab. |
-| **Writing & data** | Text Tools | 36 | Count, clean up, compare, transform, split and extract text. |
-|  | Data & JSON | 23 | Format, query, convert and compare JSON, YAML, XML, CSV, SQLite and spreadsheets. |
+| **Writing & data** | Text Tools | 37 | Count, clean up, compare, transform, split and extract text, and score its readability. |
+|  | Data & JSON | 24 | Format, query, convert, compare and chart JSON, YAML, XML, CSV, SQLite and spreadsheets. |
 |  | Generators | 18 | Random data, IDs, test values, avatars, patterns, QR codes and barcodes. |
 |  | Social & Media | 12 | Images, text and posts sized for social platforms. |
 | **Code & web** | Developer Tools | 30 | Formatters, encoders, regex, playgrounds, git and command-line helpers. |
@@ -77,18 +77,18 @@ the tool that replaced it (see `ALIASES` in `assets/js/core.js`).
 |  | Colour Tools | 17 | Convert, pick, mix, name and check colours, and build accessible palettes. |
 |  | SEO & Web | 15 | Meta tags, link previews, sitemaps, manifests, redirects and structured data. |
 |  | Network Tools | 19 | IP, DNS, email headers, SPF and DMARC, CIDR ranges, URLs and server config. |
-|  | Crypto & Security | 21 | Hashes, ciphers, keys, PGP, certificates, passwords and file encryption. |
+|  | Crypto & Security | 22 | Hashes, ciphers, keys, PGP, certificates, passwords, file encryption and secret sharing. |
 | **Numbers & science** | Maths & Numbers | 27 | Calculators for percentages, primes, matrices, equations, probability and more. |
-|  | Converters | 31 | Units, sizes, currencies and real-world size comparisons. |
+|  | Converters | 32 | Units, sizes, currencies, game sensitivity and real-world size comparisons. |
 |  | Science & Study | 7 | Periodic table, chemistry, physics equations, degree classifications and citations. |
 |  | Electronics | 9 | Ohm's law, resistors, capacitors, LEDs, wire gauges, 555 timers and PCB traces. |
-|  | Maps & Geo | 6 | Coordinates, grid references, distances, GPX tracks, areas and true country sizes. |
-| **Everyday life** | Finance | 21 | Loans, mortgages, stamp duty, pay, pensions, budgets and bill splitting. |
+|  | Maps & Geo | 7 | Coordinates, grid references, distances, GPX tracks, areas, sun position and true country sizes. |
+| **Everyday life** | Finance | 23 | Loans, mortgages, stamp duty, pay rises, pensions, savings goals, budgets and bill splitting. |
 |  | Health & Fitness | 14 | BMI, body fat, calories, macros, heart-rate zones, pace, sleep and breathing. |
-|  | Home & DIY | 7 | Paint, tiles, wallpaper, concrete, heating and running costs, plus a room planner. |
-|  | Time & Date | 19 | Timestamps, time zones, timers, timesheets, bank holidays and calendar maths. |
-|  | Productivity | 6 | Notes, to-do lists, flashcards, calendars, diagrams and invoices, kept in this browser. |
-| **Play & tests** | Games & Party | 15 | Wheels, dice, cards, puzzles, party games, brackets and an initiative tracker. |
+|  | Home & DIY | 8 | Paint, tiles, wallpaper, concrete, heating, solar payback and running costs, plus a room planner. |
+|  | Time & Date | 20 | Timestamps, time zones, timers, a stopwatch, timesheets, bank holidays and calendar maths. |
+|  | Productivity | 8 | Notes, to-do lists, flashcards, calendars, diagrams, invoices, CVs and a meeting cost timer, kept in this browser. |
+| **Play & tests** | Games & Party | 21 | Wheels, dice, cards, puzzles, Minesweeper, 2048, a daily word game, party games, brackets and a tabletop RPG kit. |
 |  | Brain & Reaction | 12 | Reaction, aim, memory, focus, typing and mental maths tests. |
 |  | Device Tests | 17 | Test your screen, speakers, mic, camera, inputs, MIDI gear, stylus and sensors. |
 
@@ -103,7 +103,7 @@ button.
 
 | Tool | Talks to |
 |---|---|
-| IP Address Info | ipapi.co |
+| IP Address Info | ipwho.is (falls back to ipinfo.io) |
 | DNS Lookup | Cloudflare DNS-over-HTTPS |
 | WHOIS Lookup | rdap.org |
 | Ping Test | the host you enter |
@@ -112,6 +112,7 @@ button.
 | SPF, DKIM & DMARC Record Checker | Cloudflare DNS-over-HTTPS, on request |
 | WebRTC Leak Test | a STUN server (Google by default), on request |
 | Translate Text, Describe an Image | huggingface.co, on request, to download a model you don't have locally |
+| Markdown & HTML to PDF | only the remote images your own document links to, when it previews them |
 
 Currency Converter uses offline reference rates, with an optional "Fetch live rates" button.
 
@@ -143,6 +144,8 @@ checked and, where it makes sense, let you edit them. As of 22 September 2026:
 | Ofgem price cap unit rates and standing charges | `PRICE_CAP` in `assets/js/tools/home.js` |
 | Social media character limits and image sizes | `LIMITS` and the preset list in `assets/js/tools/social-b.js` |
 | UK bank holidays (rules plus one-offs, checked against GOV.UK's data to 2028) | `assets/js/tools/time-b.js` |
+| Solar yields, install and battery costs, SEG export rate, self-use and degradation | `SOLAR` in `assets/js/tools/home-b.js` |
+| Mouse yaw per game (Marvel Rivals, Deadlock, Rust and Minecraft are community figures, marked approximate) | `SENS_YAW` in `assets/js/tools/converters-b.js` |
 
 ### Reference data
 

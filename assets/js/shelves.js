@@ -10,14 +10,14 @@
     pdf: [
       ['Combine & organise', 'pdf-merge pdf-split pdf-organise pdf-rotate pdf-crop images-to-pdf document-scanner'],
       ['Edit & sign', 'pdf-sign pdf-forms pdf-watermark pdf-page-numbers redact-pdf pdf-metadata'],
-      ['Convert & extract', 'pdf-to-text ocr pdf-to-images pdf-extract-images pdf-compress pdf-grayscale'],
+      ['Convert & extract', 'markdown-to-pdf pdf-to-text ocr pdf-to-images pdf-extract-images pdf-compress pdf-grayscale'],
       ['Protect & compare', 'pdf-protect pdf-unlock pdf-compare']
     ],
     image: [
       ['Edit', 'image-crop image-resize image-rotate image-brightness image-filters image-grayscale image-blur image-border image-watermark image-upscaler'],
       ['Annotate & redact', 'image-annotate image-pixelate exif-remover'],
       ['Convert & compress', 'image-compress image-convert svg-to-png png-to-svg image-to-base64 images-to-gif'],
-      ['Create', 'image-collage image-splitter image-favicon image-placeholder image-ascii signature-maker passport-photo-maker photo-booth online-whiteboard'],
+      ['Create', 'pixel-art-editor image-collage image-splitter image-favicon image-placeholder image-ascii signature-maker passport-photo-maker photo-booth online-whiteboard'],
       ['Inspect & compare', 'image-metadata image-compare']
     ],
     video: [
@@ -33,7 +33,7 @@
       ['Convert & tag', 'audio-converter extract-audio id3-editor'],
       ['Analyse', 'audio-visualiser bpm-detector'],
       ['Record & speak', 'voice-recorder text-to-speech ssml-generator'],
-      ['Music', 'metronome instrument-tuner tone-generator']
+      ['Music', 'metronome instrument-tuner piano-chords tone-generator']
     ],
     ai: [
       ['Language', 'ai-translate ai-summarise ai-sentiment token-counter'],
@@ -41,7 +41,7 @@
       ['Speech', 'transcribe']
     ],
     text: [
-      ['Count & analyse', 'word-count word-frequency-map diff-checker unicode-inspector invisible-characters palindrome-checker anagram-tool'],
+      ['Count & analyse', 'word-count readability-score word-frequency-map diff-checker unicode-inspector invisible-characters palindrome-checker anagram-tool'],
       ['Clean up', 'text-cleaner duplicate-lines text-replacer text-encoding-converter html-to-text'],
       ['Transform', 'text-case text-sorter text-reverse text-wrap text-truncate text-padding text-repeat text-number-lines text-prefix-suffix slug-generator text-to-html'],
       ['Split & extract', 'text-splitter list-converter column-extractor text-extract-emails text-extract-urls text-extract-numbers'],
@@ -50,7 +50,7 @@
     ],
     data: [
       ['JSON', 'json-formatter json-diff json-path-tester json-schema-validator json-to-code ndjson-converter'],
-      ['CSV & spreadsheets', 'csv-viewer csv-formatter csv-diff csv-to-json json-to-csv json-to-table excel-to-json json-to-excel'],
+      ['CSV & spreadsheets', 'chart-maker csv-viewer csv-formatter csv-diff csv-to-json json-to-csv json-to-table excel-to-json json-to-excel'],
       ['YAML, TOML & XML', 'yaml-to-json toml-to-json json-to-toml xml-formatter xml-to-json json-to-xml'],
       ['SQL', 'sqlite-playground csv-to-sql sql-to-csv']
     ],
@@ -96,7 +96,7 @@
     ],
     crypto: [
       ['Hashes', 'hash-generator hmac-generator bcrypt-generator'],
-      ['Encryption', 'aes-cipher file-encryption pgp-tool steganography'],
+      ['Encryption', 'aes-cipher file-encryption pgp-tool shamir-secret-sharing steganography'],
       ['Keys & certificates', 'rsa-keygen ssh-keygen csr-generator certificate-decoder'],
       ['Passwords & tokens', 'password-generator password-strength otp-generator jwt-decoder jwt-generator'],
       ['Classic ciphers', 'caesar-cipher vigenere-cipher rot13 classical-ciphers enigma-machine']
@@ -110,13 +110,13 @@
     ],
     converters: [
       ['Units', 'length-converter weight-converter temperature-converter volume-converter area-converter speed-converter time-duration-converter angle-converter pressure-converter energy-converter power-converter force-converter torque-converter density-converter flow-rate-converter frequency-converter acceleration-converter fuel-converter byte-converter'],
-      ['Everyday', 'currency-converter cooking-converter beaufort-scale clothing-size-converter shoe-size-finder ring-size-finder'],
+      ['Everyday', 'currency-converter cooking-converter sensitivity-converter beaufort-scale clothing-size-converter shoe-size-finder ring-size-finder'],
       ['Sizes & screens', 'aspect-ratio-calc resolution-converter screen-size-comparison paper-size-viewer online-ruler height-comparison']
     ],
     finance: [
-      ['Pay & tax', 'uk-take-home-pay salary-converter vat-calculator stamp-duty'],
+      ['Pay & tax', 'uk-take-home-pay pay-rise-calculator salary-converter vat-calculator stamp-duty'],
       ['Borrowing', 'mortgage-calculator loan-calculator credit-card-payoff debt-payoff rent-vs-buy'],
-      ['Saving & investing', 'compound-interest pension-calculator roi-calculator inflation-calculator'],
+      ['Saving & investing', 'savings-goal compound-interest pension-calculator roi-calculator inflation-calculator'],
       ['Budgeting & spending', 'budget-planner expense-splitter journey-cost tip-calculator discount-calculator unit-price-calc'],
       ['Business', 'profit-margin break-even']
     ],
@@ -130,13 +130,13 @@
       ['Convert & calculate', 'timestamp-converter date-difference date-add-subtract age-calculator working-days time-to-decimal date-format timesheet-calculator'],
       ['Time zones', 'timezone-converter world-clock'],
       ['Calendar', 'week-number day-of-year uk-bank-holidays easter-date ics-generator moon-phase sunrise-sunset'],
-      ['Timers', 'countdown-timer interval-timer']
+      ['Timers', 'stopwatch countdown-timer interval-timer']
     ],
     games: [
       ['Random pickers', 'spin-the-wheel dice-roller deck-of-cards team-generator secret-santa'],
       ['Party & quiz', 'charades-words scoreboard-buzzer bingo-caller tournament-bracket chess-clock'],
-      ['Puzzles', 'sudoku crossword-maker word-search-maker'],
-      ['Tabletop RPG', 'initiative-tracker fantasy-name-generator']
+      ['Puzzles', 'word-guess minesweeper game-2048 sudoku crossword-maker word-search-maker'],
+      ['Tabletop RPG', 'initiative-tracker encounter-calculator loot-generator npc-generator fantasy-name-generator']
     ],
     brain: [
       ['Reaction & speed', 'reaction-time-test aim-trainer speed-typing schulte-table'],
