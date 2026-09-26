@@ -1,6 +1,7 @@
-/* text-b tools: Add Prefix & Suffix to Lines, List & Delimiter Converter,
-   Extract Columns from Text, Invisible Character Detector, Anagram Checker &
-   Solver, and Text Splitter & Thread Maker. Graphemes and sentence splitting
+/* text-b tools: List & Delimiter Converter, Extract Columns from Text,
+   Invisible Character Detector, Anagram Checker & Solver, and Text Splitter
+   & Thread Maker. (Add Prefix & Suffix to Lines is now a Text Transformer
+   step, in text-transformer.js.) Graphemes and sentence splitting
    come from window.TextKit, which text.js (loaded just before) exports. */
 (function () {
   'use strict';
@@ -96,55 +97,6 @@
     return String(s).replace(/\r\n?/g, '\n').split(/\n\s*\n/).filter(function (p) { return p.trim(); });
   }
   var collator = new Intl.Collator('en-GB', { numeric: true, sensitivity: 'base' });
-
-  /* ======================================================================
-     Add Prefix & Suffix to Lines
-     ====================================================================== */
-  var AFFIX_PRESETS = [
-    ["'…'", "'", "'"], ['"…"', '"', '"'], ['`…`', '`', '`'], ['(…)', '(', ')'], ['[…]', '[', ']'], ['{…}', '{', '}'], ['<…>', '<', '>'],
-    ['"…",', '"', '",'], ["'…',", "'", "',"], ['<li>…</li>', '<li>', '</li>'], ['- …', '- ', ''], ['{n}. …', '{n}. ', '']
-  ];
-  reg({
-    id: 'text-prefix-suffix', name: 'Add Prefix & Suffix to Lines',
-    description: 'Adds text to the start and end of every line, with quote and bracket presets, a running {n} counter and blank lines left alone.',
-    keywords: ['prefix', 'suffix', 'add text to lines', 'each line', 'every line', 'prepend', 'append', 'wrap lines', 'quote lines',
-      'quotes', 'brackets', 'numbering', 'counter', 'list', 'bulk edit', 'begin', 'end', 'line prefix', 'add quotes', 'add commas'],
-    render: function (root) {
-      var input = ta('apple\nbanana\n\ncherry', 'One item per line…', 'in', 'tall');
-      var prefix = textIn('"', 'e.g. "  or  {n}. ', 'prefix'), suffix = textIn('",', 'e.g. ",', 'suffix');
-      var skip = sw('Leave blank lines alone', true, 'skip'), trim = sw('Trim each line first', false, 'trim');
-      var start = numIn(1, undefined, undefined, 'start'), step = numIn(1, undefined, undefined, 'step'), pad = numIn(0, 0, 12, 'pad');
-      var output = outTa('out', 'tall');
-      var info = el('p', { class: 'note', dataset: { k: 'info' } });
-      var presets = el('div', { class: 'gb-presets', dataset: { k: 'presets' } },
-        AFFIX_PRESETS.map(function (p) { return chipBtn(p[0], function () { prefix.value = p[1]; suffix.value = p[2]; run(); }); }),
-        chipBtn('None', function () { prefix.value = ''; suffix.value = ''; run(); }));
-      /* {n} is the running number; \t typed in a box means a tab. */
-      function expand(t, num) { return t.replace(/\{n\}/g, function () { return num; }).replace(/\\t/g, '\t'); }
-      function run() {
-        var n = intOf(start, 1), st = intOf(step, 1), width = intOf(pad, 0, 0, 12), changed = 0;
-        output.value = lines(input.value).map(function (line) {
-          var l = on(trim) ? line.trim() : line;
-          if (on(skip) && !l.trim()) return l;
-          var num = String(Math.abs(n)).padStart(width, '0');
-          if (n < 0) num = '-' + num;
-          n += st;
-          changed++;
-          return expand(prefix.value, num) + l + expand(suffix.value, num);
-        }).join('\n');
-        info.textContent = plural(changed, 'line') + ' changed';
-      }
-      U.live([input, prefix, suffix, skip, trim, start, step, pad], run);
-      root.appendChild(U.panel('Lines', input));
-      root.appendChild(U.panel('Add to each line', presets,
-        el('div', { class: 'gb-grid' }, lab('Prefix (before)', prefix), lab('Suffix (after)', suffix)),
-        U.note('Type {n} for a running number and \\t for a tab.'),
-        el('div', { class: 'gb-grid', style: { marginTop: '10px' } }, lab('{n} starts at', start), lab('{n} goes up by', step), lab('Pad {n} with zeros to', pad, '0 for no padding; 3 gives 001')),
-        U.row(skip, trim)));
-      root.appendChild(U.panel('Result', output, info, U.btnrow(U.copyBtn('Copy result', function () { return output.value; }),
-        U.downloadBtn('Download', 'lines.txt', function () { return output.value; }))));
-    }
-  });
 
   /* ======================================================================
      List & Delimiter Converter

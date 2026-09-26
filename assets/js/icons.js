@@ -198,7 +198,7 @@
     [/volume-converter|flow-rate/, 'droplet'],
     [/battery-runtime/, 'plug'],
     [/invoice-generator/, 'coin'],
-    [/text-prefix-suffix/, 'wrap'],
+    [/text-transformer/, 'wrap'],
     [/image-favicon/, 'image'],
     [/shape-calculator|sig-figs|probability-calculator|equation-solver|complex-calculator|modular-calculator/, 'sigma'],
     [/license-generator|licen[cs]e/, 'doc'],
@@ -345,6 +345,7 @@
     if (cache[tool.id]) return cache[tool.id];
     var haystack = (tool.id + ' ' + tool.name + ' ' + (tool.keywords || []).join(' ')).toLowerCase();
     var found = CATEGORY[tool.category] || 'wheel';
+    if (tool.icon && G[tool.icon]) { cache[tool.id] = tool.icon; return tool.icon; }
     for (var i = 0; i < RULES.length; i++) {
       if (RULES[i][0].test(haystack)) { found = RULES[i][1]; break; }
     }

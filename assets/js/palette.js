@@ -40,7 +40,7 @@
   function row(tool, i) {
     var category = Tools.category(tool.category);
     var node = el('a', {
-      class: 'palette-row', href: '#/t/' + tool.id, role: 'option', id: 'palette-row-' + i,
+      class: 'palette-row', href: Tools.href(tool.id), role: 'option', id: 'palette-row-' + i,
       style: category ? { '--cat-h': category.hue, '--cat-l': category.l + '%', '--cat-ld': category.ld + '%' } : null,
       onclick: function () { close(); }
     },
@@ -63,7 +63,7 @@
     Prefs.pins().concat(Prefs.recent()).forEach(function (id) {
       if (seen[id]) return;
       seen[id] = true;
-      var tool = Tools.get(id);
+      var tool = Tools.entry(id);
       if (tool) out.push(tool);
     });
     return out.slice(0, 8);
@@ -104,7 +104,7 @@
     else if (e.key === 'Enter') {
       e.preventDefault();
       var tool = items[active];
-      if (tool) { location.hash = '#/t/' + tool.id; close(); }
+      if (tool) { location.hash = Tools.href(tool.id); close(); }
     } else if (e.key === 'Escape') { e.preventDefault(); close(); }
   }
 

@@ -6,167 +6,127 @@
 (function (global) {
   'use strict';
 
+  /* The big, many-in-one tools, shown first on their category's page in a
+     larger card that lists what's inside. They aren't repeated in the
+     shelves below. FLAGSHIPS are the few also shown on the home page. */
+  var FEATURED = {
+    pdf: ['pdf-editor'],
+    image: ['image-editor'],
+    video: ['video-editor'],
+    audio: ['audio-editor'],
+    text: ['text-transformer', 'word-count'],
+    data: ['json-formatter', 'data-converter'],
+    generators: ['test-data-generator'],
+    developer: ['code-formatter', 'encode-decode'],
+    css: ['css-effects'],
+    color: ['color-picker'],
+    seo: ['meta-tag-generator'],
+    network: ['dns-lookup'],
+    crypto: ['hash-generator', 'key-generator'],
+    math: ['number-theory', 'geometry-calculator'],
+    converters: ['unit-converter'],
+    finance: ['mortgage-calculator', 'uk-take-home-pay'],
+    health: ['bmi-calculator', 'calorie-calculator'],
+    home: ['diy-calculator'],
+    time: ['timer', 'date-calculator'],
+    games: ['dm-toolkit'],
+    brain: ['memory-tests'],
+    devices: ['input-tester', 'mic-test']
+  };
+
+  var FLAGSHIPS = ['pdf-editor', 'image-editor', 'video-editor', 'audio-editor', 'text-transformer', 'unit-converter'];
+
+  function featured(categoryId) {
+    return (FEATURED[categoryId] || []).map(function (id) { return Tools.get(id); })
+      .filter(function (t) { return t && t.category === categoryId; });
+  }
+
   var SHELVES = {
-    pdf: [
-      ['Combine & organise', 'pdf-merge pdf-split pdf-organise pdf-rotate pdf-crop images-to-pdf document-scanner'],
-      ['Edit & sign', 'pdf-sign pdf-forms pdf-watermark pdf-page-numbers redact-pdf pdf-metadata'],
-      ['Convert & extract', 'markdown-to-pdf pdf-to-text ocr pdf-to-images pdf-extract-images pdf-compress pdf-grayscale'],
-      ['Protect & compare', 'pdf-protect pdf-unlock pdf-compare']
-    ],
     image: [
-      ['Edit', 'image-crop image-resize image-rotate image-brightness image-filters image-grayscale image-blur image-border image-watermark image-upscaler'],
-      ['Annotate & redact', 'image-annotate image-pixelate exif-remover'],
-      ['Convert & compress', 'image-compress image-convert svg-to-png png-to-svg image-to-base64 images-to-gif'],
+      ['Edit & convert', 'image-editor svg-tools image-to-base64 images-to-gif'],
       ['Create', 'pixel-art-editor image-collage image-splitter image-favicon image-placeholder image-ascii signature-maker passport-photo-maker photo-booth online-whiteboard'],
       ['Inspect & compare', 'image-metadata image-compare']
     ],
-    video: [
-      ['Cut & join', 'trim-video split-video merge-video loop-video'],
-      ['Transform', 'crop-video resize-video reframe-video speed-video reverse-video boomerang-video adjust-video video-side-by-side'],
-      ['Add & remove', 'add-music-to-video add-watermark green-screen mute-video'],
-      ['Subtitles', 'subtitle-converter burn-subtitles'],
-      ['Convert & export', 'video-converter compress-video video-to-gif gif-to-mp4 extract-frames video-info'],
-      ['Record & create', 'screen-recorder slideshow-maker teleprompter']
-    ],
     audio: [
-      ['Edit', 'cut-audio merge-audio audio-fade audio-speed-pitch reverse-audio volume-booster remove-silence noise-reduction vocal-remover'],
-      ['Convert & tag', 'audio-converter extract-audio id3-editor'],
-      ['Analyse', 'audio-visualiser bpm-detector'],
+      ['Edit & convert', 'audio-editor'],
       ['Record & speak', 'voice-recorder text-to-speech ssml-generator'],
-      ['Music', 'metronome instrument-tuner piano-chords tone-generator']
-    ],
-    ai: [
-      ['Language', 'ai-translate ai-summarise ai-sentiment token-counter'],
-      ['Vision', 'ai-image-caption ai-object-detection background-remover'],
-      ['Speech', 'transcribe']
+      ['Music & analysis', 'metronome instrument-tuner bpm-detector piano-chords audio-visualiser tone-generator']
     ],
     text: [
-      ['Count & analyse', 'word-count readability-score word-frequency-map diff-checker unicode-inspector invisible-characters palindrome-checker anagram-tool'],
-      ['Clean up', 'text-cleaner duplicate-lines text-replacer text-encoding-converter html-to-text'],
-      ['Transform', 'text-case text-sorter text-reverse text-wrap text-truncate text-padding text-repeat text-number-lines text-prefix-suffix slug-generator text-to-html'],
-      ['Split & extract', 'text-splitter list-converter column-extractor text-extract-emails text-extract-urls text-extract-numbers'],
-      ['Generate', 'text-lorem ascii-art-text emoji-picker'],
-      ['Codes & alphabets', 'morse-code binary-text braille-translator nato-alphabet']
-    ],
-    data: [
-      ['JSON', 'json-formatter json-diff json-path-tester json-schema-validator json-to-code ndjson-converter'],
-      ['CSV & spreadsheets', 'chart-maker csv-viewer csv-formatter csv-diff csv-to-json json-to-csv json-to-table excel-to-json json-to-excel'],
-      ['YAML, TOML & XML', 'yaml-to-json toml-to-json json-to-toml xml-formatter xml-to-json json-to-xml'],
-      ['SQL', 'sqlite-playground csv-to-sql sql-to-csv']
-    ],
-    generators: [
-      ['IDs & codes', 'uuid-generator ulid-generator qr-generator qr-scanner barcode-generator'],
-      ['Random values', 'random-number random-string random-date number-sequence'],
-      ['Test data', 'fake-data-generator name-generator random-email username-generator credit-card-generator iban-generator mac-address-generator'],
-      ['Graphics', 'identicon-generator svg-pattern']
-    ],
-    social: [
-      ['Images', 'instagram-grid-splitter social-image-resizer profile-picture-maker instagram-filters meme-generator tweet-generator youtube-thumbnail'],
-      ['Text', 'social-char-counter fancy-text-generator bio-generator hashtag-generator youtube-chapters']
+      ['Count & compare', 'word-count diff-checker unicode-inspector anagram-tool'],
+      ['Clean up & transform', 'text-transformer html-converter slug-generator'],
+      ['Split & extract', 'text-splitter list-converter column-extractor extract-from-text'],
+      ['Generate & translate', 'text-codes text-lorem ascii-art-text emoji-picker']
     ],
     developer: [
-      ['Format & minify', 'html-formatter css-formatter js-formatter sql-formatter graphql-formatter svg-optimizer'],
-      ['Encode & escape', 'base64-encode url-encode html-entities base32 string-escape'],
-      ['Regex', 'regex-tester regex-explainer regex-library'],
-      ['Markdown', 'markdown-to-html html-to-markdown markdown-table-gen2'],
+      ['Format, encode & test', 'code-formatter encode-decode regex-tester'],
+      ['Markdown', 'markdown-to-html markdown-table-gen2'],
       ['Web & snippets', 'code-playground selector-tester curl-converter http-status-codes code-screenshot'],
       ['Git & ops', 'git-commit gitignore-generator license-generator docker-compose-converter cron-parser chmod-calculator semver-calculator line-endings']
     ],
     css: [
-      ['Layout & type', 'css-flexbox flexbox-cheatsheet css-grid css-unit-converter fluid-type-scale'],
-      ['Effects', 'css-box-shadow css-text-shadow css-gradient-gen glassmorphism css-border-radius css-clip-path css-triangle svg-blob-wave'],
-      ['Motion', 'css-animation cubic-bezier css-transform'],
+      ['Visual generators', 'css-effects css-layout svg-blob-wave'],
+      ['Motion', 'css-animation cubic-bezier'],
+      ['Units & type', 'css-unit-converter fluid-type-scale'],
       ['Code', 'css-variables css-specificity css-to-tailwind']
     ],
-    color: [
-      ['Pick & convert', 'color-picker color-converter image-color-picker camera-color-picker color-name css-color-names'],
-      ['Palettes', 'color-palette color-shades color-mixer image-palette-extractor data-viz-palette tailwind-colors random-color'],
-      ['Accessibility', 'color-contrast contrast-grid color-blindness colorblind-palette-checker']
-    ],
-    seo: [
-      ['Meta & previews', 'meta-tag-generator og-preview serp-preview heading-outline keyword-density'],
-      ['Site files', 'robots-txt sitemap-generator web-manifest security-txt llms-txt redirect-generator hreflang-generator'],
-      ['Structured data & links', 'schema-generator jsonld-validator utm-builder']
-    ],
     network: [
-      ['IP & DNS', 'ip-address dns-lookup whois-lookup ip-subnet-calc cidr-calculator ipv6-tool mac-lookup punycode-converter'],
-      ['Email', 'email-header-analyzer spf-dmarc-tool'],
+      ['IP & DNS', 'ip-address dns-lookup ip-subnet-calc mac-lookup punycode-converter'],
+      ['Email', 'email-header-analyzer'],
       ['URLs & HTTP', 'url-builder user-agent http-headers htaccess-generator port-checker'],
-      ['Connection tests', 'ping-tool network-speed-test ssl-checker webrtc-leak-test']
+      ['Connection tests', 'ping-tool network-speed-test webrtc-leak-test']
     ],
     crypto: [
-      ['Hashes', 'hash-generator hmac-generator bcrypt-generator'],
+      ['Hashes & passwords', 'hash-generator password-generator otp-generator jwt-decoder'],
       ['Encryption', 'aes-cipher file-encryption pgp-tool shamir-secret-sharing steganography'],
-      ['Keys & certificates', 'rsa-keygen ssh-keygen csr-generator certificate-decoder'],
-      ['Passwords & tokens', 'password-generator password-strength otp-generator jwt-decoder jwt-generator'],
-      ['Classic ciphers', 'caesar-cipher vigenere-cipher rot13 classical-ciphers enigma-machine']
+      ['Keys & ciphers', 'key-generator classical-ciphers']
     ],
     math: [
-      ['Everyday', 'percentage-calc fraction-calc ratio-calc scientific-calc sig-figs number-to-words roman-numerals'],
-      ['Algebra & equations', 'quadratic-solver equation-solver complex-calculator logarithm-calc function-grapher matrix-calc'],
-      ['Geometry', 'triangle-calc circle-calc shape-calculator'],
-      ['Statistics & probability', 'statistics-calc probability-calculator factorial-calc'],
-      ['Number theory & logic', 'prime-checker prime-factorization gcd-lcm modular-calculator fibonacci number-base bitwise-calc truth-table']
+      ['Everyday', 'percentage-calc fraction-calc ratio-calc scientific-calc sig-figs roman-numerals'],
+      ['Algebra & geometry', 'equation-solver complex-calculator logarithm-calc function-grapher matrix-calc geometry-calculator'],
+      ['Statistics & probability', 'statistics-calc probability-calculator'],
+      ['Number theory & logic', 'number-theory number-base bitwise-calc truth-table']
     ],
     converters: [
-      ['Units', 'length-converter weight-converter temperature-converter volume-converter area-converter speed-converter time-duration-converter angle-converter pressure-converter energy-converter power-converter force-converter torque-converter density-converter flow-rate-converter frequency-converter acceleration-converter fuel-converter byte-converter'],
-      ['Everyday', 'currency-converter cooking-converter sensitivity-converter beaufort-scale clothing-size-converter shoe-size-finder ring-size-finder'],
+      ['Everyday', 'unit-converter currency-converter cooking-converter size-converter sensitivity-converter beaufort-scale'],
       ['Sizes & screens', 'aspect-ratio-calc resolution-converter screen-size-comparison paper-size-viewer online-ruler height-comparison']
     ],
     finance: [
-      ['Pay & tax', 'uk-take-home-pay pay-rise-calculator salary-converter vat-calculator stamp-duty'],
-      ['Borrowing', 'mortgage-calculator loan-calculator credit-card-payoff debt-payoff rent-vs-buy'],
-      ['Saving & investing', 'savings-goal compound-interest pension-calculator roi-calculator inflation-calculator'],
+      ['Pay & tax', 'uk-take-home-pay vat-calculator stamp-duty'],
+      ['Borrowing & saving', 'mortgage-calculator compound-interest rent-vs-buy inflation-calculator'],
       ['Budgeting & spending', 'budget-planner expense-splitter journey-cost tip-calculator discount-calculator unit-price-calc'],
-      ['Business', 'profit-margin break-even']
-    ],
-    health: [
-      ['Body', 'bmi-calculator body-fat ideal-weight'],
-      ['Food & drink', 'calorie-calculator macro-calculator water-intake alcohol-units'],
-      ['Exercise', 'heart-rate-zones calories-burned pace-calculator one-rep-max'],
-      ['Wellbeing', 'sleep-calculator box-breathing due-date']
+      ['Business', 'business-calculator']
     ],
     time: [
-      ['Convert & calculate', 'timestamp-converter date-difference date-add-subtract age-calculator working-days time-to-decimal date-format timesheet-calculator'],
-      ['Time zones', 'timezone-converter world-clock'],
-      ['Calendar', 'week-number day-of-year uk-bank-holidays easter-date ics-generator moon-phase sunrise-sunset'],
-      ['Timers', 'stopwatch countdown-timer interval-timer']
+      ['Timers & date maths', 'timer date-calculator age-calculator timestamp-converter timesheet-calculator'],
+      ['Time zones & calendar', 'timezone-converter uk-bank-holidays easter-date ics-generator sunrise-sunset']
     ],
     games: [
       ['Random pickers', 'spin-the-wheel dice-roller deck-of-cards team-generator secret-santa'],
-      ['Party & quiz', 'charades-words scoreboard-buzzer bingo-caller tournament-bracket chess-clock'],
+      ['Party & quiz', 'charades-words chess-clock bingo-caller tournament-bracket'],
       ['Puzzles', 'word-guess minesweeper game-2048 sudoku crossword-maker word-search-maker'],
-      ['Tabletop RPG', 'initiative-tracker encounter-calculator loot-generator npc-generator fantasy-name-generator']
-    ],
-    brain: [
-      ['Reaction & speed', 'reaction-time-test aim-trainer speed-typing schulte-table'],
-      ['Memory', 'number-memory-test sequence-memory-test verbal-memory-test visual-memory-test chimp-test dual-n-back'],
-      ['Focus & maths', 'stroop-test mental-maths']
-    ],
-    devices: [
-      ['Screen', 'monitor-test ufo-test touch-screen-test'],
-      ['Sound', 'speaker-test mic-test sound-level-meter hearing-test'],
-      ['Inputs', 'keyboard-test mouse-test gamepad-tester pen-pressure-test midi-tester'],
-      ['Camera, sensors & browser', 'webcam-test bubble-level gps-test vibration-test browser-info']
+      ['Tabletop RPG', 'dm-toolkit']
     ]
   };
 
-  /* [{ name, tools: [tool, ...] }] for a category, with any tool that no
-     shelf mentions gathered under "More". Null when the category has no
-     shelves, so the page shows a single grid. */
+  /* [{ name, tools: [tool, ...] }] for a category, leaving out its featured
+     tools, with any tool that no shelf mentions gathered under "More". Null
+     when the category has no shelves, or they come to fewer than two groups,
+     so the page shows a single grid. */
   function shelvesFor(categoryId) {
     var spec = SHELVES[categoryId];
     if (!spec) return null;
     var tools = Tools.byCategory(categoryId);
     var placed = Object.create(null);
+    featured(categoryId).forEach(function (t) { placed[t.id] = true; });
     var out = spec.map(function (s) {
-      var list = s[1].split(/\s+/).map(function (id) { return Tools.get(id); })
+      var list = s[1].split(/\s+/).map(function (id) { return Tools.get(Tools.resolve(id) || id); })
         .filter(function (t) { return t && t.category === categoryId && !placed[t.id] && (placed[t.id] = true); });
       return { name: s[0], tools: list };
     }).filter(function (s) { return s.tools.length; });
     var rest = tools.filter(function (t) { return !placed[t.id]; });
     if (rest.length) out.push({ name: 'More', tools: rest });
-    return out;
+    return out.length > 1 ? out : null;
   }
 
   /* Tools to suggest next to `tool`: its shelf-mates first, then the rest
@@ -181,5 +141,8 @@
     return pool.filter(function (t) { return !seen[t.id] && (seen[t.id] = true); }).slice(0, limit);
   }
 
-  global.Shelves = { spec: SHELVES, forCategory: shelvesFor, related: related };
+  global.Shelves = {
+    spec: SHELVES, forCategory: shelvesFor, related: related, featured: featured,
+    flagships: function () { return FLAGSHIPS.map(function (id) { return Tools.get(id); }).filter(Boolean); }
+  };
 })(window);

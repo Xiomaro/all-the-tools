@@ -167,6 +167,9 @@ module.exports = [
 
   /* ---------------- classical-ciphers ---------------- */
   { name: 'classical-ciphers: Playfair, Affine, Rail Fence, Columnar, Beaufort, Autokey, keyword, Bacon, Polybius, Atbash vectors', tool: 'classical-ciphers', run: async page => {
+    /* Caesar, Vigenère and ROT13 have their own tabs; these live on "More ciphers". */
+    await page.evaluate(() => { location.hash = '#/t/classical-ciphers?tab=more'; });
+    await page.waitForTimeout(150);
     async function run(cipher, fields, input, decrypt) {
       await page.selectOption(K('cipher'), cipher);
       for (const [k, v] of Object.entries(fields)) { const tag = await page.$eval(K(k), n => n.tagName); if (tag === 'SELECT') await page.selectOption(K(k), v); else await page.fill(K(k), v); }

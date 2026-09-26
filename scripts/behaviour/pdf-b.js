@@ -328,7 +328,9 @@ module.exports = [
       await cards.nth(0).focus();
       await page.keyboard.press('d');
       await page.waitForFunction(() => document.querySelectorAll('.g-card').length === 6);
-      /* drag page D (now 6th) in front of page 1 with the mouse */
+      /* drag page D (now 6th) in front of page 1 with the mouse, with both
+         in the window (the mouse can't reach what's scrolled out of it) */
+      await page.evaluate(() => document.querySelectorAll('.g-card')[5].scrollIntoView({ block: 'center' }));
       const from = await cards.nth(5).locator('.g-tbox').boundingBox();
       const to = await cards.nth(0).locator('.g-tbox').boundingBox();
       await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);

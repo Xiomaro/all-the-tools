@@ -2005,6 +2005,7 @@
     baseName: baseName, kb: kb, kbRound: kbRound, isPdf: isPdf, pdfBlob: pdfBlob, plural: plural,
     parsePages: parsePages, runBusy: runBusy, singlePdf: singlePdf, resultArea: resultArea,
     renderPage: renderPage, canvasBytes: canvasBytes, imagesToPdf: imagesToPdf, sizeSummary: sizeSummary,
-    pageText: pageText, decodeImage: decodeImage, winAnsiSafe: winAnsiSafe, hexColor: hexColor
+    pageText: pageText, decodeImage: decodeImage, winAnsiSafe: winAnsiSafe, hexColor: hexColor,
+    ocrGetWorker: ocrGetWorker, ocrRelease: ocrRelease, OCR_LANGS: OCR_LANGS
   };
 })();
