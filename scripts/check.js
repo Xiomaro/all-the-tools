@@ -83,8 +83,14 @@ function waitForServer(timeoutMs) {
   const netFailure = text => /Failed to load resource: net::ERR_/.test(text);
   const excusable = text => netFailure(text) && (onlineIds.has(scope) || Date.now() - lastOnlineAt < 5000);
   page.on('pageerror', err => problems.push({ scope, kind: 'pageerror', message: String(err.message || err) }));
+  /* Once a behaviour check calls page.clock.install() (the chess clock
+     does), Playwright injects its fake clock into every frame for the rest of
+     the run. A preview frame sandboxed without scripts then blocks that
+     injected script, which is the sandbox working, not a bug in the tool. */
+  const injectedIntoSandbox = msg => /^Blocked script execution in 'about:srcdoc'/.test(msg.text()) &&
+    msg.location().url === 'about:srcdoc' && !msg.location().lineNumber;
   page.on('console', msg => {
-    if (msg.type() === 'error' && !excusable(msg.text())) problems.push({ scope, kind: 'console', message: msg.text() });
+    if (msg.type() === 'error' && !excusable(msg.text()) && !injectedIntoSandbox(msg)) problems.push({ scope, kind: 'console', message: msg.text() });
   });
 
   await page.goto(BASE + QUERY, { waitUntil: 'load' });

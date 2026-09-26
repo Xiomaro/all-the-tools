@@ -4,7 +4,9 @@
    "pdf",
    "pdf-b",
    "file",
-   "file-b"
+   "file-b",
+   "pdf-c",
+   "file-c"
   ],
   "ids": [
    "pdf-merge",
@@ -40,7 +42,9 @@
    "bulk-renamer",
    "file-splitter",
    "duplicate-finder",
-   "binary-compare"
+   "binary-compare",
+   "markdown-to-pdf",
+   "font-viewer"
   ]
  },
  "image-social": {
@@ -48,7 +52,8 @@
    "image",
    "image-b",
    "social",
-   "social-b"
+   "social-b",
+   "image-c"
   ],
   "ids": [
    "image-compress",
@@ -98,14 +103,16 @@
    "meme-generator",
    "social-char-counter",
    "social-image-resizer",
-   "youtube-chapters"
+   "youtube-chapters",
+   "pixel-art-editor"
   ]
  },
  "media": {
   "files": [
    "video",
    "video-b",
-   "audio-b"
+   "audio-b",
+   "audio-c"
   ],
   "ids": [
    "extract-audio",
@@ -152,7 +159,8 @@
    "audio-visualiser",
    "bpm-detector",
    "id3-editor",
-   "noise-reduction"
+   "noise-reduction",
+   "piano-chords"
   ]
  },
  "ai": {
@@ -175,7 +183,8 @@
  "text": {
   "files": [
    "text",
-   "text-b"
+   "text-b",
+   "text-c"
   ],
   "ids": [
    "word-count",
@@ -215,14 +224,16 @@
    "column-extractor",
    "invisible-characters",
    "anagram-tool",
-   "text-splitter"
+   "text-splitter",
+   "readability-score"
   ]
  },
  "data-generators": {
   "files": [
    "generators",
    "data-b",
-   "generators-b"
+   "generators-b",
+   "data-c"
   ],
   "ids": [
    "sqlite-playground",
@@ -257,7 +268,8 @@
    "scoreboard-buzzer",
    "bingo-caller",
    "tournament-bracket",
-   "secret-santa"
+   "secret-santa",
+   "chart-maker"
   ]
  },
  "developer": {
@@ -404,7 +416,8 @@
  "security": {
   "files": [
    "crypto",
-   "crypto-b"
+   "crypto-b",
+   "crypto-c"
   ],
   "ids": [
    "hash-generator",
@@ -425,7 +438,8 @@
    "file-encryption",
    "steganography",
    "classical-ciphers",
-   "enigma-machine"
+   "enigma-machine",
+   "shamir-secret-sharing"
   ]
  },
  "maths-science": {
@@ -475,7 +489,9 @@
   "files": [
    "converters",
    "electronics",
-   "geo"
+   "geo",
+   "geo-b",
+   "converters-b"
   ],
   "ids": [
    "length-converter",
@@ -524,14 +540,18 @@
    "distance-calculator",
    "gpx-viewer",
    "polygon-area",
-   "geohash"
+   "geohash",
+   "sun-position",
+   "sensitivity-converter"
   ]
  },
  "finance-home": {
   "files": [
    "finance",
    "finance-b",
-   "home"
+   "home",
+   "finance-c",
+   "home-b"
   ],
   "ids": [
    "loan-calculator",
@@ -562,14 +582,18 @@
    "wallpaper-calculator",
    "concrete-calculator",
    "btu-calculator",
-   "energy-cost"
+   "energy-cost",
+   "savings-goal",
+   "pay-rise-calculator",
+   "solar-payback"
   ]
  },
  "health-time": {
   "files": [
    "time",
    "time-b",
-   "health"
+   "health",
+   "time-c"
   ],
   "ids": [
    "timestamp-converter",
@@ -602,14 +626,18 @@
    "alcohol-units",
    "due-date",
    "calories-burned",
-   "box-breathing"
+   "box-breathing",
+   "stopwatch"
   ]
  },
  "productivity-games": {
   "files": [
    "generators",
    "productivity",
-   "games"
+   "games",
+   "productivity-b",
+   "games-b",
+   "games-c"
   ],
   "ids": [
    "notepad",
@@ -624,7 +652,15 @@
    "crossword-maker",
    "charades-words",
    "initiative-tracker",
-   "fantasy-name-generator"
+   "fantasy-name-generator",
+   "cv-builder",
+   "meeting-cost-timer",
+   "minesweeper",
+   "game-2048",
+   "word-guess",
+   "encounter-calculator",
+   "loot-generator",
+   "npc-generator"
   ]
  },
  "brain-devices": {

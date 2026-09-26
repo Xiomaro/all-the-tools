@@ -1188,6 +1188,7 @@
     gbp0: gbp0, gbp2: gbp2, num2: num2, money0: money0, money2: money2, sym: sym, pct: pct, pctShow: pctShow, yrs: yrs, yearsMonths: yearsMonths,
     val: val, numIn: numIn, textIn: textIn, slider: slider, card: card, grid: grid, tabs: tabs, prep: prep, selVal: selVal,
     scrollTable: scrollTable, source: source, payment: payment, amortize: amortize,
-    lineChart: lineChart, barChart: barChart, gbpShort: gbpShort
+    lineChart: lineChart, barChart: barChart, gbpShort: gbpShort,
+    ukTakeHome: ukTakeHome, UK_TAX: UK_TAX
   };
 })();

@@ -178,6 +178,22 @@
   var RULES = [
     /* --- the newer tools, before the broad rules below catch a stray word
        ("token" in the token counter, "table" in the periodic table) --- */
+    [/chart-maker/, 'chart'],
+    [/markdown-to-pdf/, 'doc'],
+    [/readability-score/, 'book'],
+    [/font-viewer/, 'type'],
+    [/cv-builder|npc-generator/, 'person'],
+    [/meeting-cost-timer/, 'coin'],
+    [/stopwatch/, 'timer'],
+    [/solar-payback|sun-position/, 'sun'],
+    [/savings-goal|pay-rise-calculator/, 'trending'],
+    [/minesweeper|game-2048|word-guess/, 'grid9'],
+    [/encounter-calculator/, 'shield'],
+    [/loot-generator/, 'sparkle'],
+    [/sensitivity-converter/, 'cursor'],
+    [/pixel-art-editor/, 'grid'],
+    [/piano-chords/, 'music'],
+    [/shamir-secret-sharing/, 'share'],
     [/token-counter|tokeni[sz]er/, 'hashNum'],
     [/volume-converter|flow-rate/, 'droplet'],
     [/battery-runtime/, 'plug'],

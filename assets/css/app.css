@@ -154,7 +154,7 @@ kbd {
    property substitutes var() where it is *declared*, not where it is used.
    ------------------------------------------------------------------------ */
 
-.tool-card-wrap, .cat-tile, .cat-head, .tool-head, .palette-row, .sidebar a, .section-icon, .head-icon {
+.tool-card-wrap, .cat-tile, .cat-head, .tool-head, .palette-row, .sidebar a, .section-icon, .head-icon, .change-tools .pill {
   --cat-h: 250;
   --cat-l: 50%;
   --cat-ld: 74%;
@@ -164,14 +164,14 @@ kbd {
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) :is(.tool-card-wrap, .cat-tile, .cat-head, .tool-head, .palette-row, .sidebar a, .section-icon, .head-icon) {
+  :root:not([data-theme="light"]) :is(.tool-card-wrap, .cat-tile, .cat-head, .tool-head, .palette-row, .sidebar a, .section-icon, .head-icon, .change-tools .pill) {
     --cat:      hsl(var(--cat-h) 70% var(--cat-ld));
     --cat-soft: hsl(var(--cat-h) 38% 16%);
     --cat-line: hsl(var(--cat-h) 26% 30%);
   }
 }
 
-:root[data-theme="dark"] :is(.tool-card-wrap, .cat-tile, .cat-head, .tool-head, .palette-row, .sidebar a, .section-icon, .head-icon) {
+:root[data-theme="dark"] :is(.tool-card-wrap, .cat-tile, .cat-head, .tool-head, .palette-row, .sidebar a, .section-icon, .head-icon, .change-tools .pill) {
   --cat:      hsl(var(--cat-h) 70% var(--cat-ld));
   --cat-soft: hsl(var(--cat-h) 38% 16%);
   --cat-line: hsl(var(--cat-h) 26% 30%);
@@ -734,6 +734,30 @@ table.data td.mono { font-family: var(--mono); font-size: 13px; }
 }
 .toast.err { background: var(--err); color: #fff; }
 @keyframes toast-in { from { opacity: 0; transform: translateY(6px); } }
+
+/* --- changelog ---------------------------------------------------------- */
+
+.change-list { margin: 0; padding: 0; list-style: none; }
+.change { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 12px; padding: 10px 0; }
+.change + .change { border-top: 1px solid var(--border); }
+.change-type {
+  align-self: start; justify-self: start;
+  padding: 2px 8px; font-size: 12px; font-weight: 600;
+  border: 1px solid currentColor; border-radius: 999px;
+}
+.change-added .change-type    { color: var(--ok); }
+.change-improved .change-type { color: var(--accent); }
+.change-fixed .change-type    { color: var(--warn); }
+.change-body p { margin: 0; max-width: 75ch; }
+.change-tools { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.change-tools .pill { text-decoration: none; }
+.change-tools .pill:hover { background: var(--cat-soft); }
+.change-more { margin-top: 8px; }
+.change-more summary { cursor: pointer; font-size: 13px; color: var(--fg-muted); }
+
+@media (max-width: 560px) {
+  .change { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+}
 
 /* --- footer ------------------------------------------------------------- */
 

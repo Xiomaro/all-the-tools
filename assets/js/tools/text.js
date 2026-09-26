@@ -1504,6 +1504,20 @@
     });
     return rows.join('\n');
   }
+  /* Split each half-block row into two pixel rows drawn with '#', so the art survives
+     fonts and editors that lack or misrender the block characters. */
+  function plainBlockText(t) {
+    var out = [];
+    blockText(t).split('\n').forEach(function (row) {
+      var top = '', bot = '';
+      Array.from(row).forEach(function (c) {
+        top += c === '█' || c === '▀' ? '#' : ' ';
+        bot += c === '█' || c === '▄' ? '#' : ' ';
+      });
+      out.push(top.replace(/\s+$/, ''), bot.replace(/\s+$/, ''));
+    });
+    return out.join('\n');
+  }
   function boxText(t, style, pad) {
     var b = BOXES[style] || BOXES.single, lines = t.split('\n');
     var w = Math.max.apply(null, lines.map(strWidth));
@@ -1526,17 +1540,27 @@
         { value: 'heavy', label: 'Heavy ┏━┓' }, { value: 'ascii', label: 'ASCII +-+' }, { value: 'stars', label: 'Stars ***' }, { value: 'hash', label: 'Hash ###' }], 'double', 'box');
       var padSel = sel([{ value: '1', label: 'Padding 1' }, { value: '2', label: 'Padding 2' }, { value: '3', label: 'Padding 3' }], '1');
       var boxOpts = el('div', { class: 'gt-inline', style: { display: 'none' } }, boxStyle, padSel);
-      var mode = chips(['Block Font', 'Text Box'], function (v) { boxOpts.style.display = v === 'Text Box' ? '' : 'none'; hint.style.display = v === 'Text Box' ? 'none' : ''; run(); }, 'Block Font', 'mode');
+      var fontStyle = sel([{ value: 'solid', label: 'Solid blocks █▀▄' }, { value: 'plain', label: 'Plain ASCII #' }], 'solid', 'font');
+      var fontOpts = el('div', { class: 'gt-inline' }, fontStyle);
+      var mode = chips(['Block Font', 'Text Box'], function (v) {
+        boxOpts.style.display = v === 'Text Box' ? '' : 'none';
+        hint.style.display = fontOpts.style.display = v === 'Text Box' ? 'none' : '';
+        run();
+      }, 'Block Font', 'mode');
       var output = el('pre', { class: 'out', dataset: { k: 'out' } });
       function run() {
         var t = input.value;
         if (!t) { output.textContent = ''; return; }
-        output.textContent = mode.value === 'Block Font' ? blockText(t.slice(0, 20)) : boxText(t, boxStyle.value, Number(padSel.value));
+        output.textContent = mode.value === 'Block Font'
+          ? (fontStyle.value === 'plain' ? plainBlockText : blockText)(t.slice(0, 20))
+          : boxText(t, boxStyle.value, Number(padSel.value));
       }
-      wire([input, boxStyle, padSel], run);
-      root.appendChild(U.panel('Text', input, hint, mode, boxOpts));
+      wire([input, boxStyle, padSel, fontStyle], run);
+      root.appendChild(U.panel('Text', input, hint, mode, fontOpts, boxOpts));
+      /* The BOM makes Windows editors read the file as UTF-8 rather than guessing a legacy code page. */
       root.appendChild(U.panel('Output', output, U.btnrow(copyOf(function () { return output.textContent; }),
-        U.downloadBtn('Download .txt', 'ascii-art.txt', function () { return output.textContent; }))));
+        U.downloadBtn('Download .txt', 'ascii-art.txt', function () { return output.textContent ? '﻿' + output.textContent : ''; })),
+        U.note('Paste into a monospaced font (a code block, Notepad, a terminal) to keep it aligned. If the blocks come out broken, switch to Plain ASCII.')));
     }
   });
 

@@ -50,11 +50,40 @@
 
   /* --- IP Address Info (online) ----------------------------------------------- */
 
+  /* ipwho.is is the main source; ipinfo.io (keyless tier, fewer fields) is the
+     fallback. Both are normalised to the same shape. A provider-side error such
+     as "Invalid IP address" is final and isn't retried on the fallback. */
+  function ipLookup(ip) {
+    var path = ip ? encodeURIComponent(ip) : '';
+    return fetchTimeout('https://ipwho.is/' + path)
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (d) {
+        if (d.success === false) { var e = new Error(d.message || 'Lookup failed'); e.final = true; throw e; }
+        var c = d.connection || {}, tz = d.timezone || {};
+        return { source: 'ipwho.is', ip: d.ip, country: d.country, countryCode: d.country_code, region: d.region, city: d.city,
+          postal: d.postal, org: c.isp || c.org, asn: c.asn ? 'AS' + c.asn : '', domain: c.domain, timezone: tz.id,
+          utcOffset: tz.utc, lat: d.latitude, lon: d.longitude, version: d.type };
+      })
+      .catch(function (e) {
+        if (e.final) throw e;
+        return fetchTimeout('https://ipinfo.io/' + (path ? path + '/' : '') + 'json')
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (d) {
+            if (d.bogon) { var b = new Error(d.ip + ' is a private or reserved address'); b.final = true; throw b; }
+            if (d.error) throw new Error(d.error.message || d.error.title || 'Lookup failed');
+            var loc = (d.loc || '').split(','), m = /^(AS\d+)\s*(.*)$/.exec(d.org || '');
+            return { source: 'ipinfo.io', ip: d.ip, country: '', countryCode: d.country, region: d.region, city: d.city,
+              postal: d.postal, org: m ? m[2] : d.org, asn: m ? m[1] : '', domain: d.hostname, timezone: d.timezone,
+              utcOffset: '', lat: loc[0], lon: loc[1], version: d.ip && d.ip.indexOf(':') >= 0 ? 'IPv6' : 'IPv4' };
+          });
+      });
+  }
+
   Tools.register({
     id: 'ip-address', category: 'network', name: 'IP Address Info',
     description: 'Show your public IP, or look up any IP, with location, ISP and time zone.',
     keywords: ['ip', 'my ip', 'geolocation', 'isp', 'lookup', 'whats my ip'],
-    online: 'looks up IP addresses with ipapi.co',
+    online: 'looks up IP addresses with ipwho.is (falling back to ipinfo.io)',
     render: function (root) {
       root.classList.add('g-net');
       var input = el('input', { type: 'text', placeholder: 'Enter IP address (leave blank for your IP)' });
@@ -66,21 +95,19 @@
         if (ip && !/^[0-9a-f:.]+$/i.test(ip)) { out.replaceChildren(U.note('Enter a valid IPv4 or IPv6 address.', 'err')); return; }
         out.replaceChildren(U.note(ip ? 'Looking up ' + ip + '…' : 'Loading your IP info…'));
         btn.disabled = true;
-        fetchTimeout(ip ? 'https://ipapi.co/' + encodeURIComponent(ip) + '/json/' : 'https://ipapi.co/json/')
-          .then(function (r) { return r.json(); })
+        ipLookup(ip)
           .then(function (d) {
-            if (d.error) throw new Error(d.reason || 'Lookup failed');
             out.replaceChildren(
               el('div', { class: 'big', dataset: { out: 'ip' }, text: d.ip }),
-              U.note((d.country_code || '') + ' · ' + (ip ? 'Looked-up IP' : 'Your IP')),
-              kv([['Country', d.country_name ? d.country_name + ' (' + d.country_code + ')' : ''], ['Region', d.region], ['City', d.city],
-                ['Postal code', d.postal], ['Organization / ISP', d.org], ['ASN', d.asn], ['Timezone', d.timezone],
-                ['UTC offset', d.utc_offset], ['Currency', d.currency], ['Coordinates', d.latitude != null ? d.latitude + ', ' + d.longitude : ''],
-                ['IP version', d.version], ['Network', d.network]]),
+              U.note((d.countryCode || '') + ' · ' + (ip ? 'Looked-up IP' : 'Your IP') + ' · via ' + d.source),
+              kv([['Country', d.country ? d.country + ' (' + d.countryCode + ')' : d.countryCode], ['Region', d.region], ['City', d.city],
+                ['Postal code', d.postal], ['Organization / ISP', d.org], ['ASN', d.asn], ['Domain / hostname', d.domain],
+                ['Timezone', d.timezone], ['UTC offset', d.utcOffset],
+                ['Coordinates', d.lat != null && d.lat !== '' ? d.lat + ', ' + d.lon : ''], ['IP version', d.version]]),
               U.btnrow(U.copyBtn('Copy IP', d.ip)));
           })
           .catch(function (e) {
-            out.replaceChildren(U.note('Could not reach ipapi.co (' + (e.name === 'AbortError' ? 'timed out' : e.message) + '). Check your connection or try again in a minute — the free service is rate limited.', 'err'));
+            out.replaceChildren(U.note(e.final ? e.message + '.' : 'Could not look up the IP (' + (e.name === 'AbortError' ? 'timed out' : e.message) + '). Check your connection or try again in a minute — the free services are rate limited.', 'err'));
           })
           .then(function () { btn.disabled = false; });
       }
@@ -421,11 +448,30 @@
         })));
       }
 
+      /* HEAD keeps the server from building a whole page, which otherwise
+         dominates the timing (google.com: ~150ms GET vs ~30ms HEAD). */
       function once(h) {
         var t0 = performance.now();
-        return fetchTimeout('https://' + h + '/?_=' + Date.now(), { mode: 'no-cors' }, 5000)
+        return fetchTimeout('https://' + h + '/?_=' + Date.now() + Math.random(), { mode: 'no-cors', method: 'HEAD' }, 5000)
           .then(function () { return { ok: true, ms: Math.round(performance.now() - t0) }; },
             function (e) { return { ok: false, err: e.name === 'AbortError' ? 'timeout' : 'unreachable' }; });
+      }
+
+      /* The first request to a host pays for DNS, TCP and TLS setup, so it is
+         sent untimed. Bare domains often 301 to www (google.com, amazon.com),
+         doubling every round trip, and no-cors hides redirects — so warm up
+         both and time whichever answers faster. */
+      function pickTarget(h) {
+        var cands = [h];
+        if (!/^www\./i.test(h) && /\.[a-z]{2,}$/i.test(h)) cands.push('www.' + h);
+        return Promise.all(cands.map(function (c) {
+          return once(c).then(function () { return once(c); }).then(function (r) { return { host: c, r: r }; });
+        })).then(function (list) {
+          var ok = list.filter(function (x) { return x.r.ok; });
+          if (!ok.length) return h;
+          ok.sort(function (a, b) { return a.r.ms - b.r.ms; });
+          return ok[0].host;
+        });
       }
 
       function run(h) {
@@ -433,17 +479,21 @@
         if (!h || !/^[a-z0-9.-]+$|^\[[0-9a-f:]+\]$/i.test(h)) { status.className = 'note err'; status.textContent = 'Enter a valid host name or IP.'; return; }
         busy = true; stopped = false; btn.disabled = true;
         status.className = 'note';
-        var i = 0;
-        (function next() {
-          if (stopped || i >= 4) { busy = false; btn.disabled = false; status.textContent = stopped ? '' : 'Done — 4 requests to ' + h; return; }
-          i++;
-          status.textContent = 'Pinging ' + i + '/4…';
-          once(h).then(function (r) {
-            r.host = h; r.time = new Date().toLocaleTimeString();
-            results.push(r); drawStats();
-            setTimeout(next, 1000);
-          });
-        })();
+        status.textContent = 'Connecting to ' + h + '…';
+        pickTarget(h).then(function (target) {
+          var via = target === h ? '' : ' (via ' + target + ', ' + h + ' redirects or is slower)';
+          var i = 0;
+          (function next() {
+            if (stopped || i >= 4) { busy = false; btn.disabled = false; status.textContent = stopped ? '' : 'Done — 4 requests to ' + h + via; return; }
+            i++;
+            status.textContent = 'Pinging ' + i + '/4…' + via;
+            once(target).then(function (r) {
+              r.host = target; r.time = new Date().toLocaleTimeString();
+              results.push(r); drawStats();
+              setTimeout(next, 1000);
+            });
+          })();
+        });
       }
       U.onTeardown(root, function () { stopped = true; });
 
@@ -451,7 +501,7 @@
         return U.button(d, function () { host.value = d; run(d); }, 'ghost');
       }));
       drawStats();
-      root.appendChild(U.panel('', el('p', { class: 'note', text: 'ℹ Browser ping uses HTTP fetch (no-cors), not ICMP. Results show HTTP reachability and latency, not raw network ping.' }),
+      root.appendChild(U.panel('', el('p', { class: 'note', text: 'ℹ Browser ping uses HTTP HEAD requests, not ICMP. Connection setup is excluded, but server response time is included, so expect results somewhat higher than the ping command.' }),
         U.row(el('div', { class: 'grow' }, host), btn, U.button('Clear', function () { results = []; drawStats(); status.textContent = ''; }, 'ghost')),
         el('div', { class: 'row' }, el('span', { text: 'Quick test:' }), quick), status));
       root.appendChild(U.panel('Results', stats, log));
@@ -856,8 +906,11 @@
           if (stopped) return;
           if (i >= 6) return download(pings);
           var t0 = performance.now();
-          fetchTimeout('https://www.cloudflare.com/cdn-cgi/trace?_=' + Date.now(), {}, 5000)
-            .then(function (r) { return r.text(); })
+          /* www.cloudflare.com/cdn-cgi/trace sends no CORS header, so browsers
+             refuse to hand the response to the page; a zero-byte __down request
+             to the speed server is CORS-enabled and measures the same round trip. */
+          fetchTimeout('https://speed.cloudflare.com/__down?bytes=0&_=' + Date.now(), {}, 5000)
+            .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
             .then(function () { if (i > 0) pings.push(performance.now() - t0); i++; prog.set('Measuring latency…', i / 6 * 0.2); ping(); })
             .catch(function (e) { fail(e); });
         })();
@@ -902,7 +955,14 @@
       }
 
       function fail(e) {
-        prog.fail('Speed test failed: ' + (e && e.name === 'AbortError' ? 'timed out' : (e && e.message) || e) + '. Check your internet connection.');
+        /* fetch() rejects with a bare TypeError ("Failed to fetch" in Chrome,
+           "NetworkError when attempting to fetch resource" in Firefox) when the
+           request is blocked before any response, which is more often a content
+           blocker or firewall than a dead connection. */
+        var why = e && e.name === 'AbortError' ? 'timed out. Check your internet connection.'
+          : e instanceof TypeError ? 'could not reach speed.cloudflare.com. Check your connection, and that an ad blocker or firewall is not blocking it.'
+          : ((e && e.message) || e) + '. Check your internet connection.';
+        prog.fail('Speed test failed: ' + why);
         btn.disabled = false;
       }
       U.onTeardown(root, function () { stopped = true; });
