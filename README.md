@@ -171,6 +171,7 @@ assets/js/tools/         the tool modules; each registers its tools. A "-b" (or 
                          extends the module before it and may use helpers it exports
                          (window.PdfKit from pdf.js, window.MediaKit from video.js)
 assets/js/palette.js     the Ctrl+K command palette
+assets/js/changelog.js   the "What's new" page (#/changelog); add an entry with every visible change
 assets/js/app.js         router, sidebar, home page, category pages, theme and density
 assets/data/             reference data built from open datasets (word list, elements, OUI, licences…)
 assets/vendor/           third-party browser builds, loaded only when a tool needs them

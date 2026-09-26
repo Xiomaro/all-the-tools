@@ -99,7 +99,8 @@
     var nodes = [
       el('div', { class: 'nav-group' },
         sidebarLink('#/', 'Home', Icons.svg('home'), Tools.count()),
-        sidebarLink('#/pinned', 'Pinned', Icons.svg('star'), Prefs.pins().length))
+        sidebarLink('#/pinned', 'Pinned', Icons.svg('star'), Prefs.pins().length),
+        sidebarLink('#/changelog', 'What’s new', Icons.svg('clock'), null))
     ];
 
     var folded = foldedSections();
@@ -515,6 +516,49 @@
       body);
   }
 
+  /* --- changelog -------------------------------------------------------- */
+
+  var CHANGE_LABELS = { added: 'Added', improved: 'Improved', fixed: 'Fixed' };
+
+  function changeDate(iso) {
+    return new Date(iso + 'T12:00:00').toLocaleDateString('en-GB',
+      { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  /* Long lists fold away so a big release doesn't bury the rest of the page. */
+  function changeTools(ids) {
+    var links = [];
+    ids.forEach(function (id) {
+      var tool = Tools.get(Tools.resolve(id));
+      if (!tool) return;
+      links.push(el('a', { class: 'pill', href: '#/t/' + tool.id, style: tint(Tools.category(tool.category)), text: tool.name }));
+    });
+    if (!links.length) return null;
+    var list = el('div', { class: 'change-tools' }, links);
+    if (links.length <= 24) return list;
+    return el('details', { class: 'change-more' }, el('summary', { text: 'Show all ' + links.length + ' tools' }), list);
+  }
+
+  function renderChangelog() {
+    markCurrent('#/changelog');
+    var days = (window.Changelog || []).map(function (day) {
+      return el('section', { class: 'panel change-day' },
+        el('h3', {}, el('time', { datetime: day.date, text: changeDate(day.date) })),
+        el('ul', { class: 'change-list' }, day.changes.map(function (c) {
+          return el('li', { class: 'change change-' + c.type },
+            el('span', { class: 'change-type', text: CHANGE_LABELS[c.type] || c.type }),
+            el('div', { class: 'change-body' }, el('p', { text: c.text }), c.tools ? changeTools(c.tools) : null));
+        })));
+    });
+
+    view.replaceChildren(
+      crumbs('What’s new'),
+      el('div', { class: 'page-head' },
+        el('h1', {}, el('span', { class: 'head-icon' }, Icons.svg('clock')), 'What’s new'),
+        el('p', { text: 'Every tool added and every notable fix, newest first.' })),
+      el('div', {}, days));
+  }
+
   function renderMissing(message) {
     markCurrent('');
     view.replaceChildren(
@@ -542,6 +586,7 @@
     else if (hash.indexOf('#/search/') === 0) renderSearch(decodeURIComponent(hash.slice(9)));
     else if (hash === '#/pinned') renderPinned();
     else if (hash === '#/settings') renderSettings();
+    else if (hash === '#/changelog') renderChangelog();
     else renderHome();
 
     window.scrollTo(0, 0);
