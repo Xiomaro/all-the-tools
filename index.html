@@ -78,8 +78,8 @@
      group in isolation). -->
 <script>
 (function () {
-  var files = ["video", "video-b", "audio-b", "audio-c", "pdf", "pdf-b", "pdf-c", "file", "file-b", "file-c", "image",
-    "image-b", "image-c", "text", "text-b", "text-c", "seo", "seo-b", "developer-a", "developer-b",
+  var files = ["video", "video-b", "audio-b", "audio-c", "pdf", "pdf-b", "pdf-c", "pdf-word", "file", "file-b", "file-c", "image",
+    "image-b", "image-c", "text", "text-b", "text-c", "text-transformer", "seo", "seo-b", "developer-a", "developer-b",
     "developer-c", "developer-d", "data-b", "data-c", "math", "math-b", "science", "finance", "finance-b",
     "finance-c", "converters", "converters-b", "electronics", "geo", "geo-b", "home", "home-b", "color",
     "color-b", "css-b", "crypto", "crypto-b", "crypto-c", "network", "network-b", "generators",
@@ -87,12 +87,15 @@
     "productivity-b", "social", "social-b", "devices", "devices-b", "brain", "brain-b", "ai"];
   var only = /[?&]only=([^&#]*)/.exec(location.search);
   if (only) files = files.filter(function (f) { return decodeURIComponent(only[1]).split(',').indexOf(f) > -1; });
+  /* Always last and always loaded: it folds small tools into bigger ones. */
+  files.push('merged');
   files.forEach(function (f) { document.write('<script src="assets/js/tools/' + f + '.js"><\/script>'); });
 })();
 </script>
 
 <script src="assets/js/changelog.js"></script>
 <script src="assets/js/palette.js"></script>
+<script src="assets/js/discover.js"></script>
 <script src="assets/js/app.js"></script>
 </body>
 </html>

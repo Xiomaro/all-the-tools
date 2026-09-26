@@ -126,8 +126,6 @@
     return n;
   }
   function utf8Len(s) { return new TextEncoder().encode(s).length; }
-  function escRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
-  function unescapeSep(s) { return s.replace(/\\n/g, '\n').replace(/\\t/g, '\t').replace(/\\r/g, '\r'); }
   function countOf(s, re) { var m = s.match(re); return m ? m.length : 0; }
 
   /* Remove script/style, event handlers and javascript: URLs from HTML meant
@@ -524,83 +522,6 @@
   });
 
   /* ======================================================================
-     Case Converter
-     ====================================================================== */
-  function splitWords(s) {
-    return String(s).replace(/([a-z0-9])([A-Z])/g, '$1 $2').replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
-      .split(/[^\p{L}\p{N}]+/u).filter(Boolean);
-  }
-  function cap(w) { return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); }
-  function perLine(text, fn) { return text.split('\n').map(fn).join('\n'); }
-  var CASES = [
-    ['upper', 'UPPER CASE', function (t) { return t.toUpperCase(); }],
-    ['lower', 'lower case', function (t) { return t.toLowerCase(); }],
-    ['title', 'Title Case', function (t) { return t.toLowerCase().replace(/(^|[\s\-_/("'])(\p{L})/gu, function (m, a, b) { return a + b.toUpperCase(); }); }],
-    ['sentence', 'Sentence case', function (t) {
-      return t.toLowerCase().replace(/(^\s*\p{L})|([.!?]\s+\p{L})|(\n\s*\p{L})/gu, function (m) { return m.toUpperCase(); });
-    }],
-    ['camel', 'camelCase', function (t) { return perLine(t, function (l) { return splitWords(l).map(function (w, i) { return i ? cap(w) : w.toLowerCase(); }).join(''); }); }],
-    ['pascal', 'PascalCase', function (t) { return perLine(t, function (l) { return splitWords(l).map(cap).join(''); }); }],
-    ['snake', 'snake_case', function (t) { return perLine(t, function (l) { return splitWords(l).join('_').toLowerCase(); }); }],
-    ['kebab', 'kebab-case', function (t) { return perLine(t, function (l) { return splitWords(l).join('-').toLowerCase(); }); }],
-    ['screaming', 'SCREAMING_SNAKE', function (t) { return perLine(t, function (l) { return splitWords(l).join('_').toUpperCase(); }); }],
-    ['dot', 'dot.case', function (t) { return perLine(t, function (l) { return splitWords(l).join('.').toLowerCase(); }); }],
-    ['path', 'path/case', function (t) { return perLine(t, function (l) { return splitWords(l).join('/').toLowerCase(); }); }],
-    ['toggle', 'tOGGLE cASE', function (t) { return t.replace(/\p{L}+/gu, function (w) { return w.charAt(0).toLowerCase() + w.slice(1).toUpperCase(); }); }],
-    ['alternating', 'AlTeRnAtInG', function (t) {
-      return Array.from(t).map(function (c, i) { return i % 2 ? c.toUpperCase() : c.toLowerCase(); }).join('');
-    }],
-    ['inverse', 'iNVERSE cASE', function (t) {
-      return Array.from(t).map(function (c) { var u = c.toUpperCase(); return c === u ? c.toLowerCase() : u; }).join('');
-    }]
-  ];
-  reg({
-    id: 'text-case', name: 'Case Converter',
-    description: 'Shows your text in fourteen cases at once, from UPPER to camelCase and kebab-case.',
-    keywords: ['case', 'uppercase', 'lowercase', 'title', 'camel', 'snake', 'kebab', 'pascal', 'convert'],
-    render: function (root) {
-      var input = ta('Hello World Example Text', 'Type or paste your text here...', 'short', 'in');
-      var grid = el('div', { class: 'gt-cases' });
-      var cells = {};
-      CASES.forEach(function (c) {
-        var v = el('div', { class: 'v', dataset: { k: 'case-' + c[0] } });
-        cells[c[0]] = v;
-        grid.appendChild(el('div', { class: 'gt-case' },
-          el('h4', el('span', { text: c[1] }), U.button('Copy', function () { U.copy(v.textContent); }, 'ghost')), v));
-      });
-      wire([input], function () {
-        CASES.forEach(function (c) { cells[c[0]].textContent = c[2](input.value); });
-      });
-      root.appendChild(U.panel('Input Text', input));
-      root.appendChild(U.panel('Conversions', grid));
-    }
-  });
-
-  /* ======================================================================
-     Reverse Text
-     ====================================================================== */
-  reg({
-    id: 'text-reverse', name: 'Reverse Text',
-    description: 'Reverses characters, word order or line order.',
-    keywords: ['reverse', 'backwards', 'flip', 'mirror'],
-    render: function (root) {
-      var input = ta('', 'Enter text to reverse...', 'tall', 'in');
-      var lines = sw('Reverse line order', false, 'lines'), wordsSw = sw('Reverse word order', false, 'words');
-      var output = outTa('out', 'tall');
-      wire([input, lines, wordsSw], function () {
-        var t = input.value;
-        if (!on(lines) && !on(wordsSw)) { output.value = t.split('\n').reverse().map(function (l) { return graphemes(l).reverse().join(''); }).join('\n'); return; }
-        var ls = t.split('\n');
-        if (on(lines)) ls.reverse();
-        if (on(wordsSw)) ls = ls.map(function (l) { return l.split(/(\s+)/).reverse().join(''); });
-        output.value = ls.join('\n');
-      });
-      root.appendChild(U.panel('Input Text', input, U.row(lines, wordsSw), U.note('No options = reverse all characters')));
-      root.appendChild(U.panel('Reversed Output', output, U.btnrow(copyOf(function () { return output.value; }))));
-    }
-  });
-
-  /* ======================================================================
      Lorem Ipsum Generator (word lists for the four styles)
      ====================================================================== */
   var LOREM = ('lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ' +
@@ -782,69 +703,6 @@
       root.appendChild(U.panel('Options', U.row(wrapP, br, links)));
       root.appendChild(U.split(U.panel('Plain Text Input', input),
         U.panel('Output', tab, code, preview, U.btnrow(copyOf(function () { return code.value; }, 'Copy HTML')))));
-    }
-  });
-
-  /* ======================================================================
-     Truncate Text
-     ====================================================================== */
-  function splitSentences(t) {
-    return t.match(/[^.!?]+[.!?]+["')\]]*\s*|[^.!?]+$/g) || [];
-  }
-  reg({
-    id: 'text-truncate', name: 'Truncate Text',
-    description: 'Shortens text to a set number of characters, words or sentences, with a suffix.',
-    keywords: ['truncate', 'shorten', 'limit', 'excerpt', 'ellipsis'],
-    render: function (root) {
-      var by = sel(['Characters', 'Words', 'Sentences'], 'Characters', 'by');
-      var limit = numIn(100, 1, undefined, 'limit');
-      var suffix = textIn('...', '...', 'suffix');
-      var input = ta('The quick brown fox jumps over the lazy dog. This is a sample paragraph that demonstrates text truncation functionality. You can truncate by characters, words, or sentences and add a custom suffix.', '', 'tall', 'in');
-      var output = outTa('out', 'tall');
-      var inInfo = el('span', { class: 'gt-muted' }), outInfo = el('span', { class: 'gt-muted', dataset: { k: 'info' } });
-      wire([by, limit, suffix, input], function () {
-        var t = input.value, n = intOf(limit, 100, 1), sfx = suffix.value, r = t;
-        if (by.value === 'Characters') { var g = graphemes(t); if (g.length > n) r = g.slice(0, n).join('') + sfx; }
-        else if (by.value === 'Words') {
-          var parts = t.trim().split(/\s+/);
-          if (t.trim() && parts.length > n) r = parts.slice(0, n).join(' ') + sfx;
-        } else {
-          var s = splitSentences(t);
-          if (s.length > n) r = s.slice(0, n).join('').trim() + sfx;
-        }
-        output.value = r;
-        inInfo.textContent = t.length + ' chars · ' + words(t).length + ' words';
-        outInfo.textContent = r.length + ' chars · ' + words(r).length + ' words';
-      });
-      root.appendChild(U.panel('Options', U.row(lab('Truncate By', by), lab('Limit', limit), lab('Suffix', suffix))));
-      root.appendChild(U.split(U.panel('Input Text', inInfo, input),
-        U.panel('Truncated Output', outInfo, output, U.btnrow(copyOf(function () { return output.value; }, 'Copy Result')))));
-    }
-  });
-
-  /* ======================================================================
-     Repeat Text
-     ====================================================================== */
-  reg({
-    id: 'text-repeat', name: 'Repeat Text',
-    description: 'Repeats text a set number of times with a custom separator.',
-    keywords: ['repeat', 'duplicate', 'multiply', 'copies'],
-    render: function (root) {
-      var count = numIn(5, 1, 1000, 'count');
-      var sep = textIn('\\n', '\\n for newline, \\t for tab', 'sep');
-      var input = ta('Hello World', 'Enter text to repeat...', 'short', 'in');
-      var output = outTa('out', 'tall');
-      var info = el('span', { class: 'gt-muted', dataset: { k: 'info' } });
-      wire([count, sep, input], function () {
-        var n = intOf(count, 5, 1, 1000);
-        var arr = [];
-        for (var i = 0; i < n; i++) arr.push(input.value);
-        output.value = arr.join(unescapeSep(sep.value));
-        info.textContent = n + '× · ' + output.value.length + ' chars';
-      });
-      root.appendChild(U.panel('Options', U.row(lab('Repeat Count', count), lab('Separator', sep))));
-      root.appendChild(U.split(U.panel('Text to Repeat', input), U.panel('Output', info, output,
-        U.btnrow(copyOf(function () { return output.value; }, 'Copy Result'), U.downloadBtn('Download', 'repeated.txt', function () { return output.value; })))));
     }
   });
 
@@ -1104,116 +962,6 @@
   });
 
   /* ======================================================================
-     Word wrapping helpers
-     ====================================================================== */
-  function wrapLine(line, width, breakLong) {
-    if (line.length <= width) return [line];
-    var out = [], cur = '';
-    line.split(/\s+/).filter(function (w) { return w !== ''; }).forEach(function (w) {
-      while (breakLong && w.length > width) {
-        if (cur) { out.push(cur); cur = ''; }
-        out.push(w.slice(0, width)); w = w.slice(width);
-      }
-      if (!cur) cur = w;
-      else if (cur.length + 1 + w.length <= width) cur += ' ' + w;
-      else { out.push(cur); cur = w; }
-    });
-    if (cur) out.push(cur);
-    var lead = (line.match(/^\s+/) || [''])[0];
-    if (lead && out.length && lead.length < width) out[0] = lead + out[0];
-    return out.length ? out : [''];
-  }
-  function wrapText(text, width, breakLong) {
-    var out = [];
-    text.replace(/\r\n?/g, '\n').split('\n').forEach(function (l) { out = out.concat(wrapLine(l, width, breakLong)); });
-    return out;
-  }
-
-  /* Join the lines of each paragraph back into one, so text that was already
-     hard-wrapped can be wrapped again at a new width. */
-  function reflowText(text) {
-    return text.split(/\n[^\S\n]*\n\s*/).map(function (p) {
-      return p.split('\n').map(function (l, i) { return i ? l.trim() : l.replace(/\s+$/, ''); }).filter(Boolean).join(' ');
-    }).join('\n\n');
-  }
-
-  reg({
-    id: 'text-wrap', name: 'Word Wrap',
-    description: 'Wraps text at a column width as hard line breaks or HTML <br> tags, with long-word breaking, re-flowing, line numbers and a column ruler.',
-    keywords: ['wrap', 'word wrap', 'word wrapper', 'line breaker', 'line break', 'hard wrap', 'soft wrap', 'column', 'line length',
-      'reflow', 'rewrap', 'unwrap', 'br', 'html', 'ruler', 'fold', 'characters per line'],
-    render: function (root) {
-      var range = el('input', { type: 'range', min: '10', max: '200', value: '80', 'aria-label': 'Column width' });
-      var num = numIn(80, 10, 1000, 'width');
-      var mode = chips([{ value: 'hard', label: 'Hard line breaks' }, { value: 'br', label: 'HTML <br>' }, { value: 'none', label: 'None' }],
-        function () { run(); }, 'hard', 'mode');
-      var brk = sw('Break words longer than the width', true, 'break');
-      var reflow = sw('Re-flow paragraphs first (join their existing line breaks)', false, 'reflow');
-      var nums = sw('Add line numbers', false, 'nums');
-      var input = ta('This is a long paragraph that needs to be wrapped at a specific character width. The word wrap tool breaks lines at word boundaries so that no line is longer than the column you choose.', '', 'tall', 'in');
-      var output = outTa('out', 'tall');
-      var info = el('p', { class: 'gt-muted', dataset: { k: 'info' } });
-      var ruler = el('pre', { class: 'gt-ruler' });
-      range.addEventListener('input', function () { num.value = range.value; run(); });
-      num.addEventListener('input', function () { range.value = num.value; });
-      function run() {
-        var w = intOf(num, 80, 1, 1000);
-        var text = input.value.replace(/\r\n?/g, '\n');
-        if (on(reflow)) text = reflowText(text);
-        var lines = !text ? [] : mode.value === 'none' ? text.split('\n') : wrapText(text, w, on(brk));
-        var longest = lines.reduce(function (m, l) { return Math.max(m, l.length); }, 0);
-        if (on(nums)) {
-          var pad = String(lines.length).length;
-          lines = lines.map(function (l, i) { return String(i + 1).padStart(pad) + '  ' + l; });
-        }
-        output.value = mode.value === 'br' ? lines.join('<br>\n') : lines.join('\n');
-        info.textContent = 'Lines: ' + lines.length + ' · Longest line: ' + longest + ' · Target width: ' + w;
-        var n = Math.max(90, w + 10), marks = '', dots = '';
-        for (var i = 1; i <= n; i++) dots += i % 10 === 0 ? '|' : i % 5 === 0 ? '+' : '.';
-        for (var j = 10; j <= n; j += 10) marks += String(j).padStart(9) + '|';
-        ruler.textContent = marks + '\n' + dots + '\n' + ' '.repeat(w - 1) + '^ column ' + w;
-      }
-      wire([num, brk, reflow, nums, input], run);
-      root.appendChild(U.panel(null, el('div', { class: 'gt-inline' }, el('span', { text: 'Wrap at column:' }), range, num, el('span', { text: 'characters' })),
-        el('div', { class: 'gt-inline', style: { marginTop: '8px' } }, el('span', { class: 'gt-muted', text: 'Line breaks as' }), mode),
-        U.row(brk, reflow, nums), info));
-      root.appendChild(U.split(U.panel('Input', input), U.panel('Wrapped Output', output, U.btnrow(copyOf(function () { return output.value; }),
-        U.downloadBtn('Download', 'wrapped.txt', function () { return output.value; })))));
-      root.appendChild(U.panel('Column ruler', el('div', { class: 'gt-scroll' }, ruler)));
-    }
-  });
-
-  /* ======================================================================
-     Add Line Numbers
-     ====================================================================== */
-  reg({
-    id: 'text-number-lines', name: 'Add Line Numbers',
-    description: 'Prefixes each line with a sequential number in the format you choose.',
-    keywords: ['line numbers', 'numbering', 'enumerate', 'prefix'],
-    render: function (root) {
-      var start = numIn(1, 0, undefined, 'start');
-      var sep = sel([{ value: '. ', label: 'Period (1. )' }, { value: ') ', label: 'Paren (1) )' }, { value: ': ', label: 'Colon (1: )' },
-        { value: ' - ', label: 'Dash (1 - )' }, { value: '\t', label: 'Tab' }], '. ', 'sep');
-      var pad = sw('Zero-pad numbers', false, 'pad'), skip = sw('Skip empty lines', false, 'skip');
-      var input = ta('First line\nSecond line\nThird line\nFourth line\nFifth line', 'Enter text lines...', 'tall', 'in');
-      var output = outTa('out', 'tall');
-      wire([start, sep, pad, skip, input], function () {
-        if (!input.value) { output.value = ''; return; }
-        var lines = input.value.split('\n'), n = intOf(start, 1, 0);
-        var numbered = lines.filter(function (l) { return !on(skip) || l.trim(); }).length;
-        var width = String(n + Math.max(0, numbered - 1)).length;
-        output.value = lines.map(function (l) {
-          if (on(skip) && !l.trim()) return l;
-          var s = String(n++);
-          return (on(pad) ? s.padStart(width, '0') : s) + sep.value + l;
-        }).join('\n');
-      });
-      root.appendChild(U.panel('Options', U.row(lab('Start At', start), lab('Separator', sep), pad, skip)));
-      root.appendChild(U.split(U.panel('Input Text', input), U.panel('Numbered Output', output, U.btnrow(copyOf(function () { return output.value; }, 'Copy Result')))));
-    }
-  });
-
-  /* ======================================================================
      SSML Generator
      ====================================================================== */
   var SSML_LANGS = ['en-US', 'en-GB', 'en-AU', 'en-CA', 'en-IN', 'es-ES', 'es-MX', 'es-US', 'fr-FR', 'fr-CA', 'de-DE', 'it-IT', 'pt-BR', 'pt-PT',
@@ -1375,38 +1123,6 @@
   });
 
   /* ======================================================================
-     Text Padding
-     ====================================================================== */
-  function strWidth(s) { return graphemes(s).length; }
-  reg({
-    id: 'text-padding', name: 'Text Padding',
-    description: 'Pads each line to a fixed width, aligned left, right or centre.',
-    keywords: ['pad', 'padding', 'align', 'justify', 'center', 'fixed width'],
-    render: function (root) {
-      var input = ta('Hello\nWorld\nFoo', '', 'tall', 'in');
-      var width = numIn(20, 1, 200, 'width');
-      var ch = textIn(' ', '', 'char');
-      ch.maxLength = 2;
-      ch.style.width = '60px';
-      var align = sel(['Left', 'Right', 'Center'], 'Left', 'align');
-      var output = outTa('out', 'tall');
-      wire([input, width, ch, align], function () {
-        var w = intOf(width, 20, 1, 200), c = graphemes(ch.value)[0] || ' ';
-        output.value = input.value.split('\n').map(function (l) {
-          var gap = Math.max(0, w - strWidth(l));
-          if (align.value === 'Left') return l + c.repeat(gap);
-          if (align.value === 'Right') return c.repeat(gap) + l;
-          var left = Math.floor(gap / 2);
-          return c.repeat(left) + l + c.repeat(gap - left);
-        }).join('\n');
-      });
-      root.appendChild(U.split(U.panel('Input Text (one item per line)', input,
-        U.row(lab('Target Width', width), lab('Pad Character', ch), lab('Alignment', align))),
-        U.panel('Output', output, U.btnrow(copyOf(function () { return output.value; })))));
-    }
-  });
-
-  /* ======================================================================
      Unicode Inspector
      ====================================================================== */
   var BLOCKS = [
@@ -1477,6 +1193,7 @@
   /* ======================================================================
      ASCII Art Text
      ====================================================================== */
+  function strWidth(s) { return graphemes(s).length; }
   var FONT = {
     A: ['▄▀▄', '█▀█', '▀ ▀'], B: ['█▀▄', '█▀▄', '▀▀ '], C: ['█▀▀', '█  ', '▀▀▀'], D: ['█▀▄', '█ █', '▀▀ '],
     E: ['█▀▀', '█▀ ', '▀▀▀'], F: ['█▀▀', '█▀ ', '▀  '], G: ['█▀▀', '█ ▄', '▀▀▀'], H: ['█ █', '█▀█', '█ █'],
@@ -1709,56 +1426,6 @@
   });
 
   /* ======================================================================
-     Text Find & Replace
-     ====================================================================== */
-  reg({
-    id: 'text-replacer', name: 'Text Find & Replace',
-    description: 'Applies several find-and-replace rules in order, with optional regex.',
-    keywords: ['find', 'replace', 'regex', 'substitute', 'search', 'rules', 'batch'],
-    render: function (root) {
-      var input = ta('Hello World!\nThe quick brown fox jumps over the lazy dog.\nHello again, World!', '', 'tall', 'in');
-      var rulesBox = el('div', { dataset: { k: 'rules' } });
-      var output = outTa('out', 'tall');
-      var status = U.note('');
-      function addRule(f, r, isRe, cs) {
-        var find = textIn(f || '', 'Search text or regex…'), rep = textIn(r || '', 'Replacement text…');
-        find.style.width = rep.style.width = '100%';
-        var re = sw('Regex', !!isRe), c = sw('Case-sensitive', cs !== false);
-        var row = el('div', { class: 'gt-rule' }, find, rep, re, c, U.button('✕', function () { row.remove(); run(); }, 'ghost'));
-        row.parts = { find: find, rep: rep, re: re, cs: c };
-        [find, rep, re.input, c.input].forEach(function (n) { n.addEventListener('input', run); n.addEventListener('change', run); });
-        rulesBox.appendChild(row);
-        run();
-      }
-      function run() {
-        var t = input.value, total = 0, errs = [];
-        Array.prototype.forEach.call(rulesBox.children, function (row, i) {
-          var p = row.parts;
-          if (!p.find.value) return;
-          try {
-            var flags = 'g' + (on(p.cs) ? '' : 'i') + (on(p.re) ? 'mu' : '');
-            var rx = new RegExp(on(p.re) ? p.find.value : escRe(p.find.value), flags);
-            var m = t.match(rx);
-            total += m ? m.length : 0;
-            /* Regex rules support $1 groups and 
- / 	 escapes; plain rules are literal. */
-            t = on(p.re) ? t.replace(rx, unescapeSep(p.rep.value)) : t.replace(rx, function () { return p.rep.value; });
-          } catch (e) { errs.push('Rule ' + (i + 1) + ': ' + e.message); }
-        });
-        output.value = t;
-        status.className = errs.length ? 'note err' : 'note';
-        status.textContent = errs.length ? errs.join(' · ') : total + ' replacement' + (total === 1 ? '' : 's');
-      }
-      input.addEventListener('input', run);
-      root.appendChild(U.panel('Input Text', input));
-      root.appendChild(U.panel('Replacement Rules', el('div', { class: 'gt-rule gt-muted' }, el('span', { text: 'Find' }), el('span', { text: 'Replace' }), el('span', { text: 'Regex' }), el('span', { text: 'Case-sensitive' }), el('span')),
-        rulesBox, U.btnrow(U.button('+ Add Rule', function () { addRule(); }))));
-      root.appendChild(U.panel('Output', output, status, U.btnrow(copyOf(function () { return output.value; }))));
-      addRule('Hello', 'Hi', false, true);
-    }
-  });
-
-  /* ======================================================================
      Slug Generator
      ====================================================================== */
   reg({
@@ -1862,136 +1529,6 @@
       root.appendChild(U.panel(null, tab));
       root.appendChild(U.split(el('section', { class: 'panel' }, inLab, input, caps), el('section', { class: 'panel' }, outLab, output, U.btnrow(copyOf(function () { return output.textContent; })))));
       root.appendChild(U.panel('Braille Alphabet Reference', ref));
-    }
-  });
-
-  /* ======================================================================
-     Text Cleaner
-     ====================================================================== */
-  var CLEAN_OPTS = [
-    ['trim', 'Trim lines', 'Remove spaces and tabs at the start and end of each line', true, function (t) { return t.split('\n').map(function (l) { return l.trim(); }).join('\n'); }],
-    ['spaces', 'Collapse repeated spaces', 'Turn runs of spaces or tabs into one space', true, function (t) { return t.replace(/[^\S\r\n]{2,}/g, ' '); }],
-    ['blank', 'Remove blank lines', 'Delete empty lines', true, function (t) { return t.split('\n').filter(function (l) { return l.trim(); }).join('\n'); }],
-    ['allspaces', 'Remove all spaces', 'Delete every space and tab; line breaks stay', false, function (t) { return t.replace(/[^\S\r\n]+/g, ''); }],
-    ['html', 'Strip HTML tags', 'Remove all HTML/XML tags', true, function (t) { return t.replace(/<!--[\s\S]*?-->/g, '').replace(/<(script|style)[\s\S]*?<\/\1>/gi, '').replace(/<\/?[a-z][^>]*>/gi, ''); }],
-    ['uspace', 'Normalise Unicode spaces', 'Replace non-breaking and other special spaces with a normal space; delete zero-width ones', true, function (t) { return t.replace(/[\u00a0\u1680\u2000-\u200a\u202f\u205f\u3000]/g, ' ').replace(/[\u200b-\u200d\u2060\ufeff]/g, ''); }],
-    ['quotes', 'Straighten smart quotes', 'Convert curly quotes to straight quotes', true, function (t) { return t.replace(/[‘’‚‛′]/g, "'").replace(/[“”„‟″]/g, '"'); }],
-    ['control', 'Remove control characters', 'Strip non-printing control characters', true, function (t) { return t.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/g, ''); }],
-    ['eol', 'Normalise line endings', 'Convert CRLF and CR to LF', true, function (t) { return t.replace(/\r\n?/g, '\n'); }],
-    ['dashes', 'Normalise dashes', 'Replace em and en dashes with a hyphen', true, function (t) { return t.replace(/[‒-―−]/g, '-'); }],
-    ['ellipsis', 'Normalise ellipses', 'Replace … with ...', true, function (t) { return t.replace(/…/g, '...'); }],
-    ['urls', 'Remove URLs', 'Strip http/https URLs', false, function (t) { return t.replace(/\b(?:https?:\/\/|www\.)[^\s<>"']+/gi, ''); }],
-    ['emails', 'Remove emails', 'Strip email addresses', false, function (t) { return t.replace(/[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}/g, ''); }],
-    ['numbers', 'Remove numbers', 'Remove all digits', false, function (t) { return t.replace(/\d/g, ''); }],
-    ['punct', 'Remove punctuation', 'Remove all punctuation and symbols', false, function (t) { return t.replace(/[\p{P}\p{S}]/gu, ''); }],
-    ['dupwords', 'Remove repeated words', 'Remove a word repeated straight after itself ("the the")', false, function (t) { return t.replace(/\b([\p{L}\p{N}']+)(\s+\1\b)+/giu, '$1'); }]
-  ];
-  /* Order of application, so earlier steps feed the later ones sensibly. */
-  var CLEAN_ORDER = ['eol', 'control', 'html', 'uspace', 'quotes', 'dashes', 'ellipsis', 'urls', 'emails', 'numbers', 'punct', 'dupwords', 'allspaces', 'spaces', 'trim', 'blank'];
-  reg({
-    id: 'text-cleaner', name: 'Text Cleaner',
-    description: 'Trims lines, collapses repeated spaces, removes blank lines and strips HTML, smart quotes and junk characters, with sixteen switchable cleaners.',
-    keywords: ['clean', 'cleaner', 'sanitise', 'sanitize', 'strip', 'html', 'whitespace', 'remove extra spaces', 'extra spaces',
-      'double spaces', 'trim', 'trim lines', 'blank lines', 'empty lines', 'remove spaces', 'smart quotes', 'curly quotes',
-      'control characters', 'non-breaking space', 'line endings', 'normalise', 'normalize', 'tidy'],
-    render: function (root) {
-      var input = ta('  Hello   World!  \n\nThe   quick brown fox.\n\nHello   World again!  ', '', 'tall', 'in');
-      var boxes = {};
-      var opts = el('div', { class: 'gt-options' });
-      CLEAN_OPTS.forEach(function (o) {
-        var c = sw(o[1], o[3], o[0]);
-        boxes[o[0]] = c;
-        opts.appendChild(el('div', c, el('span', { class: 'hint', text: o[2] })));
-      });
-      var output = outTa('out', 'tall');
-      var delta = el('span', { class: 'gt-muted', dataset: { k: 'delta' } });
-      function run() {
-        var t = input.value, byId = {};
-        CLEAN_OPTS.forEach(function (o) { byId[o[0]] = o; });
-        CLEAN_ORDER.forEach(function (k) { if (on(boxes[k])) t = byId[k][4](t); });
-        output.value = t;
-        var d = t.length - input.value.length;
-        delta.textContent = (d > 0 ? '+' : d < 0 ? '−' : '') + fmt(Math.abs(d)) + ' characters (' + fmt(input.value.length) + ' → ' + fmt(t.length) + ')';
-      }
-      /* Presets: the defaults, just the whitespace fixes (what Remove Extra
-         Spaces used to do), or nothing. */
-      function preset(keys) {
-        Object.keys(boxes).forEach(function (k) { boxes[k].input.checked = keys ? keys.indexOf(k) > -1 : false; });
-        run();
-      }
-      var DEFAULTS = CLEAN_OPTS.filter(function (o) { return o[3]; }).map(function (o) { return o[0]; });
-      wire([input].concat(Object.keys(boxes).map(function (k) { return boxes[k]; })), run);
-      root.appendChild(U.panel('Input Text', input));
-      root.appendChild(U.panel('Cleaning Options', U.btnrow(U.button('Defaults', function () { preset(DEFAULTS); }, 'ghost'),
-        U.button('Whitespace only', function () { preset(['eol', 'uspace', 'spaces', 'trim', 'blank']); }, 'ghost'),
-        U.button('None', function () { preset(null); }, 'ghost')), opts));
-      root.appendChild(U.panel('Output', output, delta, U.btnrow(copyOf(function () { return output.value; }),
-        U.downloadBtn('Download', 'cleaned.txt', function () { return output.value; }))));
-    }
-  });
-
-  /* ======================================================================
-     Remove Duplicate Lines
-     ====================================================================== */
-  reg({
-    id: 'duplicate-lines', name: 'Remove Duplicate Lines',
-    description: 'Removes, extracts or highlights repeated lines, keeping the first or last copy, with trimming, case and sorting options.',
-    keywords: ['duplicate', 'duplicates', 'lines', 'unique', 'dedupe', 'deduplicate', 'remove duplicates', 'duplicate line remover',
-      'extract', 'highlight', 'repeated', 'distinct', 'list', 'trim', 'case-insensitive', 'sort'],
-    render: function (root) {
-      var mode = chips([{ value: 'remove', label: 'Remove Dupes' }, { value: 'extract', label: 'Extract Dupes' }, { value: 'highlight', label: 'Highlight Dupes' }],
-        function () { run(); }, 'remove', 'mode');
-      var cs = sw('Case-sensitive', false, 'cs'), first = sw('Keep first occurrence (off: keep last)', true, 'first');
-      var trim = sw('Trim spaces before comparing', true, 'trim'), blank = sw('Remove blank lines', false, 'blank');
-      var sort = sw('Sort the result A → Z', false, 'sort');
-      var input = ta('apple\nbanana\nApple\ncherry\nbanana\ndates\nCherry\napple', '', 'tall', 'in');
-      var inHead = el('h3', { text: 'Input' });
-      var outHead = el('h3', { text: 'Output' });
-      var output = el('pre', { class: 'out', dataset: { k: 'out' } });
-      var info = el('p', { class: 'note', dataset: { k: 'info' } });
-      var text = '';
-      function run() {
-        var lines = input.value ? input.value.split(/\r?\n/) : [];
-        inHead.textContent = 'Input (' + lines.length + ' lines)';
-        /* With trimming on, the trimmed line is both compared and output. */
-        if (on(trim)) lines = lines.map(function (l) { return l.trim(); });
-        if (on(blank)) lines = lines.filter(function (l) { return l.trim(); });
-        var key = function (l) { return on(cs) ? l : l.toLowerCase(); };
-        var counts = new Map();
-        lines.forEach(function (l) { counts.set(key(l), (counts.get(key(l)) || 0) + 1); });
-        var dupes = lines.length - counts.size;
-        outHead.textContent = 'Output — ' + dupes + ' duplicate' + (dupes === 1 ? '' : 's') + ' found';
-        var out = [];
-        var byName = function (a, b) { return a.localeCompare(b, undefined, { sensitivity: on(cs) ? 'variant' : 'base', numeric: true }); };
-        if (mode.value === 'remove') {
-          var seen = new Set();
-          var src = on(first) ? lines : lines.slice().reverse();
-          src.forEach(function (l) { if (!seen.has(key(l))) { seen.add(key(l)); out.push(l); } });
-          if (!on(first)) out.reverse();
-          if (on(sort)) out.sort(byName);
-          text = out.join('\n');
-          output.textContent = text;
-          info.textContent = out.length + ' unique · ' + (lines.length - out.length) + ' removed';
-        } else if (mode.value === 'extract') {
-          var seen2 = new Set();
-          lines.forEach(function (l) { if (counts.get(key(l)) > 1 && !seen2.has(key(l))) { seen2.add(key(l)); out.push(l); } });
-          if (on(sort)) out.sort(byName);
-          text = out.join('\n');
-          output.textContent = text;
-          info.textContent = out.length + ' line' + (out.length === 1 ? '' : 's') + ' appear more than once';
-        } else {
-          text = lines.join('\n');
-          output.replaceChildren.apply(output, lines.map(function (l) {
-            var n = counts.get(key(l));
-            return el('span', { class: 'diffline' + (n > 1 ? ' gt-hl' : ''), text: l + (n > 1 ? '   (×' + n + ')' : '') });
-          }));
-          info.textContent = lines.filter(function (l) { return counts.get(key(l)) > 1; }).length + ' of ' + lines.length + ' lines are repeated';
-        }
-      }
-      wire([input, cs, first, trim, blank, sort], run);
-      root.appendChild(U.panel(null, mode, U.row(cs, first, trim, blank, sort)));
-      root.appendChild(U.split(el('section', { class: 'panel' }, inHead, input), el('section', { class: 'panel' }, outHead, output, info,
-        U.btnrow(copyOf(function () { return text; }), U.downloadBtn('Download', 'unique-lines.txt', function () { return text; })))));
     }
   });
 
@@ -2135,69 +1672,6 @@
         U.panel('Plain Text Output', output, U.btnrow(copyOf(function () { return output.value; }), U.downloadBtn('Download .txt', 'text.txt', function () { return output.value; })))));
     }
   });
-
-  /* ======================================================================
-     Sort Lines
-     ====================================================================== */
-  function shuffle(arr) {
-    for (var i = arr.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1)), t = arr[i]; arr[i] = arr[j]; arr[j] = t;
-    }
-    return arr;
-  }
-  function numKey(s) { var m = String(s).match(/-?\d+(?:\.\d+)?/); return m ? parseFloat(m[0]) : Infinity; }
-  reg({
-    id: 'text-sorter', name: 'Sort Lines',
-    description: 'Sorts lines A→Z, Z→A, by length or by number, in natural order (2 before 10), shuffled or reversed, with de-duplication.',
-    keywords: ['sort', 'sort lines', 'text sorter', 'lines', 'alphabetical', 'alphabetise', 'alphabetize', 'order', 'natural sort',
-      'numeric', 'numerical', 'length', 'shuffle', 'random', 'randomise', 'reverse', 'unique', 'dedupe', 'case-insensitive', 'list'],
-    render: function (root) {
-      var mode = chips([{ value: 'az', label: 'A → Z' }, { value: 'za', label: 'Z → A' }, { value: 'short', label: 'Shortest first' },
-        { value: 'long', label: 'Longest first' }, { value: 'n19', label: '1 → 9' }, { value: 'n91', label: '9 → 1' },
-        { value: 'shuffle', label: 'Shuffle' }, { value: 'reverse', label: 'Reverse' }], function () { run(); }, 'az', 'mode');
-      var cs = sw('Case-sensitive', false, 'cs'), natural = sw('Natural order (file2 before file10)', true, 'natural');
-      var dd = sw('Remove duplicates', false, 'dd'), trim = sw('Trim whitespace', true, 'trim'), blank = sw('Remove blank lines', true, 'blank');
-      var input = ta('banana\napple\ncherry\ndate\nelderberry\nfig\ngrape', '', 'tall', 'in');
-      var inHead = el('h3', { text: 'Input' });
-      var output = outTa('out', 'tall');
-      var info = el('p', { class: 'note', dataset: { k: 'info' } });
-      function run() {
-        /* Case-sensitive without natural order is plain character-code order
-           (all capitals before lower case), as a program would sort. */
-        var coll = new Intl.Collator(undefined, { numeric: on(natural), sensitivity: on(cs) ? 'variant' : 'base', caseFirst: 'upper' });
-        var cmp = on(cs) && !on(natural) ? function (a, b) { return a < b ? -1 : a > b ? 1 : 0; } : coll.compare;
-        var lines = input.value ? input.value.split(/\r?\n/) : [];
-        inHead.textContent = 'Input (' + lines.length + ' lines)';
-        if (on(trim)) lines = lines.map(function (l) { return l.trim(); });
-        if (on(blank)) lines = lines.filter(function (l) { return l.trim(); });
-        if (on(dd)) {
-          var seen = new Set();
-          lines = lines.filter(function (l) { var k = on(cs) ? l : l.toLowerCase(); if (seen.has(k)) return false; seen.add(k); return true; });
-        }
-        var m = mode.value;
-        if (m === 'az') lines.sort(cmp);
-        else if (m === 'za') lines.sort(function (a, b) { return cmp(b, a); });
-        else if (m === 'short') lines.sort(function (a, b) { return a.length - b.length || cmp(a, b); });
-        else if (m === 'long') lines.sort(function (a, b) { return b.length - a.length || cmp(a, b); });
-        else if (m === 'n19' || m === 'n91') {
-          /* By the first number in each line; lines without one go last either way. */
-          lines.sort(function (a, b) {
-            var x = numKey(a), y = numKey(b);
-            if (x === Infinity || y === Infinity) return x === y ? cmp(a, b) : x === Infinity ? 1 : -1;
-            return (m === 'n19' ? x - y : y - x) || cmp(a, b);
-          });
-        } else if (m === 'shuffle') shuffle(lines);
-        else lines.reverse();
-        output.value = lines.join('\n');
-        info.textContent = lines.length + ' line' + (lines.length === 1 ? '' : 's');
-      }
-      wire([cs, natural, dd, trim, blank, input], run);
-      root.appendChild(U.panel(null, mode, U.row(cs, natural, dd, trim, blank)));
-      root.appendChild(U.split(el('section', { class: 'panel' }, inHead, input), U.panel('Sorted Output', output, info,
-        U.btnrow(copyOf(function () { return output.value; })))));
-    }
-  });
-
 
   /* ======================================================================
      Text Encoding Fixer (mojibake repair and file re-encoding)

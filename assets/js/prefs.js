@@ -1,5 +1,5 @@
-/* Per-browser preferences: pinned tools, recently opened tools and the
-   density of the tool grids. Everything lives in localStorage and every
+/* Per-browser preferences: pinned tools, recently opened tools, the modes
+   picked on the home page and the density of the tool grids. Everything lives in localStorage and every
    access is guarded, because private windows throw on both read and write. */
 (function (global) {
   'use strict';
@@ -7,6 +7,7 @@
   var KEY_PINS = 'att-pins';
   var KEY_RECENT = 'att-recent';
   var KEY_DENSITY = 'att-density';
+  var KEY_MODES = 'att-modes';
   var RECENT_MAX = 12;
 
   var listeners = [];
@@ -56,6 +57,14 @@
 
   function clearRecent() { write(KEY_RECENT, []); emit(); }
 
+  /* The home page modes ("Everyday", "Developer"…) the visitor has ticked. */
+  function modes() {
+    var value = read(KEY_MODES, []);
+    return Array.isArray(value) ? value.filter(function (id) { return typeof id === 'string'; }) : [];
+  }
+
+  function setModes(list) { write(KEY_MODES, list); emit(); }
+
   function density() {
     return read(KEY_DENSITY, 'comfortable') === 'compact' ? 'compact' : 'comfortable';
   }
@@ -89,6 +98,8 @@
     recent: recent,
     remember: remember,
     clearRecent: clearRecent,
+    modes: modes,
+    setModes: setModes,
     density: density,
     setDensity: setDensity,
     prune: prune,

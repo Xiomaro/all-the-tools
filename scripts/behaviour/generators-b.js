@@ -270,7 +270,7 @@ module.exports = [
     const a = await names(page);
     await setK(page, 'last', '');
     await setK(page, 'first', 'Crap');
-    const hiddenOn = await page.$eval('#view .note', n => n.dataset.hidden);
+    const hiddenOn = await page.$eval('#view .tool-pane .note', n => n.dataset.hidden);
     const b = await names(page);
     await tick(page, 'Hide rude words', false);
     const c = await names(page);

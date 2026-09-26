@@ -183,8 +183,70 @@
       var files = Array.prototype.slice.call(fileList);
       if (!opts.multiple) files = files.slice(0, 1);
       if (opts.onFiles) opts.onFiles(files);
+      zone.dispatchEvent(new CustomEvent('files-chosen', { bubbles: true, detail: { files: files } }));
+    }
+
+    /* Files dropped on the home page go to the first drop zone that takes
+       them, once the tool has finished building itself. */
+    if (pending && pending.files && !pending.taken) {
+      var wanted = pending.files.filter(function (f) { return accepts(opts.accept, f); });
+      if (wanted.length) {
+        pending.taken = true;
+        setTimeout(function () { deliver(wanted); }, 0);
+      }
     }
     return zone;
+  }
+
+  /* --- hand-off -----------------------------------------------------------
+     A file dropped or text pasted on the home page waits here for the tool
+     the visitor picks. The shell sets it before opening the tool and clears
+     it on the next page; drop zones take the files, the shell fills in the
+     text. */
+  var pending = null;
+
+  function handoff(item) {
+    pending = item ? Object.assign({ taken: false }, item) : null;
+  }
+
+  function pendingHandoff() { return pending; }
+
+  /* For tools with a plain file input rather than a drop zone: give the
+     hand-off's files to the first input in `host` that accepts them. */
+  function giveFiles(host, hand) {
+    var inputs = host.querySelectorAll('input[type="file"]');
+    for (var i = 0; i < inputs.length && !hand.taken; i++) {
+      var input = inputs[i];
+      var wanted = hand.files.filter(function (f) { return accepts(input.accept, f); });
+      if (!input.multiple) wanted = wanted.slice(0, 1);
+      if (!wanted.length) continue;
+      try {
+        var dt = new DataTransfer();
+        wanted.forEach(function (f) { dt.items.add(f); });
+        input.files = dt.files;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        hand.taken = true;
+      } catch (e) { /* browsers without a DataTransfer constructor */ }
+    }
+  }
+
+  /* Some browsers leave File.type empty for newer formats (HEIC, AVIF, MKV),
+     so fall back to the extension. */
+  var EXT_TYPES = { heic: 'image/heic', heif: 'image/heif', avif: 'image/avif', webp: 'image/webp',
+    mkv: 'video/x-matroska', mov: 'video/quicktime', m4a: 'audio/mp4', flac: 'audio/flac', opus: 'audio/ogg' };
+
+  function accepts(accept, file) {
+    if (!accept) return true;
+    var name = (file.name || '').toLowerCase();
+    var type = (file.type || EXT_TYPES[name.split('.').pop()] || '').toLowerCase();
+    return accept.split(',').some(function (a) {
+      a = a.trim().toLowerCase();
+      if (!a) return false;
+      if (a === '*' || a === '*/*') return true;
+      if (a[0] === '.') return name.slice(-a.length) === a;
+      if (a.slice(-2) === '/*') return type.indexOf(a.slice(0, -1)) === 0;
+      return type === a;
+    });
   }
 
   function readAs(file, how) {
@@ -208,7 +270,16 @@
     });
   }
 
+  /* Anything that wants to know when a tool saves a file (a workspace
+     carrying the result on to its next tool). The download still happens. */
+  var saveWatchers = [];
+  function onSave(fn) {
+    saveWatchers.push(fn);
+    return function () { saveWatchers = saveWatchers.filter(function (w) { return w !== fn; }); };
+  }
+
   function saveBlob(filename, blob) {
+    saveWatchers.slice().forEach(function (fn) { try { fn(filename, blob); } catch (e) { /* never block a download */ } });
     var url = URL.createObjectURL(blob);
     var link = el('a', { href: url, download: filename });
     document.body.appendChild(link);
@@ -411,14 +482,250 @@
     root.addEventListener('tool-teardown', fn, { once: true });
   }
 
+  /* --- merged tools -------------------------------------------------------
+     A tool made with Tools.combine: a row of tabs (or a menu, when there
+     are many) over the chosen part, which renders exactly as it did on its
+     own. Each part gets a fresh pane, so its styles, timers and teardown
+     handlers can't leak into the next. The tab is kept in the address as
+     ?tab=, so a link or a bookmark reopens the same tab. */
+  function tabbed(root, def, parts, params) {
+    var pane = null, current = null;
+    var wanted = params && params.tab;
+    var start = parts.filter(function (p) { return p.tab === wanted; })[0] || parts[0];
+    var about = el('p', { class: 'note tool-tab-about' });
+    var options = parts.map(function (p) { return { value: p.tab, label: p.label }; });
+
+    var picker;
+    if (def.picker === 'select') {
+      picker = select({ label: def.pickerLabel || 'Show', options: options, value: start.tab });
+      picker.querySelector('select').addEventListener('change', function (e) { show(e.target.value); });
+    } else {
+      picker = chips(options, show, start.tab);
+    }
+    root.appendChild(el('div', { class: 'tool-tabs', dataset: { role: 'tabs' } }, picker, about));
+
+    function show(tab) {
+      var part = parts.filter(function (p) { return p.tab === tab; })[0] || parts[0];
+      if (pane) pane.dispatchEvent(new CustomEvent('tool-teardown'));
+      var fresh = el('div', { class: 'stack tool-pane', dataset: { tab: part.tab } });
+      if (pane) pane.replaceWith(fresh); else root.appendChild(fresh);
+      pane = fresh;
+      current = part;
+      about.textContent = part.tool.description || '';
+      try {
+        part.tool.render(pane, params);
+      } catch (err) {
+        pane.appendChild(el('div', { class: 'banner', text: 'This tool failed to start: ' + (err.message || err) }));
+        if (global.console) console.error(err);
+      }
+      var hash = '#/t/' + def.id + (part === parts[0] ? '' : '?tab=' + encodeURIComponent(part.tab));
+      if (location.hash !== hash && history.replaceState) history.replaceState(null, '', hash);
+    }
+
+    root.addEventListener('tool-teardown', function () {
+      if (pane) pane.dispatchEvent(new CustomEvent('tool-teardown'));
+    }, { once: true });
+    show(start.tab);
+    root.currentPart = function () { return current; };
+  }
+
+  /* --- workspaces ---------------------------------------------------------
+     A merged tool built around one file, such as the PDF Editor or the
+     Image Editor. Its parts are ordinary tools, listed down the side in
+     groups. What makes it a workspace:
+
+     - the file you open (in any of its tools) stays open as you move
+       between them: each tool opens with it already loaded;
+     - each new file of the same kind a tool makes (a rotated PDF, a
+       cropped picture) becomes the working copy, so the next tool carries
+       on from there, and Undo steps back;
+     - the working copy survives navigation (recipe steps, back and
+       forward) until you close it or reload the page.
+
+     The tools themselves are untouched and still download their results
+     as they always did; the workspace watches rather than intercepts, so
+     nothing a tool does behaves differently here. The bar's actions are
+     links rather than buttons so they can't be mistaken for a tool's own. */
+  var sessions = Object.create(null);
+
+  function workspace(root, def, parts, params) {
+    var spec = def.workspace;
+    var session = sessions[def.id] || (sessions[def.id] = { doc: null, history: [] });
+    var pane = null, current = null, links = {};
+    var isDoc = function (file) { return !!file && accepts(spec.accept, file); };
+
+    /* A single file dropped on the home page for this tool starts afresh.
+       Several files (to merge, say) go straight to the tool instead. */
+    var hand = pending;
+    if (hand && hand.files && !hand.taken) {
+      var docs = hand.files.filter(isDoc);
+      if (docs.length === 1 && hand.files.length === 1) {
+        session.doc = docs[0];
+        session.history = [];
+        hand.taken = true;
+      }
+    }
+
+    var bar = el('div', { class: 'ws-bar', dataset: { role: 'workspace-bar' } });
+    var about = el('p', { class: 'note tool-tab-about' });
+    var main = el('div', { class: 'ws-main' }, about);
+    var nav = el('nav', { class: 'ws-nav', 'aria-label': def.name + ' tools' });
+
+    var groups = [];
+    parts.forEach(function (p) {
+      var g = groups.filter(function (x) { return x.name === p.group; })[0];
+      if (!g) groups.push(g = { name: p.group, parts: [] });
+      g.parts.push(p);
+    });
+    groups.forEach(function (g) {
+      nav.appendChild(el('div', { class: 'ws-group' },
+        g.name ? el('span', { class: 'ws-group-name', text: g.name }) : null,
+        g.parts.map(function (p) {
+          var link = el('a', {
+            class: 'ws-item', href: '#/t/' + def.id + '?tab=' + encodeURIComponent(p.tab),
+            onclick: function (e) { e.preventDefault(); show(p.tab); }
+          }, el('span', { class: 'ws-item-icon' }, global.Icons ? Icons.forTool(p.tool) : null), el('span', { text: p.label }));
+          links[p.tab] = link;
+          return link;
+        })));
+    });
+
+    root.appendChild(bar);
+    root.appendChild(el('div', { class: 'ws-body' }, nav, main));
+
+    function describe(file) {
+      var out = el('span', { class: 'ws-doc-meta', text: bytes(file.size) });
+      if (spec.describe) {
+        Promise.resolve().then(function () { return spec.describe(file); }).then(function (extra) {
+          if (extra) out.textContent = bytes(file.size) + ' · ' + extra;
+        }, function () { /* the tool will say what's wrong with it */ });
+      }
+      return out;
+    }
+
+    function action(label, fn, cls) {
+      return el('a', { class: 'btn ' + (cls || 'ghost'), href: '#', role: 'button', onclick: function (e) { e.preventDefault(); fn(); } }, label);
+    }
+
+    function paintBar(changed) {
+      var doc = session.doc;
+      if (!doc) {
+        bar.className = 'ws-bar empty';
+        bar.replaceChildren(el('span', { class: 'ws-hint', text: spec.hint }));
+        return;
+      }
+      var url = URL.createObjectURL(doc);
+      var thumb = spec.thumbnail === 'image'
+        ? el('img', { class: 'ws-thumb', src: url, alt: '' })
+        : el('span', { class: 'ws-thumb icon' }, global.Icons ? Icons.forCategory(def.category) : null);
+      bar.className = 'ws-bar' + (changed ? ' changed' : '');
+      bar.replaceChildren(
+        thumb,
+        el('div', { class: 'ws-doc' },
+          el('strong', { class: 'ws-doc-name', text: doc.name }),
+          el('span', { class: 'ws-doc-line' },
+            describe(doc),
+            session.history.length ? ' · ' + session.history.length + ' change' + (session.history.length === 1 ? '' : 's') : '')),
+        el('div', { class: 'ws-actions' },
+          el('a', { class: 'btn primary', href: url, download: doc.name }, 'Download'),
+          session.history.length ? action('Undo', undo) : null,
+          action('Close', close)));
+    }
+
+    /* The working copy changed: remember the old one for Undo. */
+    function adopt(file, fromResult) {
+      if (!isDoc(file) || file === session.doc) return;
+      if (session.doc && fromResult) session.history.push(session.doc);
+      if (!fromResult) session.history = [];
+      session.doc = file;
+      paintBar(fromResult);
+    }
+
+    function undo() {
+      if (!session.history.length) return;
+      session.doc = session.history.pop();
+      show(current.tab);
+      toast('Undone: back to ' + session.doc.name);
+    }
+
+    function close() {
+      session.doc = null;
+      session.history = [];
+      show(current.tab);
+    }
+
+    function show(tab) {
+      var part = parts.filter(function (p) { return p.tab === tab; })[0] || parts[0];
+      if (pane) pane.dispatchEvent(new CustomEvent('tool-teardown'));
+      var fresh = el('div', { class: 'stack tool-pane', dataset: { tab: part.tab } });
+      if (pane) pane.replaceWith(fresh); else main.appendChild(fresh);
+      pane = fresh;
+      current = part;
+      about.textContent = part.tool.description || '';
+      Object.keys(links).forEach(function (t) {
+        links[t].classList.toggle('on', t === part.tab);
+        if (t === part.tab) links[t].setAttribute('aria-current', 'page'); else links[t].removeAttribute('aria-current');
+      });
+
+      /* A file opened in the tool's main drop zone or file picker becomes
+         the working copy. Only the first one counts: a later picker is for
+         something else, such as a watermark's logo or a signature. */
+      pane.addEventListener('files-chosen', function (e) {
+        if (e.target !== pane.querySelector('.dropzone')) return;
+        var docs = e.detail.files.filter(isDoc);
+        if (docs.length === 1) adopt(docs[0], false);
+      });
+      pane.addEventListener('change', function (e) {
+        var input = e.target;
+        if (input.type !== 'file' || input.closest('.dropzone') || !input.files || input.files.length !== 1) return;
+        if (pane.querySelector('.dropzone') || input !== pane.querySelector('input[type="file"]')) return;
+        adopt(input.files[0], false);
+      });
+
+      /* Hand the working copy to the tool as it builds. */
+      var mine = null;
+      if (session.doc && !pending) handoff(mine = { files: [session.doc], tool: def.id });
+      try {
+        part.tool.render(pane, params);
+      } catch (err) {
+        pane.appendChild(el('div', { class: 'banner', text: 'This tool failed to start: ' + (err.message || err) }));
+        if (global.console) console.error(err);
+      }
+      if (mine) {
+        if (!pending || !pending.taken) giveFiles(pane, mine);
+        if (pending === mine) handoff(null);
+      }
+
+      paintBar(false);
+      var hash = '#/t/' + def.id + (part === parts[0] ? '' : '?tab=' + encodeURIComponent(part.tab));
+      if (location.hash !== hash && history.replaceState) history.replaceState(null, '', hash);
+    }
+
+    /* A tool saved a new file of this kind: carry on from it. */
+    var stop = onSave(function (filename, blob) {
+      if (!pane || !pane.isConnected) return;
+      var file = new File([blob], filename, { type: blob.type });
+      if (isDoc(file)) adopt(file, true);
+    });
+
+    root.addEventListener('tool-teardown', function () {
+      stop();
+      if (pane) pane.dispatchEvent(new CustomEvent('tool-teardown'));
+    }, { once: true });
+
+    var wanted = params && params.tab;
+    show((parts.filter(function (p) { return p.tab === wanted; })[0] || parts[0]).tab);
+  }
+
   global.UI = {
     el: el, field: field, input: input, textarea: textarea, select: select, checkbox: checkbox,
     button: button, chips: chips, panel: panel, row: row, stack: stack, split: split, btnrow: btnrow,
     out: out, note: note, stats: stats, table: table,
     dropzone: dropzone, readAs: readAs, loadImage: loadImage,
+    handoff: handoff, pendingHandoff: pendingHandoff, accepts: accepts, giveFiles: giveFiles, onSave: onSave,
     saveBlob: saveBlob, saveText: saveText, downloadBtn: downloadBtn,
     copy: copy, copyBtn: copyBtn, toast: toast, pair: pair,
     debounce: debounce, live: live, bytes: bytes, escapeHtml: escapeHtml,
-    script: script, module: module, progress: progress, onTeardown: onTeardown
+    script: script, module: module, progress: progress, onTeardown: onTeardown, tabbed: tabbed, workspace: workspace
   };
 })(window);

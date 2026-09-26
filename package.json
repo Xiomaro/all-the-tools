@@ -1,7 +1,7 @@
 {
   "name": "all-the-tools",
   "version": "2.0.0",
-  "description": "A local, browser-only toolbox of more than 500 tools in 29 categories, all running in the tab.",
+  "description": "A local, browser-only toolbox of 285 tools in 29 categories, all running in the tab.",
   "private": true,
   "scripts": {
     "start": "python serve.py",

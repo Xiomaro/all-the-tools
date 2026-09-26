@@ -31,7 +31,7 @@ module.exports = [
       await page.reload({ waitUntil: 'load' });
       await page.waitForTimeout(300);
       const first = (await page.innerText('#view [data-k="difficulty"]')).split('\n')[0].trim();
-      await page.click('#view .chips .chip:nth-child(2)');
+      await page.click('#view .tool-pane .chips .chip:nth-child(2)');
       await page.waitForTimeout(300);
       const second = (await page.innerText('#view [data-k="difficulty"]')).split('\n')[0].trim();
       return res(first === 'Low' && second === 'Hard', first + ' → ' + second);
@@ -42,7 +42,7 @@ module.exports = [
     tool: 'loot-generator',
     run: async (page) => {
       await page.selectOption('#view select[data-role="band"]', '2');
-      await page.click('#view .chips .chip:nth-child(2)');
+      await page.click('#view .tool-pane .chips .chip:nth-child(2)');
       await page.click('#view button.primary');
       await page.waitForTimeout(200);
       const md = await page.textContent('#view [data-k="markdown"]');
