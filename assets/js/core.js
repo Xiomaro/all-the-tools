@@ -37,7 +37,7 @@
     { id: 'video',        section: 'media',   name: 'Video Tools',       short: 'Video',        hue: 313, l: 48, ld: 74, blurb: 'Trim, convert, compress, crop, caption and record video.' },
     { id: 'audio',        section: 'media',   name: 'Audio & Music',     short: 'Audio',        hue: 329, l: 48, ld: 74, blurb: 'Cut, convert, fade, tag, analyse and record audio, plus a tuner and metronome.' },
     { id: 'file',         section: 'media',   name: 'File Tools',        short: 'Files',        hue: 203, l: 40, ld: 68, blurb: 'Unzip archives, split and join files, rename in bulk, find duplicates and inspect bytes.' },
-    { id: 'ai',           section: 'media',   name: 'On-Device AI',      short: 'AI',           hue: 274, l: 52, ld: 76, blurb: 'Transcribe, translate, summarise, describe images, detect objects and remove backgrounds, all in the tab.' },
+    { id: 'ai',           section: 'media',   name: 'On-Device AI',      short: 'AI',           hue: 274, l: 52, ld: 76, blurb: 'Transcribe, translate, summarise, describe images and detect objects, all in the tab.' },
 
     { id: 'text',         section: 'writing', name: 'Text Tools',        short: 'Text',         hue: 219, l: 50, ld: 74, blurb: 'Count, clean up, compare, transform, split and extract text.' },
     { id: 'data',         section: 'writing', name: 'Data & JSON',       short: 'Data',         hue: 188, l: 34, ld: 64, blurb: 'Format, query, convert and compare JSON, YAML, XML, CSV, SQLite and spreadsheets.' },
@@ -176,6 +176,66 @@
     return def;
   }
 
+  /* --- merged tools ------------------------------------------------------
+     Several small tools can be folded into one tool with a tab for each.
+     Each folded tool keeps its name as a shortcut: it is found by search,
+     can be pinned and linked to, and opens the merged tool on its own tab.
+     Shortcuts don't count as tools and aren't listed on category pages. */
+  var shortcuts = Object.create(null);
+
+  function shortcut(def) {
+    if (index[def.id] || shortcuts[def.id]) throw new Error('Duplicate tool id: ' + def.id);
+    shortcuts[def.id] = Object.assign({ keywords: [], shortcut: true }, def);
+  }
+
+  /* Retire a tool whose job a newer tool now does: its id and name live on
+     as a shortcut that opens `target`, passing `tab` to it (a merged tool's
+     tab, or a preset the target understands). */
+  function retire(id, target, tab) {
+    var tool = index[id];
+    if (!tool) return;
+    delete index[id];
+    list.splice(list.indexOf(tool), 1);
+    shortcut({ id: id, target: target, tab: tab, name: tool.name, description: tool.description,
+      keywords: tool.keywords, category: tool.category });
+  }
+
+  /* Merge already-registered tools into a new one (or into one of
+     themselves, when `id` is the id of a part). Parts that aren't loaded,
+     as when the test harness loads a few modules, are skipped. */
+  function combine(def) {
+    var parts = def.parts.map(function (p) {
+      return index[p.tool] ? { tab: p.tab, label: p.label, group: p.group, tool: index[p.tool] } : null;
+    }).filter(Boolean);
+    if (!parts.length) return null;
+
+    parts.forEach(function (p) {
+      delete index[p.tool.id];
+      list.splice(list.indexOf(p.tool), 1);
+    });
+    parts.forEach(function (p) {
+      if (p.tool.id === def.id) return;
+      shortcut({ id: p.tool.id, target: def.id, tab: p.tab, name: p.tool.name,
+        description: p.tool.description, keywords: p.tool.keywords, category: p.tool.category });
+    });
+
+    /* The network notice names the tabs that use the network, unless the
+       tool is only one tab. */
+    var online = parts.filter(function (p) { return p.tool.online; });
+    online = online.length === 1 && parts.length === 1 ? online[0].tool.online
+      : online.map(function (p) { return p.label + ': ' + p.tool.online; }).join('; ') || undefined;
+
+    return register({
+      id: def.id, category: def.category, name: def.name, description: def.description,
+      keywords: def.keywords || [], icon: def.icon, parts: parts, online: online,
+      /* Which parts made it in, for the test harness: when a few modules are
+         loaded, a merged tool that took over a part's id may lack that part. */
+      partIds: parts.map(function (p) { return p.tool.id; }),
+      absorbs: def.parts.some(function (p) { return p.tool === def.id; }),
+      render: function (root, params) { global.UI[def.workspace ? 'workspace' : 'tabbed'](root, def, parts, params); }
+    });
+  }
+
   /* True when every character of `term` appears in `text` in order, which is
      what makes "imgcmp" reach "Compress Image". The gap penalty keeps a
      scattered match well below a real substring hit. */
@@ -213,9 +273,11 @@
 
       if (name === t || id === t) hit = 120;
       else if (name.indexOf(t) === 0 || id.indexOf(t) === 0) hit = 70;
-      else if (new RegExp('\\b' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).test(name)) hit = 52;
-      else if (name.indexOf(t) > -1 || id.indexOf(t) > -1) hit = 40;
+      else if (new RegExp('\\b' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).test(name + ' ' + id)) hit = 52;
+      /* A whole keyword ("kg") beats the same letters buried inside a word
+         ("bacKGround"). */
       else if (keys.split(/\s+/).indexOf(t) > -1) hit = 32;
+      else if (name.indexOf(t) > -1 || id.indexOf(t) > -1) hit = 28;
       else if (alt !== t && (name.indexOf(alt) > -1 || keys.indexOf(alt) > -1)) hit = 26;
       else if (keys.indexOf(t) > -1) hit = 18;
       else if (desc.indexOf(t) > -1) hit = 12;
@@ -244,7 +306,21 @@
     if (!q) return [];
     var terms = q.split(/\s+/);
 
-    var results = list.map(function (tool) { return { tool: tool, score: score(tool, terms) }; })
+    var scored = list.map(function (tool) { return { tool: tool, score: score(tool, terms) }; });
+
+    /* A shortcut shows only when it fits the query better than the tool it
+       opens: "kg" finds Weight Converter, "unit converter" doesn't list all
+       eighteen measures. */
+    var own = Object.create(null);
+    scored.forEach(function (r) { own[r.tool.id] = r.score; });
+    Object.keys(shortcuts).forEach(function (id) {
+      var s = shortcuts[id];
+      if (!index[s.target]) return;
+      var n = score(s, terms);
+      if (n > (own[s.target] || 0)) scored.push({ tool: s, score: n });
+    });
+
+    var results = scored
       .filter(function (r) { return r.score > 0; })
       .sort(function (a, b) { return b.score - a.score || a.tool.name.localeCompare(b.tool.name); })
       .map(function (r) { return r.tool; });
@@ -253,11 +329,29 @@
   }
 
   /* The id a link should land on: itself if registered, otherwise the tool
-     it was merged into, otherwise null. */
+     it was merged into (following an old alias to a shortcut if need be),
+     otherwise null. */
   function resolve(id) {
     if (index[id]) return id;
+    if (shortcuts[id]) return index[shortcuts[id].target] ? shortcuts[id].target : null;
     var target = ALIASES[id];
-    return target && index[target] ? target : null;
+    return target && target !== id ? resolve(target) : null;
+  }
+
+  /* The link for a tool or shortcut, with the tab a shortcut opens. */
+  function href(id) {
+    var s = shortcuts[id] || (ALIASES[id] && shortcuts[ALIASES[id]]);
+    if (s && index[s.target]) return '#/t/' + s.target + (s.tab ? '?tab=' + encodeURIComponent(s.tab) : '');
+    return '#/t/' + (resolve(id) || id);
+  }
+
+  /* A tool or a shortcut, for anything that lists them: pins, recents,
+     popular lists, search results. */
+  function entry(id) {
+    if (index[id]) return index[id];
+    if (shortcuts[id] && index[shortcuts[id].target]) return shortcuts[id];
+    var to = resolve(id);
+    return to ? index[to] : null;
   }
 
   global.Tools = {
@@ -265,7 +359,13 @@
     categories: CATEGORIES,
     aliases: ALIASES,
     resolve: resolve,
+    href: href,
+    entry: entry,
     register: register,
+    combine: combine,
+    retire: retire,
+    shortcut: shortcut,
+    shortcuts: function () { return Object.keys(shortcuts).map(function (id) { return shortcuts[id]; }); },
     all: function () { return list.slice().sort(function (a, b) { return a.name.localeCompare(b.name); }); },
     byCategory: function (id) { return list.filter(function (t) { return t.category === id; })
                                            .sort(function (a, b) { return a.name.localeCompare(b.name); }); },

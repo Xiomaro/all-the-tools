@@ -95,7 +95,8 @@ function waitForServer(timeoutMs) {
 
   await page.goto(BASE + QUERY, { waitUntil: 'load' });
 
-  const allTools = await page.evaluate(() => window.Tools.all().map(t => ({ id: t.id, name: t.name, category: t.category, online: !!t.online })));
+  const allTools = await page.evaluate(() => window.Tools.all().map(t => ({ id: t.id, name: t.name, category: t.category, online: !!t.online,
+    partIds: t.partIds || null, absorbs: !!t.absorbs })));
   onlineIds = new Set(allTools.filter(t => t.online).map(t => t.id));
   const tools = allTools.filter(inScope);
   console.log(`Registered tools: ${allTools.length}` + (ONLY || GROUP ? ` (checking ${tools.length})` : ''));
@@ -112,6 +113,15 @@ function waitForServer(timeoutMs) {
   }
   const extra = allTools.filter(t => !MANIFEST.some(m => m.id === t.id) && (!ONLY || ONLY.includes(t.category)));
   for (const t of extra) missing.push(t.id + ' (registered but not in the manifest)');
+
+  /* The home page's popular lists, modes, recipes, file and paste routing
+     name tools by id. Only checkable when every module is loaded. */
+  /* Tools folded into a merged tool keep their id as a shortcut to its tab.
+     Their behaviour checks run against the merged tool, opened on that tab. */
+  const shortcuts = await page.evaluate(() => Object.fromEntries(window.Tools.shortcuts().map(s => [s.id, s.target])));
+
+  const deadLinks = ONLY || GROUP ? [] : await page.evaluate(() => window.Discover ? Discover.unknownIds() : ['(discover.js not loaded)']);
+  for (const id of deadLinks) missing.push(id + ' (named in discover.js but not registered)');
 
   let rendered = 0;
   for (const tool of tools) {
@@ -182,7 +192,10 @@ function waitForServer(timeoutMs) {
     ? fs.readdirSync(behaviourDir).filter(f => f.endsWith('.js')).sort() : [];
   for (const file of files) {
     for (const c of require(path.join(behaviourDir, file))) {
-      const tool = byId[c.tool];
+      const tool = byId[c.tool] || byId[shortcuts[c.tool]];
+      /* A merged tool that kept this id but was built without that part,
+         because its module isn't loaded in this --group run. */
+      if (tool && tool.absorbs && tool.id === c.tool && !tool.partIds.includes(c.tool)) continue;
       if (!tool || !inScope(tool)) continue;
       await behaviour(c.name, c.tool, () => c.run(page, helpers));
     }
@@ -198,7 +211,7 @@ function waitForServer(timeoutMs) {
 
   const failedChecks = checks.filter(c => !c.ok).length;
   console.log('');
-  console.log(`Manifest coverage:      ${expected.length - missing.filter(x => !x.includes('not in the manifest')).length}/${expected.length}`);
+  console.log(`Manifest coverage:      ${expected.length - missing.filter(x => !x.includes('not in the manifest') && !x.includes('discover.js')).length}/${expected.length}`);
   for (const m of missing.slice(0, 60)) console.log(`   ${m}`);
   console.log(`Tools rendered cleanly: ${rendered}/${tools.length}`);
   console.log(`Behaviour checks passed: ${checks.length - failedChecks}/${checks.length}`);

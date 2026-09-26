@@ -11,6 +11,31 @@
 
   window.Changelog = [
     {
+      date: '2026-09-26',
+      changes: [
+        { type: 'improved', text: 'The big all-in-one tools come first: the home page has a row for the PDF, Image, Video and Audio Editors, the Text Transformer and the Unit Converter, and each category page starts with its own, in a bigger card that lists what is inside and links straight to each part.' },
+        { type: 'added', text: 'The Video Editor and the Audio Editor, built like the PDF and Image Editors. Open a video or a recording once and move between tools: trim, then crop, then compress a video, or cut, fade and convert a song, without opening the file again, with Undo. The Video Editor holds 22 video tools and the Audio Editor 11.',
+          tools: ['video-editor', 'audio-editor'] },
+        { type: 'added', text: 'PDF to Word: turn a PDF into a Word document you can edit, keeping headings, bold and italic, lists, pictures, two-column pages and the page size, with OCR for scanned pages. An “Exact look” option keeps every page exactly as it was, as pictures.',
+          tools: ['pdf-to-word'] },
+        { type: 'added', text: 'The PDF Editor and the Image Editor. Open a PDF or a picture once and move between tools: each one opens with your file already loaded, and each change carries on to the next, with Undo. The PDF Editor holds 21 PDF tools, from merging and signing to compressing and converting; the Image Editor holds 16, from cropping and resizing to adjusting, marking up and converting.',
+          tools: ['pdf-editor', 'image-editor'] },
+        { type: 'added', text: 'Text Transformer: stack steps (change case, clean up, sort, remove duplicates, find and replace, wrap, number lines and more) and see the result live. It replaces 12 separate text tools and does everything they did, and a link can save your steps.',
+          tools: ['text-transformer'] },
+        { type: 'improved', text: 'Fewer, bigger tools: the site has 285 tools instead of 537, without losing anything. Besides the four editors and the Text Transformer, small tools that did one job between them are now one tool with a tab each: the 19 unit converters are one Unit Converter, the CSS effect generators are one CSS Effects Generator, the keyboard, mouse, gamepad, touch, stylus and MIDI tests are one tool, and the same goes for encoders, dates, timers, formatters, colours, hashes, keys, JSON, diffs, primes, geometry, mortgages and loans, pay, savings, health, DIY, memory tests, tabletop RPG helpers and more. Old names still turn up in search, and old links and pins open the right tab.',
+          tools: ['unit-converter', 'css-effects', 'input-tester', 'encode-decode', 'date-calculator', 'timer', 'code-formatter', 'color-picker',
+            'hash-generator', 'key-generator', 'json-formatter', 'diff-checker', 'number-theory', 'geometry-calculator', 'mortgage-calculator',
+            'uk-take-home-pay', 'compound-interest', 'bmi-calculator', 'calorie-calculator', 'diy-calculator', 'memory-tests', 'dm-toolkit'] },
+        { type: 'fixed', text: 'Pop-up messages no longer block clicks on whatever is underneath them.' },
+        { type: 'improved', text: 'The sidebar lists the six sections instead of all 29 categories, and opens one at a time.' },
+        { type: 'improved', text: 'Search ranks a tool whose keywords match exactly above one that only contains the same letters mid-word, so “kg” finds the weight converter rather than Background Remover.' },
+        { type: 'improved', text: 'A new home page. Search, paste anything or drop in a file and the right tools come up: paste “5 kg”, a colour, a date or a JWT, or drop a PDF or a photo, and the tool you pick opens with it already loaded.' },
+        { type: 'added', text: '“Show me tools for” modes (Everyday, Documents, Creator, Developer, Security, Study, Fun & games) put the tools you care about first. Your choice is kept in this browser.' },
+        { type: 'added', text: 'Guided recipes walk you through jobs that take more than one tool, such as making a passport photo, scanning and emailing paperwork, or getting a video ready for Reels, with a bar at the top of each tool that takes you to the next step.' },
+        { type: 'added', text: 'A tool of the day, and a Most popular shelf ranked by what people search for most.' }
+      ]
+    },
+    {
       date: '2026-09-25',
       changes: [
         { type: 'fixed', text: 'ASCII Art Text downloads now open correctly in Windows editors, a Plain ASCII (#) style works in any font or encoding, and the tool explains that the art needs a monospaced font.',

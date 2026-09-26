@@ -154,7 +154,7 @@ kbd {
    property substitutes var() where it is *declared*, not where it is used.
    ------------------------------------------------------------------------ */
 
-.tool-card-wrap, .cat-tile, .cat-head, .tool-head, .palette-row, .sidebar a, .section-icon, .head-icon, .change-tools .pill {
+.tool-card-wrap, .feature-card, .cat-head, .tool-head, .palette-row, .sidebar a, .section-icon, .head-icon, .change-tools .pill, .pick, .sec-cat, .daily, .recipe-step {
   --cat-h: 250;
   --cat-l: 50%;
   --cat-ld: 74%;
@@ -164,14 +164,14 @@ kbd {
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) :is(.tool-card-wrap, .cat-tile, .cat-head, .tool-head, .palette-row, .sidebar a, .section-icon, .head-icon, .change-tools .pill) {
+  :root:not([data-theme="light"]) :is(.tool-card-wrap, .feature-card, .cat-head, .tool-head, .palette-row, .sidebar a, .section-icon, .head-icon, .change-tools .pill, .pick, .sec-cat, .daily, .recipe-step) {
     --cat:      hsl(var(--cat-h) 70% var(--cat-ld));
     --cat-soft: hsl(var(--cat-h) 38% 16%);
     --cat-line: hsl(var(--cat-h) 26% 30%);
   }
 }
 
-:root[data-theme="dark"] :is(.tool-card-wrap, .cat-tile, .cat-head, .tool-head, .palette-row, .sidebar a, .section-icon, .head-icon, .change-tools .pill) {
+:root[data-theme="dark"] :is(.tool-card-wrap, .feature-card, .cat-head, .tool-head, .palette-row, .sidebar a, .section-icon, .head-icon, .change-tools .pill, .pick, .sec-cat, .daily, .recipe-step) {
   --cat:      hsl(var(--cat-h) 70% var(--cat-ld));
   --cat-soft: hsl(var(--cat-h) 38% 16%);
   --cat-line: hsl(var(--cat-h) 26% 30%);
@@ -202,16 +202,24 @@ kbd {
 .nav-group { display: flex; flex-direction: column; gap: 2px; }
 .nav-group[hidden] { display: none; }
 
-/* Section headings in the sidebar double as fold toggles. */
+/* The six sections: rows like the links, opening one at a time. */
+.nav-heading { margin: 18px 0 6px 6px; }
+.nav-block + .nav-block { margin-top: 2px; }
 .nav-section {
-  display: flex; align-items: center; justify-content: space-between; gap: 8px;
-  width: 100%; margin: 16px 0 6px; padding: 2px 6px 2px 0;
-  font: inherit; font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase;
-  color: var(--fg-muted); background: none; border: 0; cursor: pointer; text-align: left;
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; padding: 6px 8px 6px 6px;
+  font: inherit; font-weight: 600; color: var(--fg); text-align: left;
+  background: none; border: 0; border-radius: var(--radius-s); cursor: pointer;
 }
-.nav-section:hover { color: var(--fg); }
-.nav-section svg { width: 14px; height: 14px; flex: none; transition: transform .15s; }
-.nav-section[aria-expanded="false"] svg { transform: rotate(-90deg); }
+.nav-section:hover { background: var(--bg-sunken); }
+.nav-section .nav-icon { color: var(--fg-muted); background: var(--bg-sunken); }
+.nav-section[aria-expanded="true"] .nav-icon { color: var(--accent); background: var(--accent-weak); }
+.nav-section > svg { width: 14px; height: 14px; flex: none; color: var(--fg-muted); transition: transform .15s; }
+.nav-section[aria-expanded="false"] > svg { transform: rotate(-90deg); }
+.nav-sub { margin: 2px 0 8px 14px; padding-left: 8px; border-left: 1px solid var(--border); }
+.nav-sub a { padding-top: 5px; padding-bottom: 5px; font-size: 14px; }
+.nav-sub .nav-icon { width: 22px; height: 22px; border-radius: 6px; }
+.nav-sub .nav-icon svg { width: 14px; height: 14px; }
 
 .sidebar a {
   display: flex; align-items: center; gap: 10px;
@@ -342,56 +350,195 @@ kbd {
 .hero-search svg { width: 18px; height: 18px; color: var(--accent); }
 .hero-search span { flex: 1; text-align: left; }
 
-.cat-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(268px, 1fr));
-  gap: 14px;
+/* The intake box: search, paste or drop. */
+.intake { margin-top: 18px; max-width: 780px; }
+.intake-box {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 8px 8px 8px 16px;
+  background: var(--bg-elev);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  cursor: text;
+  transition: border-color .12s, box-shadow .12s, background .12s;
 }
-
-.cat-tile {
-  position: relative; overflow: hidden;
-  display: flex; flex-direction: column; gap: 6px;
-  padding: 18px 18px 14px;
+.intake-box:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-weak), var(--shadow); }
+.intake.over .intake-box { border-style: dashed; border-color: var(--accent); background: var(--accent-weak); }
+.intake-box > svg { flex: none; width: 20px; height: 20px; margin-top: 10px; color: var(--accent); }
+.intake-input,
+.intake-input:focus {
+  flex: 1; width: auto; min-width: 0; min-height: 0; height: 40px; max-height: 140px;
+  padding: 8px 0; resize: none; box-shadow: none;
+  font: inherit; font-size: 16px; line-height: 1.5; color: var(--fg);
+  background: transparent; border: 0; outline: 0;
+}
+.intake-choose { flex: none; display: inline-flex; align-items: center; gap: 7px; }
+.intake-choose svg { width: 16px; height: 16px; }
+.intake-results {
+  margin-top: 10px; padding: 14px 16px 16px;
   background: var(--bg-elev);
   border: 1px solid var(--border);
   border-radius: 14px;
+}
+.intake-label { margin: 14px 0 8px; font-size: 13px; color: var(--fg-muted); }
+.intake-label:first-child { margin-top: 0; }
+.intake-label strong { color: var(--fg); }
+.intake-more { display: inline-block; margin-top: 12px; font-size: 13px; text-decoration: none; }
+.intake-file { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 15px; }
+.intake-file-icon {
+  flex: none; width: 32px; height: 32px; display: grid; place-items: center;
+  color: var(--accent); background: var(--accent-weak); border-radius: 9px;
+}
+.intake-file-icon svg { width: 18px; height: 18px; }
+.intake-file-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+
+/* Small tool links, used for intake suggestions and recipe steps. */
+.picks { display: flex; flex-wrap: wrap; gap: 8px; }
+.pick {
+  display: inline-flex; align-items: center; gap: 8px; max-width: 100%;
+  padding: 6px 12px 6px 6px; font-size: 13.5px;
+  color: var(--fg); text-decoration: none;
+  background: var(--bg-elev); border: 1px solid var(--border); border-radius: 999px;
+}
+.pick:hover { border-color: var(--cat); background: var(--cat-soft); }
+.pick-icon {
+  flex: none; width: 24px; height: 24px; display: grid; place-items: center;
+  color: var(--cat); background: var(--cat-soft); border-radius: 999px;
+}
+.pick-icon svg { width: 14px; height: 14px; }
+.picks.quiet .pick { font-size: 12.5px; color: var(--fg-muted); }
+.pick-more { padding-left: 12px; font: inherit; font-size: 13px; color: var(--accent); cursor: pointer; }
+.pick-more:hover { border-color: var(--accent); background: var(--accent-weak); }
+
+/* "Show me tools for..." */
+.modes { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 16px; }
+.modes-label { margin-right: 2px; font-size: 13px; font-weight: 600; color: var(--fg-muted); }
+.mode-chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 7px 13px 7px 10px;
+  font: inherit; font-size: 13.5px; color: var(--fg);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.mode-chip svg { width: 16px; height: 16px; color: var(--fg-muted); }
+.mode-chip:hover { border-color: var(--accent); }
+.mode-chip.on { color: var(--accent); background: var(--accent-weak); border-color: var(--accent); font-weight: 600; }
+.mode-chip.on svg { color: var(--accent); }
+.modes-reset { margin-left: 4px; }
+
+/* Tool of the day beside the recipes. */
+.home-band {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2.1fr);
+  gap: 18px; margin-top: 30px; align-items: stretch;
+}
+.home-band .section-title { margin-top: 0; }
+.home-recipes > .note { margin: -6px 0 12px; }
+.daily {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 18px;
   color: inherit; text-decoration: none;
+  background: linear-gradient(160deg, var(--cat-soft), var(--bg-elev) 75%);
+  border: 1px solid var(--cat-line);
+  border-radius: 14px;
   transition: border-color .12s, transform .12s, box-shadow .12s;
 }
-.cat-tile::before {
-  content: ''; position: absolute; inset: 0 0 auto; height: 3px;
-  background: var(--cat);
+.daily:hover { border-color: var(--cat); transform: translateY(-2px); box-shadow: var(--shadow); }
+.daily-eyebrow {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--cat);
 }
-.cat-tile:hover { border-color: var(--cat); transform: translateY(-2px); box-shadow: var(--shadow); }
-
-.cat-tile-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
-.cat-tile-icon {
-  width: 42px; height: 42px;
+.daily-eyebrow svg { width: 15px; height: 15px; }
+.daily-icon {
+  width: 52px; height: 52px; margin: 8px 0 4px;
   display: grid; place-items: center;
-  color: var(--cat); background: var(--cat-soft);
+  color: var(--cat); background: var(--bg-elev);
+  border: 1px solid var(--cat-line);
+  border-radius: 14px;
+}
+.daily-icon svg { width: 28px; height: 28px; }
+.daily-name { font-size: 19px; line-height: 1.3; }
+.daily-desc { font-size: 13.5px; color: var(--fg-muted); }
+.daily-go { margin-top: auto; padding-top: 10px; font-size: 14px; font-weight: 600; color: var(--cat); }
+
+/* Recipe cards. */
+.recipe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+.recipe-grid.wide { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+.recipe-card {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 13px 14px;
+  color: inherit; text-decoration: none;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: border-color .12s, transform .12s, box-shadow .12s;
+}
+.recipe-card:hover { border-color: var(--accent); transform: translateY(-1px); box-shadow: var(--shadow); }
+.recipe-card-icon {
+  flex: none; width: 34px; height: 34px; display: grid; place-items: center;
+  color: var(--accent); background: var(--accent-weak); border-radius: 9px;
+}
+.recipe-card-icon svg { width: 19px; height: 19px; }
+.recipe-card-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.recipe-card-text strong { font-size: 14.5px; line-height: 1.35; }
+.recipe-card-text span { font-size: 13px; color: var(--fg-muted); }
+.recipe-card-steps { flex: none; font-size: 11.5px; font-weight: 600; color: var(--fg-muted); white-space: nowrap; }
+
+/* A recipe's own page. */
+.recipe-steps { display: grid; gap: 12px; max-width: 780px; margin: 8px 0 20px; padding: 0; list-style: none; }
+.recipe-step {
+  display: flex; gap: 14px; padding: 16px;
+  background: var(--bg-elev); border: 1px solid var(--border); border-radius: 12px;
+}
+.recipe-num {
+  flex: none; width: 30px; height: 30px; display: grid; place-items: center;
+  font-weight: 700; color: var(--cat); background: var(--cat-soft); border-radius: 999px;
+}
+.recipe-body { min-width: 0; }
+.recipe-body strong { font-size: 15.5px; }
+.recipe-body p { margin: 4px 0 10px; font-size: 14px; color: var(--fg-muted); }
+a.btn { display: inline-block; text-decoration: none; }
+
+/* The bar above a tool while a recipe is being followed. */
+.recipe-bar {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px;
+  margin: 0 0 16px; padding: 12px 14px;
+  background: var(--accent-weak);
+  border: 1px solid var(--accent);
   border-radius: 12px;
 }
-.cat-tile-icon svg { width: 23px; height: 23px; }
-.cat-tile-count { font-size: 12px; font-weight: 600; color: var(--cat); }
-.cat-tile-name { font-size: 16px; }
-.cat-tile-blurb { font-size: 13px; color: var(--fg-muted); }
-.cat-tile-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
-
-.chip {
-  max-width: 100%;
-  padding: 2px 8px;
-  font-size: 11px; color: var(--fg-muted);
-  background: var(--bg-sunken);
-  border-radius: 999px;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+.recipe-bar-text { flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.recipe-bar-name {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; text-decoration: none;
 }
+.recipe-bar-name svg { width: 14px; height: 14px; }
+.recipe-bar-hint { font-size: 13px; color: var(--fg-muted); }
+.recipe-bar-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.recipe-bar .icon-btn { font-size: 20px; line-height: 1; }
+.handoff-note { margin-bottom: 4px; }
 
-/* Section headings between the groups of category tiles on the home page. */
-.home-section {
-  display: flex; align-items: baseline; gap: 10px;
-  margin: 26px 0 10px; font-size: 14px; font-weight: 700; letter-spacing: .02em;
+/* Six section cards, each listing its categories. */
+.sec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+.sec-card { padding: 14px 12px 10px; background: var(--bg-elev); border: 1px solid var(--border); border-radius: 14px; }
+.sec-card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin: 0 6px 8px; }
+.sec-card-head strong { font-size: 15px; }
+.sec-card-head span { font-size: 12px; color: var(--fg-muted); }
+.sec-card-cats { display: grid; }
+.sec-card.wide .sec-card-cats { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); column-gap: 12px; }
+.sec-cat {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px; border-radius: 8px;
+  font-size: 14px; color: inherit; text-decoration: none;
 }
-.home-section span { font-size: 12px; font-weight: 500; color: var(--fg-muted); }
+.sec-cat:hover { background: var(--cat-soft); }
+.sec-cat-name { flex: 1; min-width: 0; }
+.sec-cat-count { font-size: 12px; color: var(--fg-muted); font-variant-numeric: tabular-nums; }
+.more-cats { margin-top: 14px; }
+.more-cats summary { padding: 10px 0; font-weight: 600; cursor: pointer; }
+.more-cats summary span { margin-left: 8px; font-size: 12.5px; font-weight: 500; color: var(--fg-muted); }
+.more-cats[open] summary { margin-bottom: 8px; }
 
 /* Groups ("shelves") on a category page, with jump links above them. */
 .shelf-jump { display: flex; flex-wrap: wrap; gap: 6px; margin: -6px 0 6px; }
@@ -485,6 +632,53 @@ kbd {
 .pin-btn.on svg { fill: currentColor; }
 .tool-card-wrap:hover .pin-btn, .pin-btn:focus-visible { opacity: 1; }
 
+/* Feature cards: the many-in-one tools, first on their category page and in
+   the home page's "All-in-one tools" row. The name link covers the card;
+   the part links and the pin sit above it. */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 12px;
+}
+.cat-tools > .feature-grid + .card-grid { margin-top: 12px; }
+.feature-card {
+  position: relative;
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 16px 44px 16px 16px;
+  background: linear-gradient(135deg, var(--cat-soft), var(--bg-elev) 75%);
+  border: 1px solid var(--cat-line);
+  border-radius: var(--radius);
+  transition: border-color .12s, transform .12s, box-shadow .12s;
+}
+.feature-card:hover { border-color: var(--cat); transform: translateY(-1px); box-shadow: var(--shadow); }
+.feature-card .tool-icon {
+  width: 46px; height: 46px; border-radius: 12px;
+  background: var(--bg-elev); border: 1px solid var(--cat-line);
+}
+.feature-card .tool-icon svg { width: 24px; height: 24px; }
+.feature-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.feature-kicker {
+  font-size: 10.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+  color: var(--cat);
+}
+.feature-name { font-size: 16.5px; font-weight: 700; color: var(--fg); text-decoration: none; }
+.feature-name::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+.feature-name:focus-visible { outline: none; }
+.feature-card:has(.feature-name:focus-visible) { outline: 2px solid var(--cat); outline-offset: 2px; }
+.feature-parts { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.feature-parts a {
+  position: relative; z-index: 1;
+  padding: 2px 9px; font-size: 12px;
+  color: var(--fg); text-decoration: none;
+  background: var(--bg-elev); border: 1px solid var(--cat-line); border-radius: 999px;
+}
+.feature-parts a:hover { color: var(--cat); border-color: var(--cat); }
+.feature-parts a.more { color: var(--fg-muted); }
+.feature-card .pin-btn { z-index: 2; }
+.feature-card:hover .pin-btn { opacity: 1; }
+:root[data-density="compact"] .feature-card { padding: 12px 40px 12px 12px; }
+:root[data-density="compact"] .feature-card .tool-desc { display: none; }
+
 .tool-head .pin-btn { position: static; opacity: 1; width: 34px; height: 34px; border: 1px solid var(--border); }
 .tool-head .pin-btn svg { width: 19px; height: 19px; }
 
@@ -572,8 +766,7 @@ body.palette-open { overflow: hidden; }
 :root[data-density="compact"] .tool-cat { display: none; }
 :root[data-density="compact"] .tool-name { font-size: 13.5px; }
 :root[data-density="compact"] .pin-btn { top: 4px; right: 4px; width: 24px; height: 24px; }
-:root[data-density="compact"] .cat-tile-chips { display: none; }
-:root[data-density="compact"] .cat-grid { grid-template-columns: repeat(auto-fill, minmax(216px, 1fr)); }
+:root[data-density="compact"] .recipe-card-text span { display: none; }
 
 /* --- tool surface ------------------------------------------------------- */
 
@@ -688,6 +881,83 @@ table.data th, table.data td { padding: 7px 10px; border-bottom: 1px solid var(-
 table.data th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--fg-muted); }
 table.data td.mono { font-family: var(--mono); font-size: 13px; }
 
+/* --- merged tools ------------------------------------------------------
+   The tabs (or the menu) over a merged tool, and the pane the chosen part
+   renders into. */
+.tool-tabs { display: grid; gap: 8px; }
+.tool-tabs .field { max-width: 320px; margin: 0; }
+.tool-tab-about { margin: 0; }
+/* Underlined tabs, so they don't look like the pill toggles inside a tool. */
+.tool-tabs .chips { gap: 2px; border-bottom: 1px solid var(--border); }
+.tool-tabs .chip {
+  margin-bottom: -1px; padding: 8px 14px;
+  font-size: 14px; font-weight: 600; color: var(--fg-muted);
+  background: none; border: 0; border-bottom: 2px solid transparent; border-radius: 8px 8px 0 0;
+}
+.tool-tabs .chip:hover { color: var(--fg); background: var(--bg-sunken); border-color: transparent; }
+.tool-tabs .chip.on { color: var(--accent); background: none; border-bottom-color: var(--accent); }
+
+/* --- workspaces --------------------------------------------------------
+   The PDF and Image Editors: the file being edited across the top, the
+   tools down the side, the chosen tool beside them. */
+.ws-bar {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 10px 12px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: border-color .3s, box-shadow .3s;
+}
+.ws-bar.empty { border-style: dashed; background: var(--bg-sunken); }
+.ws-bar.changed { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-weak); }
+.ws-hint { font-size: 13.5px; color: var(--fg-muted); }
+.ws-thumb {
+  flex: none; width: 44px; height: 44px; object-fit: cover;
+  border-radius: 8px; border: 1px solid var(--border); background: var(--bg-sunken);
+}
+.ws-thumb.icon { display: grid; place-items: center; color: var(--accent); background: var(--accent-weak); border: 0; }
+.ws-thumb.icon svg { width: 22px; height: 22px; }
+.ws-doc { flex: 1 1 200px; min-width: 0; display: flex; flex-direction: column; }
+.ws-doc-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ws-doc-line { font-size: 12.5px; color: var(--fg-muted); }
+.ws-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.ws-body { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 18px; align-items: start; }
+.ws-nav { position: sticky; top: 80px; display: grid; gap: 14px; }
+.ws-group { display: grid; gap: 1px; }
+.ws-group-name {
+  margin: 0 0 4px 8px;
+  font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--fg-muted);
+}
+.ws-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 6px 8px; border-radius: var(--radius-s);
+  font-size: 14px; color: var(--fg); text-decoration: none;
+}
+.ws-item:hover { background: var(--bg-sunken); }
+.ws-item.on { color: var(--accent); background: var(--accent-weak); font-weight: 600; }
+.ws-item-icon { flex: none; width: 22px; height: 22px; display: grid; place-items: center; color: var(--fg-muted); }
+.ws-item.on .ws-item-icon { color: var(--accent); }
+.ws-item-icon svg { width: 16px; height: 16px; }
+.ws-main { display: grid; gap: 10px; min-width: 0; }
+.ws-main > .tool-tab-about { margin: 0; }
+
+@media (max-width: 960px) {
+  .ws-body { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  /* The tool list becomes one scrolling row. */
+  .ws-nav {
+    position: static; display: flex; gap: 4px; overflow-x: auto;
+    padding-bottom: 6px; border-bottom: 1px solid var(--border);
+    -webkit-overflow-scrolling: touch;
+    /* Fade the right edge so it's clear the row scrolls. */
+    -webkit-mask-image: linear-gradient(to right, #000 85%, transparent);
+    mask-image: linear-gradient(to right, #000 85%, transparent);
+  }
+  .ws-group { display: flex; gap: 4px; }
+  .ws-group-name { display: none; }
+  .ws-item { white-space: nowrap; }
+}
+
 /* --- drop zone ---------------------------------------------------------- */
 
 .dropzone {
@@ -723,7 +993,8 @@ table.data td.mono { font-family: var(--mono); font-size: 13px; }
 
 /* --- toaster ------------------------------------------------------------ */
 
-.toaster { position: fixed; right: 16px; bottom: 16px; z-index: 60; display: flex; flex-direction: column; gap: 8px; }
+/* Toasts are messages only: clicks pass through to whatever is underneath. */
+.toaster { position: fixed; right: 16px; bottom: 16px; z-index: 60; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
 .toast {
   padding: 10px 14px;
   background: var(--fg); color: var(--bg);
@@ -779,12 +1050,12 @@ table.data td.mono { font-family: var(--mono); font-size: 13px; }
     border: 1px solid var(--border); border-radius: var(--radius);
   }
   .sidebar.open { display: block; }
-  .sidebar h2:first-of-type, .sidebar .nav-block:first-of-type .nav-section { margin-top: 6px; }
   .menu-only { display: grid; }
   .brand span { display: none; }
   .topbar { gap: 10px; padding: 10px 12px; }
   .search-trigger kbd { display: none; }
   .hero h1 { font-size: 24px; }
+  .home-band { grid-template-columns: minmax(0, 1fr); }
   .page-head h1 { font-size: 22px; }
 }
 
@@ -792,7 +1063,11 @@ table.data td.mono { font-family: var(--mono); font-size: 13px; }
   .search-trigger span { display: none; }
   .search-trigger { flex: none; width: 38px; height: 38px; padding: 0; justify-content: center; border-radius: var(--radius-s); }
   .topbar { justify-content: space-between; }
-  .cat-grid, .card-grid { grid-template-columns: minmax(0, 1fr); }
+  .card-grid, .feature-grid, .sec-grid, .recipe-grid, .recipe-grid.wide { grid-template-columns: minmax(0, 1fr); }
+  .top-grid .tool-card-wrap:nth-child(n+7) { display: none; }
+  .intake-choose span { display: none; }
+  .intake-box { padding-left: 12px; }
+  .recipe-bar-nav { width: 100%; }
   .palette-box { margin-top: 12px; max-height: calc(100vh - 24px); }
   .cat-head-tools .filter-box { max-width: none; }
   .pin-btn { opacity: 1; }

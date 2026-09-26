@@ -35,21 +35,6 @@ module.exports = [
     const s = (await get(page, 'stats')).replace(/\s+/g, ' ');
     return res(/^6 Words 32 Characters 26 Characters \(no spaces\) 32 Graphemes 3 Sentences 2 Paragraphs 3 Lines 32 UTF-8 bytes$/.test(s.trim()), s);
   } },
-  { name: 'text-case: default and snake/camel of new input', tool: 'text-case', run: async page => {
-    const d = await get(page, 'case-alternating');
-    if (d !== 'hElLo wOrLd eXaMpLe tExT') return res(false, d);
-    await set(page, 'in', 'user ID-number');
-    const a = await get(page, 'case-snake'), b = await get(page, 'case-camel'), c = await get(page, 'case-inverse');
-    return res(a === 'user_id_number' && b === 'userIdNumber' && c === 'USER id-NUMBER', [a, b, c].join(' | '));
-  } },
-  { name: 'text-reverse: characters, then word order', tool: 'text-reverse', run: async page => {
-    await set(page, 'in', 'abc\ndef');
-    const a = await get(page, 'out');
-    await set(page, 'in', 'one two three');
-    await tick(page, 'words', true);
-    const b = await get(page, 'out');
-    return res(a === 'fed\ncba' && b === 'three two one', a + ' / ' + b);
-  } },
   { name: 'text-lorem: 5 words starting with Lorem', tool: 'text-lorem', run: async page => {
     await chip(page, 'type', 'Words');
     await set(page, 'count', '5');
@@ -62,19 +47,6 @@ module.exports = [
     await tick(page, 'links', true);
     const b = await get(page, 'out');
     return res(a === '<p>a &lt; b</p>\n<p>see https://x.io</p>' && b.includes('<a href="https://x.io">https://x.io</a>'), a + ' / ' + b);
-  } },
-  { name: 'text-truncate: chars default, words and sentences', tool: 'text-truncate', run: async page => {
-    const i = await get(page, 'info');
-    await set(page, 'by', 'Words'); await set(page, 'limit', '3');
-    const w = await get(page, 'out');
-    await set(page, 'by', 'Sentences'); await set(page, 'limit', '1'); await set(page, 'suffix', ' […]');
-    const s = await get(page, 'out');
-    return res(i === '103 chars · 18 words' && w === 'The quick brown...' && s === 'The quick brown fox jumps over the lazy dog. […]', [i, w, s].join(' | '));
-  } },
-  { name: 'text-repeat: 3 times with comma separator', tool: 'text-repeat', run: async page => {
-    const d = await get(page, 'info');
-    await set(page, 'count', '3'); await set(page, 'sep', ', '); await set(page, 'in', 'ab');
-    return res(d === '5× · 59 chars' && (await get(page, 'out')) === 'ab, ab, ab', d);
   } },
   { name: 'text-extract-emails: unique addresses', tool: 'text-extract-emails', run: async page => {
     await set(page, 'in', 'Mail a@b.com or A@B.com, else c.d+x@e-f.org.');
@@ -117,20 +89,6 @@ module.exports = [
     const t2 = await get(page, 'dout');
     return res(b === '01001000 01101001 11100010 10000010 10101100' && h === '48 69 e2 82 ac' && t1 === 'Hi' && t2 === 'Hi€', [b, h, t1, t2].join(' | '));
   } },
-  { name: 'text-wrap: wraps at 10 with line numbers', tool: 'text-wrap', run: async page => {
-    await set(page, 'in', 'aaa bbb ccc ddd');
-    await set(page, 'width', '10');
-    const a = await get(page, 'out');
-    await tick(page, 'nums', true);
-    const b = await get(page, 'out');
-    return res(a === 'aaa bbb\nccc ddd' && b === '1  aaa bbb\n2  ccc ddd', a + ' / ' + b);
-  } },
-  { name: 'text-number-lines: start 9, zero-pad, colon', tool: 'text-number-lines', run: async page => {
-    await set(page, 'in', 'a\nb\n\nc');
-    await set(page, 'start', '9'); await set(page, 'sep', ': ');
-    await tick(page, 'pad', true); await tick(page, 'skip', true);
-    return eq(await get(page, 'out'), '09: a\n10: b\n\n11: c');
-  } },
   { name: 'ssml-generator: default length and prosody changes', tool: 'ssml-generator', run: async page => {
     const i = await get(page, 'info');
     await set(page, 'rate', 'fast'); await set(page, 'emph', 'none'); await set(page, 'in', 'Hi & bye. Again!');
@@ -150,10 +108,6 @@ module.exports = [
     await chip(page, 'mode', 'ROT47');
     const b = await get(page, 'out');
     return res(a === 'Uryyb, Jbeyq!' && b === 'w6==@[ (@C=5P', a + ' / ' + b);
-  } },
-  { name: 'text-padding: centre with asterisks', tool: 'text-padding', run: async page => {
-    await set(page, 'in', 'ab\nabcd'); await set(page, 'width', '7'); await set(page, 'char', '*'); await set(page, 'align', 'Center');
-    return eq(await get(page, 'out'), '**ab***\n*abcd**');
   } },
   { name: 'unicode-inspector: code points and UTF-8 bytes', tool: 'unicode-inspector', run: async page => {
     const d = await get(page, 'info');
@@ -189,19 +143,6 @@ module.exports = [
     const r = await get(page, 'result');
     return res(/^Finished! \d+ WPM at 100% accuracy/.test(r), r);
   } },
-  { name: 'text-replacer: literal default and regex rule with groups', tool: 'text-replacer', run: async page => {
-    const d = await get(page, 'out');
-    await clickBtn(page, '+ Add Rule');
-    await page.$$eval('#view [data-k="rules"] .gt-rule', rows => {
-      const r = rows[1];
-      const ins = r.querySelectorAll('input');
-      ins[0].value = '(\\w+) again'; ins[1].value = '$1 once more'; ins[2].checked = true;
-      ins[0].dispatchEvent(new Event('input')); ins[2].dispatchEvent(new Event('change'));
-    });
-    await page.waitForTimeout(200);
-    const o = await get(page, 'out');
-    return res(d === 'Hi World!\nThe quick brown fox jumps over the lazy dog.\nHi again, World!' && o.endsWith('Hi once more, World!'), o);
-  } },
   { name: 'slug-generator: underscore, accents and bulk', tool: 'slug-generator', run: async page => {
     const d = await get(page, 'out');
     await chip(page, 'sep', '_');
@@ -218,22 +159,6 @@ module.exports = [
     const b = await get(page, 'out');
     return res(a === '⠁⠃⠉⠀⠼⠁⠃⠉' && b === 'abc 123', a + ' / ' + b);
   } },
-  { name: 'text-cleaner: smart quotes, dashes, tags, ellipsis', tool: 'text-cleaner', run: async page => {
-    await set(page, 'in', '  “Hi”—there…   <b>bold</b>\r\n\r\n next  ');
-    const a = await get(page, 'out');
-    await tick(page, 'punct', true);
-    const b = await get(page, 'out');
-    return res(a === '"Hi"-there... bold\nnext' && b === 'Hithere bold\nnext', JSON.stringify(a) + ' / ' + JSON.stringify(b));
-  } },
-  { name: 'duplicate-lines: remove, extract and keep-last', tool: 'duplicate-lines', run: async page => {
-    const a = await get(page, 'out');
-    await chip(page, 'mode', 'Extract Dupes');
-    const b = await get(page, 'out');
-    await chip(page, 'mode', 'Remove Dupes');
-    await tick(page, 'cs', true); await tick(page, 'first', false);
-    const c = await get(page, 'out');
-    return res(a === 'apple\nbanana\ncherry\ndates' && b === 'apple\nbanana\ncherry' && c === 'Apple\ncherry\nbanana\ndates\nCherry\napple', [a, b, c].join(' | '));
-  } },
   { name: 'word-frequency-map: filtered counts', tool: 'word-frequency-map', run: async page => {
     const i = await get(page, 'info'), t = await get(page, 'table');
     await tick(page, 'stop', false); await set(page, 'min', '1');
@@ -246,14 +171,6 @@ module.exports = [
     await tick(page, 'links', false);
     const b = await get(page, 'out');
     return res(a === 'A & B\n\nC\nD z [https://z.io]' && b === 'A & B\n\nC\nD z', JSON.stringify(a));
-  } },
-  { name: 'text-sorter: longest first and 9 → 1', tool: 'text-sorter', run: async page => {
-    await chip(page, 'mode', 'Longest first');
-    const a = (await get(page, 'out')).split('\n')[0];
-    await set(page, 'in', 'item 2\nitem 10\nitem 1');
-    await chip(page, 'mode', '9 → 1');
-    const b = await get(page, 'out');
-    return res(a === 'elderberry' && b === 'item 10\nitem 2\nitem 1', a + ' / ' + b);
   } },
   { name: 'meta-tag-generator: escapes and reflects inputs', tool: 'meta-tag-generator', run: async page => {
     await set(page, 'title', 'Tom & "Jerry"'); await set(page, 'robots', 'noindex, nofollow'); await set(page, 'type', 'article');
@@ -313,11 +230,11 @@ module.exports = [
     await set(page, 'title', 'All The Tools: three hundred and ninety free browser utilities for text, code, colour, images, PDFs and video that never upload your files anywhere');
     const long = await get(page, 'serp-title');
     /* the container may have no Arial, so trust the page's own pixel measurement: cut iff it reports more than 600 px */
-    const px = +(await page.$eval('#view .note', n => (n.textContent.match(/(\d+) px of 600/) || [0, 0])[1]));
+    const px = +(await page.$eval('#view .tool-pane .note', n => (n.textContent.match(/(\d+) px of 600/) || [0, 0])[1]));
     const cutOk = px > 600 ? /…$/.test(long) && long.length < 75 : long.length > 100;
     await set(page, 'title', 'Merge PDF files free, right in your browser');
     const short = await get(page, 'serp-title');
-    const meta = await page.$eval('#view .note', n => n.textContent);
+    const meta = await page.$eval('#view .tool-pane .note', n => n.textContent);
     const checks = await page.$$eval('#view ul li', ns => ns.map(n => n.textContent));
     return res(cutOk && short === 'Merge PDF files free, right in your browser' && /Title: 43 characters/.test(meta) && /Description: \d+ characters/.test(meta) && checks.some(c => /^(Title fits|The title is short)/.test(c)), px + 'px | ' + long.slice(-20) + ' | ' + short + ' | ' + meta);
   } }

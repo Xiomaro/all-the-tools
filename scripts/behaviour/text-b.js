@@ -1,6 +1,6 @@
 /* Behaviour checks for the text-b tools, and for the features merged into
-   text.js survivors today (Word Counter, Lorem Ipsum, Slug Generator, Remove
-   Duplicate Lines, Sort Lines, Word Wrap, Word Frequency, Text Cleaner).
+   text.js survivors (Word Counter, Lorem Ipsum, Slug Generator, Word
+   Frequency). The Text Transformer's checks are in text-transformer.js.
    Expected values are worked out by hand from the rules or formulas named in
    each check. Elements are addressed through data-k attributes. */
 'use strict';
@@ -101,45 +101,6 @@ module.exports = [
     const d = await get(page, 'out');
     return res(a === 'creme-brulee-and-cafe' && b === 'creme+brulee+and+cafe' && c === 'creme-brulee' && d === 'art-war', [a, b, c, d].join(' | '));
   } },
-  { name: 'duplicate-lines: counts, trimming and case (was Remove Duplicates)', tool: 'duplicate-lines', run: async page => {
-    await tick(page, 'cs', true);
-    await set(page, 'in', 'apple\nbanana\napple\ncherry\nbanana\ndate');
-    const i = await get(page, 'info');
-    await set(page, 'in', 'x\nX\n y\ny');
-    const a = await get(page, 'out');
-    await tick(page, 'cs', false);
-    const b = await get(page, 'out');
-    await set(page, 'in', 'pear\n\nfig\n\npear\nApple'); await tick(page, 'blank', true); await tick(page, 'sort', true);
-    const c = await get(page, 'out');
-    return res(i === '4 unique · 2 removed' && a === 'x\nX\ny' && b === 'x\ny' && c === 'Apple\nfig\npear', [i, a, b, c].join(' | '));
-  } },
-  { name: 'text-sorter: numeric, dedupe, natural order (was Text Sort)', tool: 'text-sorter', run: async page => {
-    await set(page, 'in', 'b10\na2\nc1\na2');
-    await chip(page, 'mode', '1 → 9');
-    const n = await get(page, 'out');
-    await tick(page, 'dd', true); await chip(page, 'mode', '9 → 1');
-    const r = await get(page, 'out');
-    await tick(page, 'dd', false); await set(page, 'in', 'file10\nfile2\nFile1'); await chip(page, 'mode', 'A → Z');
-    const nat = await get(page, 'out');
-    await tick(page, 'natural', false);
-    const plain = await get(page, 'out');
-    await set(page, 'in', 'x\n3\n10'); await chip(page, 'mode', '9 → 1');
-    const last = await get(page, 'out');
-    return res(n === 'c1\na2\na2\nb10' && r === 'b10\na2\nc1' && nat === 'File1\nfile2\nfile10' && plain === 'File1\nfile10\nfile2' && last === '10\n3\nx', [n, r, nat, plain, last].join(' | '));
-  } },
-  { name: 'text-wrap: HTML <br> mode, re-flow and long words (was Word Wrap / Line Breaker)', tool: 'text-wrap', run: async page => {
-    await set(page, 'width', '20'); await chip(page, 'mode', 'HTML <br>');
-    await set(page, 'in', 'one two three four five six seven');
-    const o = await get(page, 'out'), i = await get(page, 'info');
-    await chip(page, 'mode', 'Hard line breaks'); await tick(page, 'reflow', true); await set(page, 'in', 'aaa\nbbb ccc\n\nddd');
-    const f = await get(page, 'out');
-    await tick(page, 'reflow', false); await set(page, 'width', '10'); await set(page, 'in', 'abcdefghijkl');
-    const brk = await get(page, 'out');
-    await tick(page, 'break', false);
-    const keep = await get(page, 'out');
-    return res(o === 'one two three four<br>\nfive six seven' && i === 'Lines: 2 · Longest line: 18 · Target width: 20' && f === 'aaa bbb ccc\n\nddd' &&
-      brk === 'abcdefghij\nkl' && keep === 'abcdefghijkl', [JSON.stringify(o), i, JSON.stringify(f), JSON.stringify(brk)].join(' | '));
-  } },
   { name: 'word-frequency-map: share of the whole text column (was Word Frequency, SEO)', tool: 'word-frequency-map', run: async page => {
     /* 15 words: fox and dog 2 each = 13.3%, the 4 = 26.7% */
     await set(page, 'min', '1'); await set(page, 'in', 'The quick brown fox jumps over the lazy dog. The dog barked at the fox.');
@@ -147,30 +108,6 @@ module.exports = [
     await tick(page, 'stop', false);
     const u = await get(page, 'table');
     return res(/\tfox\t2\t\d+\.\d%\t13\.3%/.test(t) && /\tdog\t2\t\d+\.\d%\t13\.3%/.test(t) && /1\tthe\t4\t26\.7%\t26\.7%/.test(u) && all === '15 words in the whole text', t.slice(0, 120) + ' | ' + all);
-  } },
-  { name: 'text-cleaner: whitespace fixes and remove all spaces (was Remove Extra Spaces)', tool: 'text-cleaner', run: async page => {
-    /* 69 characters in, 49 out */
-    await set(page, 'in', '  Hello   World  \n  This   has   extra   spaces  \n\n\nAnd blank lines  ');
-    const a = await get(page, 'out'), d = await get(page, 'delta');
-    await tick(page, 'allspaces', true);
-    const b = await get(page, 'out');
-    await clickBtn(page, 'Whitespace only'); await set(page, 'in', '<b>x</b>  “y”');
-    const c = await get(page, 'out');
-    return res(a === 'Hello World\nThis has extra spaces\nAnd blank lines' && d === '−20 characters (69 → 49)' && b === 'HelloWorld\nThishasextraspaces\nAndblanklines' && c === '<b>x</b> “y”', [a, d, b, c].join(' | '));
-  } },
-
-  /* ------------------------------------------------ Add Prefix & Suffix */
-  { name: 'text-prefix-suffix: {n} counter, start/step/padding, blank lines, trim and presets', tool: 'text-prefix-suffix', run: async page => {
-    await set(page, 'in', 'apple\n\nbanana'); await set(page, 'prefix', '{n}. '); await set(page, 'suffix', ';');
-    const a = await get(page, 'out'), i = await get(page, 'info');
-    await set(page, 'start', '8'); await set(page, 'step', '2'); await set(page, 'pad', '3');
-    const b = await get(page, 'out');
-    await set(page, 'in', '  x  \n'); await tick(page, 'trim', true);
-    await page.$$eval(Q('presets') + ' button', bs => bs.find(x => x.textContent === '[…]').click()); await page.waitForTimeout(200);
-    const c = await get(page, 'out');
-    await tick(page, 'skip', false);
-    const d = await get(page, 'out');
-    return res(a === '1. apple;\n\n2. banana;' && i === '2 lines changed' && b === '008. apple;\n\n010. banana;' && c === '[x]\n' && d === '[x]\n[]', [a, i, b, JSON.stringify(c), JSON.stringify(d)].join(' | '));
   } },
 
   /* ------------------------------------------------ List & Delimiter Converter */

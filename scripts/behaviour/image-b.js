@@ -214,6 +214,9 @@ function riffIds(b) { const out = []; let o = 12; while (o + 8 <= b.length) { co
 async function canvasPoint(page, selector, x, y) {
   return page.evaluate(({ selector, x, y }) => {
     const c = [...document.querySelectorAll(selector)].find(e => e.offsetParent);
+    /* The mouse can't reach what's scrolled out of the window. */
+    const seen = c.getBoundingClientRect();
+    if (seen.top < 0 || seen.bottom > innerHeight) c.scrollIntoView({ block: 'center' });
     const r = c.getBoundingClientRect();
     return { x: r.left + x * r.width / c.width, y: r.top + y * r.height / c.height };
   }, { selector, x, y });
@@ -242,14 +245,14 @@ async function stripes(page, w = 100, h = 100) {
 module.exports = [
   /* --- Convert Image: the old one-step format pages, now all one tool ---- */
   {
-    name: 'image-convert: old format pages resolve here and their search terms find it',
+    name: 'image-convert: old format pages open the Image Editor on Convert, and their search terms find it',
     tool: 'image-convert',
     run: async page => {
       const got = await page.evaluate(() => ({
-        aliases: ['heic-to-jpg', 'heic-to-png', 'webp-to-png', 'png-to-webp', 'webp-to-jpg', 'jpg-to-webp', 'avif-to-jpg', 'avif-to-png'].map(id => Tools.resolve(id)),
+        aliases: ['heic-to-jpg', 'heic-to-png', 'webp-to-png', 'png-to-webp', 'webp-to-jpg', 'jpg-to-webp', 'avif-to-jpg', 'avif-to-png'].map(id => Tools.href(id)),
         search: ['heic to jpg', 'webp to png', 'avif to png', 'jpg to webp'].map(q => (Tools.search(q)[0] || {}).id)
       }));
-      return ok(got.aliases.every(a => a === 'image-convert') && got.search.every(s => s === 'image-convert'), got);
+      return ok(got.aliases.every(a => a === '#/t/image-editor?tab=convert') && got.search.every(s => s === 'image-convert'), got);
     }
   },
   {
