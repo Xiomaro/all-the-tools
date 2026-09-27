@@ -37,10 +37,12 @@ WebCrypto don't work on `file://`, so many tools need a real `http://` origin.
   something instead and it says what it looks like and which tools fit: "5 kg" offers the weight
   converter, a colour offers the colour tools, and a JWT, timestamp, IP address, JSON, CSV or a
   paragraph of writing each get their own suggestions. Drop or paste a file (or use *Choose a
-  file*) and it lists what can be done with that kind of file, most common job first. Whatever
-  was pasted or dropped goes straight into the tool you pick: a drop zone takes the file, a text
-  box takes the text, and converters get their number, unit and date fields filled in. The rules
-  are in `assets/js/discover.js`; the hand-off itself is `UI.handoff` in `assets/js/ui.js`.
+  file*) and it lists what can be done with that kind of file, most common job first. The editor
+  for that kind of file (the Video Editor for a video, the PDF Editor for a PDF) is offered once,
+  as itself, with a line saying what it can do, rather than as a pick for each of its tools.
+  Whatever was pasted or dropped goes straight into the tool you pick: a drop zone takes the file,
+  a text box takes the text, and converters get their number, unit and date fields filled in. The
+  rules are in `assets/js/discover.js`; the hand-off itself is `UI.handoff` in `assets/js/ui.js`.
 - **Command palette.** <kbd>Ctrl</kbd>+<kbd>K</kbd> (or <kbd>/</kbd>) opens a command palette from
   anywhere, including from inside a tool. It matches names, ids, keywords and descriptions,
   understands everyday words ("shrink picture" finds Compress Image) and both British and American

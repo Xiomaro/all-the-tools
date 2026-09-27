@@ -252,15 +252,51 @@
       el('span', { text: tool.name }));
   }
 
+  /* An all-in-one editor offered for a dropped file, as one entry that
+     says what it can do rather than a pick for each of its parts. */
+  function suitePick(entry, hand) {
+    var suite = entry.suite;
+    var jobs = entry.tabs.map(function (tab) {
+      var part = suite.parts.filter(function (p) { return p.tab === tab; })[0];
+      return part ? part.label.charAt(0).toLowerCase() + part.label.slice(1) : null;
+    }).filter(Boolean);
+    var shown = jobs.slice(0, 4), rest = jobs.length - shown.length;
+    return el('a', {
+      class: 'pick pick-suite', href: Tools.href(suite.id), style: tint(Tools.category(suite.category)),
+      onclick: function () { U.handoff(hand || null); }
+    },
+      el('span', { class: 'pick-icon' }, Icons.forTool(suite)),
+      el('span', { class: 'pick-text' },
+        el('strong', { text: suite.name }),
+        el('small', { text: shown.join(', ') + (rest > 0 ? ' and ' + rest + ' more' : '') })));
+  }
+
+  /* The parts of an editor built around this kind of file (the Video
+     Editor for a video) become one entry for the editor, in the place of
+     the first of them. Parts of an editor for another kind of file (OCR,
+     in the PDF Editor, for a picture) stay as they are: they open on their
+     own tab and take the file themselves. */
+  function foldSuites(tools, file) {
+    var out = [], suites = Object.create(null);
+    tools.forEach(function (t) {
+      var suite = t.shortcut ? Tools.get(t.target) : null;
+      if (!suite || !suite.workspace || !U.accepts(suite.workspace.accept, file)) { out.push(t); return; }
+      if (!suites[suite.id]) out.push(suites[suite.id] = { suite: suite, id: suite.id, tabs: [] });
+      suites[suite.id].tabs.push(t.tab);
+    });
+    return out;
+  }
+
   /* A row of picks showing the first few, with a button for the rest. */
   function pickRow(tools, handFor, quiet) {
     var SHOW = 8;
-    var row = el('div', { class: 'picks' + (quiet ? ' quiet' : '') }, tools.slice(0, SHOW).map(function (t) { return pick(t, handFor(t)); }));
+    function one(t) { return t.suite ? suitePick(t, handFor(t)) : pick(t, handFor(t)); }
+    var row = el('div', { class: 'picks' + (quiet ? ' quiet' : '') }, tools.slice(0, SHOW).map(one));
     if (tools.length > SHOW) {
       var more = el('button', {
         type: 'button', class: 'pick pick-more', text: '+ ' + (tools.length - SHOW) + ' more',
         onclick: function () {
-          more.replaceWith.apply(more, tools.slice(SHOW).map(function (t) { return pick(t, handFor(t)); }));
+          more.replaceWith.apply(more, tools.slice(SHOW).map(one));
         }
       });
       row.appendChild(more);
@@ -329,6 +365,9 @@
         : files.length + ' ' + (found.same && found.kind ? found.kind.label + ' files' : 'files');
       var hand = { files: files };
       var main = toolsFrom(found.tools);
+      /* One file: the editor for its kind is offered once, as itself.
+         Several files go to tools that take several, one by one. */
+      if (files.length === 1) main = foldSuites(main, files[0]);
       var nodes = [
         el('div', { class: 'intake-file' },
           el('span', { class: 'intake-file-icon' }, Icons.svg('folder')),

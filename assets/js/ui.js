@@ -207,6 +207,7 @@
 
   function handoff(item) {
     pending = item ? Object.assign({ taken: false }, item) : null;
+    return pending;
   }
 
   function pendingHandoff() { return pending; }
@@ -682,9 +683,14 @@
         adopt(input.files[0], false);
       });
 
-      /* Hand the working copy to the tool as it builds. */
+      /* Hand the working copy to the tool as it builds. A hand-off from the
+         home page that nobody has taken yet (several files to merge, say)
+         is left for the tool to take; one this workspace has already taken
+         (its file is the working copy) is replaced. Either way the
+         workspace's own hand-off is cleared afterwards: left in place, it
+         would stop the next tool from being handed the file. */
       var mine = null;
-      if (session.doc && !pending) handoff(mine = { files: [session.doc], tool: def.id });
+      if (session.doc && (!pending || pending.taken)) mine = handoff({ files: [session.doc], tool: def.id });
       try {
         part.tool.render(pane, params);
       } catch (err) {
@@ -692,7 +698,7 @@
         if (global.console) console.error(err);
       }
       if (mine) {
-        if (!pending || !pending.taken) giveFiles(pane, mine);
+        if (!mine.taken) giveFiles(pane, mine);
         if (pending === mine) handoff(null);
       }
 

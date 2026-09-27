@@ -232,6 +232,9 @@
          loaded, a merged tool that took over a part's id may lack that part. */
       partIds: parts.map(function (p) { return p.tool.id; }),
       absorbs: def.parts.some(function (p) { return p.tool === def.id; }),
+      /* The file a workspace is built around, so the home page can offer
+         the whole editor for a dropped file rather than each of its parts. */
+      workspace: def.workspace || undefined,
       render: function (root, params) { global.UI[def.workspace ? 'workspace' : 'tabbed'](root, def, parts, params); }
     });
   }
