@@ -931,7 +931,11 @@
     var hand = U.pendingHandoff();
     if (hand && Tools.resolve(hand.tool) !== tool.id) { U.handoff(null); hand = null; }
 
-    var host = el('div', { class: 'stack' });
+    /* Left while still working? It was parked; put it back as it was. */
+    var kept = !hand && U.unpark('tool:' + tool.id, params.tab);
+    var host = kept || el('div', { class: 'stack' });
+    if (kept) { if (location.hash !== host.park.hash && history.replaceState) history.replaceState(null, '', host.park.hash); }
+    else host.park = { key: 'tool:' + tool.id, title: tool.name, sub: category ? category.name : '', tab: params.tab, hash: location.hash };
     var button = pinButton(tool, function () { button.dispatchEvent(new CustomEvent('repaint')); });
 
     view.replaceChildren(
@@ -947,11 +951,13 @@
       host);
 
     currentTool = host;
-    try {
-      tool.render(host, params);
-    } catch (err) {
-      host.appendChild(el('div', { class: 'banner', text: 'This tool failed to start: ' + (err.message || err) }));
-      if (window.console) console.error(err);
+    if (!kept) {
+      try {
+        tool.render(host, params);
+      } catch (err) {
+        host.appendChild(el('div', { class: 'banner', text: 'This tool failed to start: ' + (err.message || err) }));
+        if (window.console) console.error(err);
+      }
     }
     if (hand) deliverHandoff(hand, host);
 
@@ -1091,9 +1097,11 @@
   /* --- routing ---------------------------------------------------------- */
 
   function route() {
-    /* Give the outgoing tool a chance to stop timers and release resources. */
+    /* Give the outgoing tool a chance to stop timers and release resources,
+       unless it's partway through a job: then it's parked and carries on. */
     if (currentTool) {
-      currentTool.dispatchEvent(new CustomEvent('tool-teardown'));
+      var p = currentTool.park;
+      if (!(p && U.park(p.key, currentTool, p))) currentTool.dispatchEvent(new CustomEvent('tool-teardown'));
       currentTool = null;
     }
 

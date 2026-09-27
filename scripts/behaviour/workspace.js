@@ -5,6 +5,40 @@
 
 const clip = { name: 'sample.mp4', mimeType: 'video/mp4', buffer: Buffer.alloc(2048, 1) };
 
+/* A real 6 s clip, made in the page with the app's own ffmpeg, for jobs
+   that have to run to the end. */
+let real = null;
+async function realClip(page) {
+  if (real) return real;
+  const b64 = await page.evaluate(async () => {
+    const r = await window.MediaKit.ffRun({ inputs: [], outputs: ['o.mp4'], args: (p, d) => ['-f', 'lavfi', '-i', 'testsrc=size=640x480:rate=25:duration=6',
+      '-f', 'lavfi', '-i', 'sine=frequency=440:duration=6', '-c:v', 'libx264', '-preset', 'ultrafast', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-shortest', d + '/o.mp4'] });
+    const u = r[0].data; let t = ''; for (let i = 0; i < u.length; i += 0x8000) t += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000));
+    return btoa(t);
+  });
+  return (real = { name: 'holiday.mp4', mimeType: 'video/mp4', buffer: Buffer.from(b64, 'base64') });
+}
+
+const tray = page => page.evaluate(() => {
+  const t = document.querySelector('.tray');
+  if (!t || t.hidden) return [];
+  return Array.from(t.querySelectorAll('.tray-item')).map(i => ({
+    state: i.className.replace('tray-item', '').trim(), title: i.querySelector('strong').textContent,
+    sub: (i.querySelector('.tray-sub') || {}).textContent, button: i.querySelector('.tray-stop').textContent, href: i.querySelector('a').getAttribute('href') }));
+});
+
+/* Start compressing the real clip in the editor's Compress tool and leave
+   for Trim while it runs. */
+async function startCompressAndLeave(page) {
+  await page.click('#view .ws-item[href$="tab=compress"]');
+  await page.locator('#view .tool-pane input[type=file]').first().setInputFiles(await realClip(page));
+  await page.locator('#view .gv-act:not([disabled])').waitFor({ timeout: 60000 });
+  await page.click('#view .gv-act');
+  await page.locator('#view .progress.busy').waitFor({ timeout: 10000 });
+  await page.click('#view .ws-item[href$="tab=trim"]');
+  await page.waitForTimeout(150);
+}
+
 async function paneLabel(page) {
   return ((await page.textContent('#view .tool-pane .dropzone strong')) || '').trim();
 }
@@ -51,6 +85,47 @@ module.exports = [
       await page.waitForTimeout(120);
       const label = await paneLabel(page), bar = await barName(page);
       return { ok: label.indexOf(clip.name) < 0 && bar === '', detail: `label "${label}", bar "${bar}"` };
+    }
+  },
+  {
+    name: 'video-editor: a job carries on in the background when you leave the tool, and Open brings back its result', tool: 'video-editor',
+    run: async page => {
+      await startCompressAndLeave(page);
+      const left = await tray(page);
+      const trimTab = await page.getAttribute('#view .tool-pane', 'data-tab');
+      /* Off to another page entirely: still there. */
+      await page.goto(page.url().split('#')[0] + '#/', { waitUntil: 'load' });
+      await page.waitForTimeout(150);
+      const home = await tray(page);
+      await page.waitForFunction(() => { const i = document.querySelector('.tray-item'); return i && !/busy/.test(i.className); }, null, { timeout: 120000 });
+      const done = await tray(page);
+      await page.click('.tray a:has-text("Open")');
+      await page.waitForTimeout(300);
+      const back = await page.evaluate(() => ({ hash: location.hash, tab: document.querySelector('#view .tool-pane').dataset.tab,
+        result: (document.querySelector('#view .gv-fileinfo') || {}).textContent || '', tray: !!document.querySelector('.tray:not([hidden])') }));
+      /* Leaving an idle tool parks nothing. */
+      await page.click('#view .ws-item[href$="tab=trim"]');
+      await page.waitForTimeout(150);
+      const idle = await tray(page);
+      const ok = left.length === 1 && left[0].state === 'busy' && left[0].title === 'Compress' && left[0].sub === 'Video Editor' && left[0].button === 'Stop' &&
+        trimTab === 'trim' && home.length === 1 && done.length === 1 && done[0].state === 'done' && done[0].button === 'Dismiss' &&
+        back.hash === '#/t/video-editor?tab=compress' && back.tab === 'compress' && /holiday-compressed\.mp4/.test(back.result) && !back.tray && idle.length === 0;
+      return { ok, detail: JSON.stringify({ left, home, done, back, idle }) };
+    }
+  },
+  {
+    name: 'video-editor: Stop in the tray cancels the job and clears it', tool: 'video-editor',
+    run: async page => {
+      await startCompressAndLeave(page);
+      const before = await tray(page);
+      await page.click('.tray .tray-stop');
+      await page.waitForTimeout(300);
+      const after = await tray(page);
+      await page.click('#view .ws-item[href$="tab=compress"]');
+      await page.waitForTimeout(200);
+      const pane = await page.evaluate(() => ({ busy: !!document.querySelector('#view .progress.busy'), result: !!document.querySelector('#view .gv-out') }));
+      const ok = before.length === 1 && before[0].state === 'busy' && after.length === 0 && !pane.busy && !pane.result;
+      return { ok, detail: JSON.stringify({ before, after, pane }) };
     }
   },
   {

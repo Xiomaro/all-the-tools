@@ -119,6 +119,17 @@ The tools themselves are unchanged and still download their results as before. T
 watches (`UI.onSave`, and the `files-chosen` event a drop zone fires) rather than intercepts, so
 nothing behaves differently inside it. See `UI.workspace` in `assets/js/ui.js`.
 
+### Work carries on in the background
+
+Leaving a tool partway through a long job (compressing a video, hashing a big file, running OCR)
+no longer stops it. The tool is parked instead of torn down: kept alive off-screen, still working,
+and listed in a small tray at the bottom right with its progress. *Open* puts it back exactly as
+it was, results and all, and so does simply going back to the tool; *Stop* tears it down, which
+cancels the work. Inside an editor this works per tool, so you can start compressing, move to
+Trim, and come back. A tool counts as busy while its progress bar (`UI.progress`) has a fraction
+under 1, so any tool that reports progress that way gets this for free. See `UI.park` in
+`assets/js/ui.js`.
+
 ---
 
 ## What's in it
