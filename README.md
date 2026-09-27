@@ -37,10 +37,12 @@ WebCrypto don't work on `file://`, so many tools need a real `http://` origin.
   something instead and it says what it looks like and which tools fit: "5 kg" offers the weight
   converter, a colour offers the colour tools, and a JWT, timestamp, IP address, JSON, CSV or a
   paragraph of writing each get their own suggestions. Drop or paste a file (or use *Choose a
-  file*) and it lists what can be done with that kind of file, most common job first. Whatever
-  was pasted or dropped goes straight into the tool you pick: a drop zone takes the file, a text
-  box takes the text, and converters get their number, unit and date fields filled in. The rules
-  are in `assets/js/discover.js`; the hand-off itself is `UI.handoff` in `assets/js/ui.js`.
+  file*) and it lists what can be done with that kind of file, most common job first. The editor
+  for that kind of file (the Video Editor for a video, the PDF Editor for a PDF) is offered once,
+  as itself, with a line saying what it can do, rather than as a pick for each of its tools.
+  Whatever was pasted or dropped goes straight into the tool you pick: a drop zone takes the file,
+  a text box takes the text, and converters get their number, unit and date fields filled in. The
+  rules are in `assets/js/discover.js`; the hand-off itself is `UI.handoff` in `assets/js/ui.js`.
 - **Command palette.** <kbd>Ctrl</kbd>+<kbd>K</kbd> (or <kbd>/</kbd>) opens a command palette from
   anywhere, including from inside a tool. It matches names, ids, keywords and descriptions,
   understands everyday words ("shrink picture" finds Compress Image) and both British and American
@@ -116,6 +118,17 @@ removal, convert, tags). The tools are listed down the side in groups, and:
 The tools themselves are unchanged and still download their results as before. The workspace
 watches (`UI.onSave`, and the `files-chosen` event a drop zone fires) rather than intercepts, so
 nothing behaves differently inside it. See `UI.workspace` in `assets/js/ui.js`.
+
+### Work carries on in the background
+
+Leaving a tool partway through a long job (compressing a video, hashing a big file, running OCR)
+no longer stops it. The tool is parked instead of torn down: kept alive off-screen, still working,
+and listed in a small tray at the bottom right with its progress. *Open* puts it back exactly as
+it was, results and all, and so does simply going back to the tool; *Stop* tears it down, which
+cancels the work. Inside an editor this works per tool, so you can start compressing, move to
+Trim, and come back. A tool counts as busy while its progress bar (`UI.progress`) has a fraction
+under 1, so any tool that reports progress that way gets this for free. See `UI.park` in
+`assets/js/ui.js`.
 
 ---
 

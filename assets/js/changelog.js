@@ -11,6 +11,17 @@
 
   window.Changelog = [
     {
+      date: '2026-09-27',
+      changes: [
+        { type: 'added', text: 'Long jobs carry on when you leave the tool. Start compressing a video, say, then move to another tool or page: the work continues, a small tray at the bottom right shows its progress, and Open takes you back to the tool exactly as you left it, result and all. Stop cancels it. Before, leaving the tool stopped the job. This covers every tool with a progress bar, from the video and audio tools to hashing, OCR and PDF conversion.' },
+        { type: 'fixed', text: 'In the PDF, Image, Video and Audio Editors, the file you opened now follows you to every tool. Before, it was handed to the first tool you moved to and then stayed in the bar at the top while every later tool asked for a file.',
+          tools: ['pdf-editor', 'image-editor', 'video-editor', 'audio-editor'] },
+        { type: 'fixed', text: 'A file dropped on the home page and opened in one of the editors now lands in the tool as well as in the bar at the top.',
+          tools: ['pdf-editor', 'image-editor', 'video-editor', 'audio-editor'] },
+        { type: 'improved', text: 'Drop a video, a picture, a PDF or a recording on the home page and its editor is offered once, as itself, with a line saying what it can do, instead of a separate pick for each of its tools. Tools outside the editor are still listed after it.' }
+      ]
+    },
+    {
       date: '2026-09-26',
       changes: [
         { type: 'improved', text: 'The big all-in-one tools come first: the home page has a row for the PDF, Image, Video and Audio Editors, the Text Transformer and the Unit Converter, and each category page starts with its own, in a bigger card that lists what is inside and links straight to each part.' },

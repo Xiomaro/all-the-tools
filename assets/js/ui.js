@@ -207,6 +207,7 @@
 
   function handoff(item) {
     pending = item ? Object.assign({ taken: false }, item) : null;
+    return pending;
   }
 
   function pendingHandoff() { return pending; }
@@ -457,24 +458,120 @@
     return loaded[key];
   }
 
-  /* A progress/status line for long jobs. set(text, fraction?) */
+  /* A progress/status line for long jobs. set(text, fraction?)
+     A fraction under 1 marks the tool as busy: it then carries on in the
+     background if the visitor leaves it (see park, below). done, fail, or
+     a set without a fraction clears that. */
   function progress() {
     var bar = el('progress', { max: 1, value: 0, style: { width: '100%', display: 'none' } });
     var label = note('');
     var wrap = el('div', { class: 'progress' }, bar, label);
+    function changed(busy) {
+      wrap.classList.toggle('busy', busy);
+      wrap.dispatchEvent(new CustomEvent('progress-change', { bubbles: true }));
+    }
     wrap.set = function (text, fraction) {
       label.className = 'note';
       label.textContent = text || '';
-      if (fraction === undefined || fraction === null) bar.style.display = 'none';
+      var running = fraction !== undefined && fraction !== null;
+      if (!running) bar.style.display = 'none';
       else { bar.style.display = ''; bar.value = Math.max(0, Math.min(1, fraction)); }
+      changed(running && fraction < 1);
     };
     wrap.fail = function (err) {
       bar.style.display = 'none';
       label.className = 'note err';
       label.textContent = (err && err.message) || String(err);
+      changed(false);
     };
-    wrap.done = function (text) { bar.style.display = 'none'; label.className = 'note ok'; label.textContent = text || 'Done'; };
+    wrap.done = function (text) { bar.style.display = 'none'; label.className = 'note ok'; label.textContent = text || 'Done'; changed(false); };
     return wrap;
+  }
+
+  /* --- background work ----------------------------------------------------
+     A tool partway through a long job (its progress bar is running) isn't
+     torn down when the visitor leaves it. Its pane is parked: kept alive
+     off-screen, still working, and listed in a tray at the bottom right
+     with its progress. Opening it from the tray, or simply coming back to
+     the tool, puts the pane back exactly as it was, results and all. Stop
+     tears it down, which cancels the work just as leaving used to.
+
+     park(key, node, meta) returns true when it kept the node; the caller
+     tears it down otherwise. meta: { title, sub, hash, tab }. */
+  var parked = Object.create(null);
+  var tray = null;
+
+  function busyIn(node) { return node.querySelector('.progress.busy'); }
+
+  function park(key, node, meta) {
+    var prog = node && busyIn(node);
+    /* A workspace parks its own pane rather than the whole editor. */
+    if (!prog || parked[key] || node.querySelector('.ws-body')) return false;
+    var entry = parked[key] = { key: key, node: node, meta: meta, prog: prog, item: null };
+    node.addEventListener('progress-change', function () { paintItem(entry); });
+    paintTray();
+    toast(meta.title + ' carries on in the background. It’s in the corner when you want it back.');
+    return true;
+  }
+
+  /* The parked node for `key`, taken out of the tray, or null. A tab is
+     only matched to the tab it was parked on. */
+  function unpark(key, tab) {
+    var entry = parked[key];
+    if (!entry || (tab && entry.meta.tab && entry.meta.tab !== tab)) return null;
+    delete parked[key];
+    paintTray();
+    return entry.node;
+  }
+
+  function dismiss(key) {
+    var node = unpark(key);
+    if (node) node.dispatchEvent(new CustomEvent('tool-teardown'));
+  }
+
+  function itemState(entry) {
+    var prog = busyIn(entry.node) || entry.prog;
+    var label = prog.querySelector('.note'), bar = prog.querySelector('progress');
+    if (prog.classList.contains('busy')) return { state: 'busy', text: label.textContent || 'Working…', value: bar.value };
+    return { state: label.classList.contains('err') ? 'failed' : 'done', text: label.textContent };
+  }
+
+  function paintItem(entry) {
+    if (!entry.item) return;
+    var s = itemState(entry);
+    entry.item.className = 'tray-item ' + s.state;
+    entry.item.querySelector('progress').value = s.value || 0;
+    entry.item.querySelector('.tray-text').textContent = s.state === 'busy' ? s.text
+      : s.state === 'done' ? 'Finished. Open it to see the result.' : (s.text || 'Stopped with an error.');
+    entry.item.querySelector('.tray-stop').textContent = s.state === 'busy' ? 'Stop' : 'Dismiss';
+  }
+
+  function paintTray() {
+    var keys = Object.keys(parked);
+    if (!tray) {
+      tray = el('aside', { class: 'tray', role: 'status', 'aria-live': 'polite', 'aria-label': 'Work carrying on in the background' });
+      document.body.appendChild(tray);
+    }
+    tray.hidden = !keys.length;
+    tray.replaceChildren.apply(tray, [el('div', { class: 'tray-title', text: 'In the background' })].concat(keys.map(function (key) {
+      var entry = parked[key];
+      entry.item = el('div', { class: 'tray-item', dataset: { key: key } },
+        el('div', { class: 'tray-head' },
+          el('strong', { text: entry.meta.title }),
+          entry.meta.sub ? el('span', { class: 'tray-sub', text: entry.meta.sub }) : null),
+        el('progress', { max: 1, value: 0 }),
+        el('span', { class: 'tray-text' }),
+        el('div', { class: 'tray-actions' },
+          el('a', { class: 'btn primary', href: entry.meta.hash, text: 'Open', onclick: function (e) {
+            /* Already at that address: the router only listens for a change. */
+            if (location.hash === entry.meta.hash) { e.preventDefault(); window.dispatchEvent(new HashChangeEvent('hashchange')); }
+          } }),
+          el('button', { type: 'button', class: 'btn ghost tray-stop', onclick: function () { dismiss(key); } })));
+      paintItem(entry);
+      return entry.item;
+    })));
+    /* Toasts sit above the tray. */
+    document.documentElement.style.setProperty('--tray-h', keys.length ? (tray.offsetHeight + 8) + 'px' : '0px');
   }
 
   /* Run fn when the tool page is left (timers, streams, audio contexts). */
@@ -644,20 +741,32 @@
     function undo() {
       if (!session.history.length) return;
       session.doc = session.history.pop();
-      show(current.tab);
+      show(current.tab, true);
       toast('Undone: back to ' + session.doc.name);
     }
 
     function close() {
       session.doc = null;
       session.history = [];
-      show(current.tab);
+      show(current.tab, true);
     }
 
-    function show(tab) {
+    /* A pane still working when it's left is parked rather than torn down,
+       and comes back when its tab is opened again (see park, above). */
+    function parkKey(part) { return 'ws:' + def.id + ':' + part.tab; }
+    function parkMeta(part) {
+      return { title: part.label, sub: def.name, tab: part.tab, hash: '#/t/' + def.id + '?tab=' + encodeURIComponent(part.tab) };
+    }
+    function leave() {
+      if (pane && !park(parkKey(current), pane, parkMeta(current))) pane.dispatchEvent(new CustomEvent('tool-teardown'));
+    }
+
+    /* `afresh` (Undo, Close) always builds the tool anew. */
+    function show(tab, afresh) {
       var part = parts.filter(function (p) { return p.tab === tab; })[0] || parts[0];
-      if (pane) pane.dispatchEvent(new CustomEvent('tool-teardown'));
-      var fresh = el('div', { class: 'stack tool-pane', dataset: { tab: part.tab } });
+      leave();
+      var kept = !afresh && (!pending || pending.taken) ? unpark(parkKey(part)) : null;
+      var fresh = kept || el('div', { class: 'stack tool-pane', dataset: { tab: part.tab } });
       if (pane) pane.replaceWith(fresh); else main.appendChild(fresh);
       pane = fresh;
       current = part;
@@ -682,17 +791,24 @@
         adopt(input.files[0], false);
       });
 
-      /* Hand the working copy to the tool as it builds. */
+      /* Hand the working copy to the tool as it builds. A hand-off from the
+         home page that nobody has taken yet (several files to merge, say)
+         is left for the tool to take; one this workspace has already taken
+         (its file is the working copy) is replaced. Either way the
+         workspace's own hand-off is cleared afterwards: left in place, it
+         would stop the next tool from being handed the file. */
       var mine = null;
-      if (session.doc && !pending) handoff(mine = { files: [session.doc], tool: def.id });
-      try {
-        part.tool.render(pane, params);
-      } catch (err) {
-        pane.appendChild(el('div', { class: 'banner', text: 'This tool failed to start: ' + (err.message || err) }));
-        if (global.console) console.error(err);
+      if (!kept && session.doc && (!pending || pending.taken)) mine = handoff({ files: [session.doc], tool: def.id });
+      if (!kept) {
+        try {
+          part.tool.render(pane, params);
+        } catch (err) {
+          pane.appendChild(el('div', { class: 'banner', text: 'This tool failed to start: ' + (err.message || err) }));
+          if (global.console) console.error(err);
+        }
       }
       if (mine) {
-        if (!pending || !pending.taken) giveFiles(pane, mine);
+        if (!mine.taken) giveFiles(pane, mine);
         if (pending === mine) handoff(null);
       }
 
@@ -710,7 +826,7 @@
 
     root.addEventListener('tool-teardown', function () {
       stop();
-      if (pane) pane.dispatchEvent(new CustomEvent('tool-teardown'));
+      leave();
     }, { once: true });
 
     var wanted = params && params.tab;
@@ -726,6 +842,7 @@
     saveBlob: saveBlob, saveText: saveText, downloadBtn: downloadBtn,
     copy: copy, copyBtn: copyBtn, toast: toast, pair: pair,
     debounce: debounce, live: live, bytes: bytes, escapeHtml: escapeHtml,
-    script: script, module: module, progress: progress, onTeardown: onTeardown, tabbed: tabbed, workspace: workspace
+    script: script, module: module, progress: progress, onTeardown: onTeardown, tabbed: tabbed, workspace: workspace,
+    park: park, unpark: unpark
   };
 })(window);
