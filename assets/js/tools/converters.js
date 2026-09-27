@@ -2144,6 +2144,8 @@
     ['cup-us', 'US cup (236.6 ml)', 236.588, 'v'], ['cup-metric', 'Metric cup (250 ml)', 250, 'v'], ['floz-us', 'US fluid ounce', 29.5735, 'v'], ['floz-uk', 'UK fluid ounce', 28.4131, 'v'], ['pint-uk', 'UK pint (568 ml)', 568.261, 'v'], ['pint-us', 'US pint (473 ml)', 473.176, 'v'],
     ['g', 'Grams (g)', 1, 'w'], ['kg', 'Kilograms (kg)', 1000, 'w'], ['oz', 'Ounces (oz)', 28.3495, 'w'], ['lb', 'Pounds (lb)', 453.592, 'w'], ['stick', 'Stick of butter (113 g)', 113.4, 'w']
   ];
+  /* Shared with the Recipe Scaler (converters-c.js). */
+  window.CookKit = { ingredients: INGREDIENTS, units: COOK_UNITS };
   Tools.register({
     id: 'cooking-converter', category: 'converters', name: 'Cooking Converter',
     description: 'Cups, spoons, grams and ounces for real ingredients, with US and UK measures, plus oven temperatures and gas marks.',

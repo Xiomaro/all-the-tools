@@ -1426,47 +1426,6 @@
   });
 
   /* ======================================================================
-     Slug Generator
-     ====================================================================== */
-  reg({
-    id: 'slug-generator', name: 'Slug Generator',
-    description: 'Turns titles into URL slugs, folding accents and "&" into plain letters, with any separator, a length limit and a bulk mode.',
-    keywords: ['slug', 'slugify', 'text to slug', 'url', 'permalink', 'seo', 'friendly url', 'bulk', 'accents', 'separator',
-      'hyphen', 'underscore', 'kebab', 'stop words', 'max length'],
-    render: function (root) {
-      var sep = chips([{ value: '-', label: '-' }, { value: '_', label: '_' }, { value: '.', label: '.' }, { value: 'custom', label: 'Custom' }],
-        function () { custom.classList.toggle('gt-hidden', sep.value !== 'custom'); run(); }, '-', 'sep');
-      var custom = textIn('~', 'any text', 'custom');
-      custom.style.width = '90px';
-      custom.classList.add('gt-hidden');
-      var lower = sw('Lowercase', true, 'lower');
-      var stop = sw('Leave out little words (a, the, of…)', false, 'stop');
-      var max = numIn(0, 0, 500, 'max');
-      var input = textIn('Hello World! This is a Test', 'Your text here…', 'in');
-      input.style.width = '100%';
-      var slug = el('pre', { class: 'out', dataset: { k: 'out' } });
-      var len = el('span', { class: 'gt-muted', dataset: { k: 'len' } });
-      var bulk = ta('', 'Blog Post Title\nAnother Article Name\nThird Entry', 'short', 'bulk');
-      var bulkOut = el('pre', { class: 'out', dataset: { k: 'bulkout' } });
-      function opts() {
-        return { sep: sep.value === 'custom' ? custom.value : sep.value, lower: on(lower), stop: on(stop), max: intOf(max, 0, 0, 500) };
-      }
-      function run() {
-        var o = opts();
-        slug.textContent = makeSlug(input.value, o);
-        len.textContent = slug.textContent.length + ' characters';
-        bulkOut.textContent = bulk.value.split('\n').filter(function (l) { return l.trim(); }).map(function (l) { return makeSlug(l, o); }).join('\n');
-      }
-      wire([input, custom, lower, stop, max, bulk], run);
-      root.appendChild(U.panel('Options', el('div', { class: 'gt-inline' }, el('span', { class: 'gt-muted', text: 'Separator' }), sep, custom),
-        U.row(lower, stop, lab('Maximum length (0 for none)', max))));
-      root.appendChild(U.panel('Text', input, el('h3', { text: 'Slug', style: { marginTop: '14px' } }), slug, len, U.btnrow(copyOf(function () { return slug.textContent; }))));
-      root.appendChild(U.panel('Bulk conversion (one title per line)', bulk, bulkOut, U.btnrow(copyOf(function () { return bulkOut.textContent; }, 'Copy all'),
-        U.downloadBtn('Download', 'slugs.txt', function () { return bulkOut.textContent; }))));
-    }
-  });
-
-  /* ======================================================================
      Braille Translator
      ====================================================================== */
   var BRAILLE = { a: '⠁', b: '⠃', c: '⠉', d: '⠙', e: '⠑', f: '⠋', g: '⠛', h: '⠓', i: '⠊', j: '⠚', k: '⠅', l: '⠇', m: '⠍', n: '⠝', o: '⠕',
@@ -1830,9 +1789,10 @@
     }
   });
 
-  /* Helpers text-b.js (loaded next) shares instead of keeping its own copies. */
+  /* Helpers text-b.js (loaded next) shares instead of keeping its own copies,
+     and the slug maker the Text Transformer's Make slugs step uses. */
   window.TextKit = {
     graphemes: graphemes, graphemeCount: graphemeCount, countWords: countWords,
-    sentences: sentenceList, paragraphs: paragraphList, syllables: syllables
+    sentences: sentenceList, paragraphs: paragraphList, syllables: syllables, makeSlug: makeSlug
   };
 })();

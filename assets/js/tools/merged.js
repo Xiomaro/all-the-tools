@@ -24,7 +24,7 @@
 
   merge({
     id: 'unit-converter', category: 'converters', name: 'Unit Converter', icon: 'ruler',
-    description: 'Convert length, weight, temperature, volume, area, speed, data sizes and 12 more kinds of measurement, with every unit side by side.',
+    description: 'Convert length, weight, temperature, volume, area, speed, data sizes and 13 more kinds of measurement, with every unit side by side.',
     keywords: ['unit converter', 'units', 'convert', 'measurement', 'metric', 'imperial'],
     picker: 'select', pickerLabel: 'Measure'
   }, [
@@ -46,7 +46,20 @@
     ['density-converter', 'density', 'Density'],
     ['flow-rate-converter', 'flow', 'Flow rate'],
     ['frequency-converter', 'frequency', 'Frequency'],
-    ['acceleration-converter', 'acceleration', 'Acceleration']
+    ['acceleration-converter', 'acceleration', 'Acceleration'],
+    ['beaufort-scale', 'beaufort', 'Wind & Beaufort scale']
+  ]);
+
+  merge({
+    id: 'aspect-ratio-calc', category: 'converters', name: 'Aspect Ratio, Screen & Paper Sizes', icon: 'ruler',
+    description: 'Work out aspect ratios, pixels and print sizes at any DPI, compare TV and screen sizes, look up paper sizes, or measure with an on-screen ruler.',
+    keywords: ['aspect ratio', 'resolution', 'dpi', 'ppi', 'screen size', 'tv size', 'paper size', 'a4', 'ruler']
+  }, [
+    ['aspect-ratio-calc', 'ratio', 'Aspect ratio'],
+    ['resolution-converter', 'resolution', 'Pixels, DPI & print size'],
+    ['screen-size-comparison', 'screens', 'TV & screen sizes'],
+    ['paper-size-viewer', 'paper', 'Paper sizes'],
+    ['online-ruler', 'ruler', 'On-screen ruler']
   ]);
 
   /* --- time ------------------------------------------------------------- */
@@ -137,26 +150,29 @@
 
   merge({
     id: 'encode-decode', category: 'developer', name: 'Encode & Decode', icon: 'swap',
-    description: 'Encode or decode Base64, URLs, HTML entities, escaped strings and Base32.',
+    description: 'Encode or decode Base64, URLs, HTML entities, escaped strings, Base32 and Punycode domains, or turn an image into a Base64 data URI.',
     keywords: ['encode', 'decode', 'encoder', 'decoder', 'escape', 'unescape']
   }, [
     ['base64-encode', 'base64', 'Base64'],
     ['url-encode', 'url', 'URL'],
     ['html-entities', 'html', 'HTML entities'],
     ['string-escape', 'escape', 'Escape strings'],
-    ['base32', 'base32', 'Base32']
+    ['base32', 'base32', 'Base32'],
+    ['image-to-base64', 'image', 'Image to Base64'],
+    ['punycode-converter', 'punycode', 'Punycode & IDN']
   ]);
 
   merge({
     id: 'code-formatter', category: 'developer', name: 'Code Formatter & Minifier', icon: 'code',
-    description: 'Tidy up or minify HTML, CSS, JavaScript, SQL and GraphQL.',
+    description: 'Tidy up or minify HTML, CSS, JavaScript, SQL and GraphQL, or fix line endings and convert tabs and spaces.',
     keywords: ['formatter', 'beautifier', 'prettify', 'minifier', 'minify', 'pretty print']
   }, [
     ['html-formatter', 'html', 'HTML'],
     ['css-formatter', 'css', 'CSS'],
     ['js-formatter', 'js', 'JavaScript'],
     ['sql-formatter', 'sql', 'SQL'],
-    ['graphql-formatter', 'graphql', 'GraphQL']
+    ['graphql-formatter', 'graphql', 'GraphQL'],
+    ['line-endings', 'line-endings', 'Line endings & indents']
   ]);
 
   merge({
@@ -241,14 +257,15 @@
 
   merge({
     id: 'word-count', category: 'text', name: 'Word Counter & Text Statistics', icon: 'type',
-    description: 'Count words and characters, score readability, rank the most-used words, measure keyword density, or check a post against every social network’s limit.',
+    description: 'Count words and characters, score readability, rank the most-used words, measure keyword density, check a post against every social network’s limit, or count the tokens an AI model will see.',
     keywords: ['word count', 'word counter', 'character count', 'character counter', 'readability', 'word frequency', 'keyword density']
   }, [
     ['word-count', 'count', 'Word count'],
     ['readability-score', 'readability', 'Readability'],
     ['word-frequency-map', 'frequency', 'Word frequency'],
     ['keyword-density', 'keywords', 'Keyword density'],
-    ['social-char-counter', 'social', 'Social media limits']
+    ['social-char-counter', 'social', 'Social media limits'],
+    ['token-counter', 'tokens', 'AI tokens']
   ]);
 
   merge({
@@ -289,6 +306,45 @@
   }, [
     ['anagram-tool', 'anagram', 'Anagrams'],
     ['palindrome-checker', 'palindrome', 'Palindromes']
+  ]);
+
+  merge({
+    id: 'list-converter', category: 'text', name: 'List, Column & Text Splitter', icon: 'list',
+    description: 'Turn a list into comma-separated values and back, pull columns out of delimited text, or split long text into chunks and threads.',
+    keywords: ['list converter', 'delimiter', 'comma separated', 'columns', 'split text', 'thread', 'chunks']
+  }, [
+    ['list-converter', 'list', 'Lists & delimiters'],
+    ['column-extractor', 'columns', 'Extract columns'],
+    ['text-splitter', 'split', 'Split text & threads']
+  ]);
+
+  merge({
+    id: 'ascii-art', category: 'text', name: 'ASCII Art Generator', icon: 'type',
+    description: 'Turn words into big ASCII art lettering, or a picture into ASCII art.',
+    keywords: ['ascii art', 'text art', 'figlet', 'banner', 'image to ascii', 'picture to text']
+  }, [
+    ['ascii-art-text', 'text', 'Text to ASCII art'],
+    ['image-ascii', 'image', 'Image to ASCII art']
+  ]);
+
+  merge({
+    id: 'markdown-to-html', category: 'developer', name: 'Markdown Editor', icon: 'doc',
+    description: 'Write Markdown with a live preview and export it as HTML or PDF, or build a Markdown table.',
+    keywords: ['markdown', 'markdown editor', 'md', 'markdown to html', 'markdown to pdf', 'markdown table', 'preview']
+  }, [
+    ['markdown-to-html', 'editor', 'Editor & HTML'],
+    ['markdown-to-pdf', 'pdf', 'To PDF'],
+    ['markdown-table-gen2', 'table', 'Table']
+  ]);
+
+  merge({
+    id: 'repo-files', category: 'developer', name: '.gitignore, Licence & Commit Message Generator', icon: 'branch',
+    description: 'Make a .gitignore for your stack, pick and fill in an open source licence, or write a conventional commit message.',
+    keywords: ['gitignore', 'licence', 'license', 'open source', 'commit message', 'conventional commits', 'git', 'repo']
+  }, [
+    ['gitignore-generator', 'gitignore', '.gitignore'],
+    ['license-generator', 'licence', 'Licence'],
+    ['git-commit', 'commit', 'Commit message']
   ]);
 
   /* --- data ------------------------------------------------------------- */
@@ -401,13 +457,14 @@
   ]);
 
   merge({
-    id: 'color-contrast', category: 'color', name: 'Contrast Checker', icon: 'contrast',
-    description: 'Check the WCAG contrast of a text and background colour, of every pairing in a palette, or whether a palette works for colour-blind readers.',
+    id: 'color-contrast', category: 'color', name: 'Contrast & Colour Blindness Checker', icon: 'contrast',
+    description: 'Check the WCAG contrast of a text and background colour, of every pairing in a palette, check whether a palette works for colour-blind readers, or see a picture as they would.',
     keywords: ['contrast', 'wcag', 'accessibility', 'a11y', 'colour blind', 'contrast ratio']
   }, [
     ['color-contrast', 'pair', 'Two colours'],
     ['contrast-grid', 'grid', 'Whole palette'],
-    ['colorblind-palette-checker', 'colour-blind', 'Colour-blind safe']
+    ['colorblind-palette-checker', 'colour-blind', 'Colour-blind safe'],
+    ['color-blindness', 'simulate', 'Simulate colour blindness']
   ]);
 
   merge({
@@ -433,6 +490,34 @@
     ['css-flexbox', 'flexbox', 'Flexbox'],
     ['css-grid', 'grid', 'Grid'],
     ['flexbox-cheatsheet', 'cheatsheet', 'Flexbox cheatsheet']
+  ]);
+
+  merge({
+    id: 'color-palette', category: 'color', name: 'Colour Palette Generator', icon: 'palette2',
+    description: 'Build a palette from colour harmonies, roll random colours, or make an accessible palette for charts.',
+    keywords: ['colour palette', 'color palette', 'palette generator', 'harmonies', 'random colour', 'chart colours', 'data visualisation']
+  }, [
+    ['color-palette', 'harmonies', 'Harmonies'],
+    ['random-color', 'random', 'Random colours'],
+    ['data-viz-palette', 'charts', 'For charts']
+  ]);
+
+  merge({
+    id: 'css-animation', category: 'css', name: 'CSS Animation & Easing Generator', icon: 'css',
+    description: 'Build CSS keyframe animations, or shape the cubic-bézier easing curve they move along.',
+    keywords: ['css animation', 'keyframes', 'easing', 'cubic bezier', 'transition', 'timing function']
+  }, [
+    ['css-animation', 'animation', 'Animation'],
+    ['cubic-bezier', 'easing', 'Easing curve']
+  ]);
+
+  merge({
+    id: 'selector-tester', category: 'developer', name: 'CSS Selector, XPath & Specificity Tester', icon: 'code',
+    description: 'Test CSS selectors and XPath against your HTML, or work out and compare selector specificity.',
+    keywords: ['css selector', 'xpath', 'selector tester', 'specificity', 'queryselector']
+  }, [
+    ['selector-tester', 'test', 'Test selectors'],
+    ['css-specificity', 'specificity', 'Specificity']
   ]);
 
   /* --- seo and network -------------------------------------------------- */
@@ -487,6 +572,36 @@
     ['ipv6-tool', 'ipv6', 'IPv6']
   ]);
 
+  merge({
+    id: 'ip-address', category: 'network', name: 'What’s My IP & Browser', icon: 'globe',
+    description: 'See your public IP address and where it points, check for WebRTC leaks, read a user agent, and list what your browser and device support.',
+    keywords: ['what is my ip', 'my ip', 'ip address', 'webrtc leak', 'vpn test', 'user agent', 'browser info', 'device info']
+  }, [
+    ['ip-address', 'ip', 'My IP'],
+    ['webrtc-leak-test', 'webrtc', 'WebRTC leak test'],
+    ['user-agent', 'user-agent', 'User agent'],
+    ['browser-info', 'browser', 'Browser & device']
+  ]);
+
+  merge({
+    id: 'url-builder', category: 'network', name: 'URL & UTM Campaign Builder', icon: 'link',
+    description: 'Take a URL apart and put it back together, or tag a link with UTM campaign parameters.',
+    keywords: ['url builder', 'url parser', 'query string', 'utm builder', 'campaign url', 'utm']
+  }, [
+    ['url-builder', 'url', 'URL builder'],
+    ['utm-builder', 'utm', 'UTM campaign']
+  ]);
+
+  merge({
+    id: 'redirect-generator', category: 'seo', name: 'Redirect, .htaccess & hreflang Generator', icon: 'route',
+    description: 'Write redirect rules for any server, build an .htaccess file, or generate hreflang tags for a site in several languages.',
+    keywords: ['redirect', '301', 'htaccess', 'nginx', 'hreflang', 'rewrite rules']
+  }, [
+    ['redirect-generator', 'redirects', 'Redirects'],
+    ['htaccess-generator', 'htaccess', '.htaccess'],
+    ['hreflang-generator', 'hreflang', 'hreflang']
+  ]);
+
   /* --- maths and science ------------------------------------------------ */
 
   merge({
@@ -539,6 +654,45 @@
     ['equation-balancer', 'balance', 'Balance an equation']
   ]);
 
+  merge({
+    id: 'grade-calculator', category: 'science', name: 'Grade, GPA & Degree Calculator', icon: 'calculator',
+    description: 'Work out your grade from weighted assignments, the score you need on the final, your GPA, or your UK degree classification.',
+    keywords: ['grade calculator', 'weighted grade', 'final grade', 'final exam', 'gpa calculator', 'gpa', 'degree classification', 'what do i need']
+  }, [
+    ['weighted-grade', 'grade', 'Weighted grade'],
+    ['final-grade', 'final', 'Final exam'],
+    ['gpa-calculator', 'gpa', 'GPA'],
+    ['degree-classification', 'degree', 'UK degree class']
+  ]);
+
+  merge({
+    id: 'physics-calculator', category: 'science', name: 'SUVAT & Half-Life Calculator', icon: 'flask',
+    description: 'Solve the SUVAT equations of motion, or work out radioactive decay and half-lives.',
+    keywords: ['suvat', 'equations of motion', 'kinematics', 'half-life', 'radioactive decay', 'physics']
+  }, [
+    ['suvat-solver', 'suvat', 'SUVAT'],
+    ['half-life', 'half-life', 'Half-life']
+  ]);
+
+  merge({
+    id: 'scientific-calc', category: 'math', name: 'Scientific Calculator', icon: 'calculator',
+    description: 'A scientific calculator, a log calculator for any base, and significant figures and scientific notation.',
+    keywords: ['calculator', 'scientific calculator', 'logarithm', 'log', 'significant figures', 'scientific notation']
+  }, [
+    ['scientific-calc', 'calculator', 'Calculator'],
+    ['logarithm-calc', 'log', 'Logarithms'],
+    ['sig-figs', 'sig-figs', 'Significant figures']
+  ]);
+
+  merge({
+    id: 'number-base', category: 'math', name: 'Number Base & Bitwise Calculator', icon: 'hashNum',
+    description: 'Convert numbers between binary, octal, decimal, hex and any other base, or do bitwise AND, OR, XOR and shifts.',
+    keywords: ['number base', 'binary', 'hex', 'octal', 'base converter', 'bitwise', 'and or xor', 'bit shift']
+  }, [
+    ['number-base', 'base', 'Number base'],
+    ['bitwise-calc', 'bitwise', 'Bitwise']
+  ]);
+
   /* --- electronics ------------------------------------------------------ */
 
   merge({
@@ -563,6 +717,24 @@
   /* --- converters ------------------------------------------------------- */
 
   merge({
+    id: 'wire-gauge', category: 'electronics', name: 'Wire Gauge & PCB Trace Width Calculator', icon: 'chip',
+    description: 'Convert wire gauges between AWG and mm², or work out how wide a PCB trace must be for a current.',
+    keywords: ['wire gauge', 'awg', 'mm2', 'cable size', 'pcb trace width', 'ipc-2221', 'current']
+  }, [
+    ['wire-gauge', 'wire', 'Wire gauge'],
+    ['pcb-trace-width', 'pcb', 'PCB trace width']
+  ]);
+
+  merge({
+    id: 'coordinate-converter', category: 'geo', name: 'Coordinate, Grid Reference & Geohash Converter', icon: 'mapPin',
+    description: 'Convert coordinates between decimal degrees, DMS, UTM and OS grid references, or encode and decode geohashes.',
+    keywords: ['coordinates', 'lat long', 'grid reference', 'os grid', 'utm', 'dms', 'geohash']
+  }, [
+    ['coordinate-converter', 'coordinates', 'Coordinates'],
+    ['geohash', 'geohash', 'Geohash']
+  ]);
+
+  merge({
     id: 'size-converter', category: 'converters', name: 'Clothing, Shoe & Ring Size Converter', icon: 'ruler',
     description: 'Convert clothing, shoe and ring sizes between UK, US, EU and other systems, or find your size from a measurement.',
     keywords: ['size converter', 'clothing size', 'shoe size', 'ring size', 'uk to us size', 'eu size']
@@ -572,17 +744,28 @@
     ['ring-size-finder', 'rings', 'Rings']
   ]);
 
+  merge({
+    id: 'cooking-converter', category: 'converters', name: 'Cooking Converter & Recipe Scaler', icon: 'scale',
+    description: 'Convert cups, grams, spoons and oven temperatures for any ingredient, or scale a whole recipe up or down to feed more or fewer people.',
+    keywords: ['cooking converter', 'recipe scaler', 'scale recipe', 'cups to grams', 'servings', 'baking']
+  }, [
+    ['cooking-converter', 'convert', 'Convert measures'],
+    ['recipe-scaler', 'scale', 'Scale a recipe']
+  ]);
+
   /* --- money ------------------------------------------------------------ */
 
   merge({
     id: 'mortgage-calculator', category: 'finance', name: 'Mortgage & Loan Calculator', icon: 'home',
-    description: 'Monthly payments and total interest for a mortgage or a loan, how long a credit card takes to clear, and a plan for paying off several debts.',
+    description: 'Monthly payments and total interest for a mortgage or a loan, how long a credit card takes to clear, a plan for paying off several debts, the stamp duty on a purchase, and whether renting or buying works out cheaper.',
     keywords: ['mortgage calculator', 'loan calculator', 'mortgage', 'loan', 'repayment', 'credit card payoff', 'debt snowball', 'debt avalanche']
   }, [
     ['mortgage-calculator', 'mortgage', 'Mortgage'],
     ['loan-calculator', 'loan', 'Loan'],
     ['credit-card-payoff', 'credit-card', 'Credit card'],
-    ['debt-payoff', 'debts', 'Several debts']
+    ['debt-payoff', 'debts', 'Several debts'],
+    ['stamp-duty', 'stamp-duty', 'Stamp duty'],
+    ['rent-vs-buy', 'rent-vs-buy', 'Rent or buy']
   ]);
 
   merge({
@@ -615,6 +798,17 @@
     ['roi-calculator', 'roi', 'ROI']
   ]);
 
+  merge({
+    id: 'shopping-calculator', category: 'finance', name: 'Discount, Tip, VAT & Unit Price Calculator', icon: 'percent',
+    description: 'Work out a sale price, split a bill with a tip, add or take off VAT, or find which pack is better value.',
+    keywords: ['discount', 'percent off', 'sale price', 'tip', 'split bill', 'vat', 'unit price', 'better value', 'shopping']
+  }, [
+    ['discount-calculator', 'discount', 'Discount'],
+    ['tip-calculator', 'tip', 'Tip & split'],
+    ['vat-calculator', 'vat', 'VAT'],
+    ['unit-price-calc', 'unit-price', 'Unit price']
+  ]);
+
   /* --- health ----------------------------------------------------------- */
 
   merge({
@@ -638,6 +832,16 @@
     ['water-intake', 'water', 'Water']
   ]);
 
+  merge({
+    id: 'training-calculator', category: 'health', name: 'Running Pace, Heart Rate & One-Rep Max', icon: 'dumbbell',
+    description: 'Work out running pace and finish times, your heart rate training zones, or your one-rep max and training weights.',
+    keywords: ['pace calculator', 'running pace', 'race time', 'heart rate zones', 'max heart rate', 'one rep max', '1rm', 'training']
+  }, [
+    ['pace-calculator', 'pace', 'Pace'],
+    ['heart-rate-zones', 'heart-rate', 'Heart rate zones'],
+    ['one-rep-max', 'one-rep-max', 'One-rep max']
+  ]);
+
   /* --- home ------------------------------------------------------------- */
 
   merge({
@@ -649,6 +853,16 @@
     ['wallpaper-calculator', 'wallpaper', 'Wallpaper'],
     ['tile-calculator', 'tiles', 'Tiles & flooring'],
     ['concrete-calculator', 'concrete', 'Concrete & gravel']
+  ]);
+
+  merge({
+    id: 'energy-cost', category: 'home', name: 'Energy Cost, Solar & Heating Calculator', icon: 'bolt',
+    description: 'What an appliance costs to run, whether solar panels pay for themselves, or how big a radiator a room needs.',
+    keywords: ['energy cost', 'running cost', 'kwh', 'solar panels', 'solar payback', 'btu', 'radiator size', 'heating']
+  }, [
+    ['energy-cost', 'appliances', 'Appliance costs'],
+    ['solar-payback', 'solar', 'Solar payback'],
+    ['btu-calculator', 'heating', 'Room heating (BTU)']
   ]);
 
   /* --- media ------------------------------------------------------------ */
@@ -688,6 +902,44 @@
     ['image-compress', 'compress', 'Compress', 'Save'],
     ['image-convert', 'convert', 'Convert format', 'Save'],
     ['exif-remover', 'metadata', 'Remove metadata', 'Save']
+  ]);
+
+  merge({
+    id: 'image-favicon', category: 'image', name: 'Favicon & Web App Manifest Generator', icon: 'image',
+    description: 'Make favicons and app icons in every size from one picture, and write the web app manifest that lists them.',
+    keywords: ['favicon', 'favicon generator', 'app icon', 'apple touch icon', 'web manifest', 'pwa', 'manifest.json']
+  }, [
+    ['image-favicon', 'favicon', 'Favicon'],
+    ['web-manifest', 'manifest', 'Web app manifest']
+  ]);
+
+  merge({
+    id: 'placeholder-generator', category: 'generators', name: 'Placeholder Image, Avatar & Pattern Generator', icon: 'grid9',
+    description: 'Make placeholder images at any size, identicon avatars from a name, or repeating SVG patterns and backgrounds.',
+    keywords: ['placeholder image', 'dummy image', 'identicon', 'avatar', 'svg pattern', 'background pattern']
+  }, [
+    ['image-placeholder', 'placeholder', 'Placeholder image'],
+    ['identicon-generator', 'avatar', 'Identicon & avatar'],
+    ['svg-pattern', 'pattern', 'Pattern']
+  ]);
+
+  merge({
+    id: 'ai-text', category: 'ai', name: 'AI Summarise, Translate & Sentiment', icon: 'ai',
+    description: 'Summarise text, translate it between languages, or read its sentiment, with AI models that run in the tab.',
+    keywords: ['ai', 'summarise', 'summarize', 'summary', 'translate', 'translator', 'sentiment', 'tone']
+  }, [
+    ['ai-summarise', 'summarise', 'Summarise'],
+    ['ai-translate', 'translate', 'Translate'],
+    ['ai-sentiment', 'sentiment', 'Sentiment']
+  ]);
+
+  merge({
+    id: 'ai-image-caption', category: 'ai', name: 'AI Image Description & Object Detection', icon: 'ai',
+    description: 'Have AI describe a picture in words, or find and box the objects in a photo, all in the tab.',
+    keywords: ['describe image', 'image caption', 'alt text', 'object detection', 'detect objects', 'ai vision']
+  }, [
+    ['ai-image-caption', 'describe', 'Describe'],
+    ['ai-object-detection', 'objects', 'Detect objects']
   ]);
 
   /* --- documents -------------------------------------------------------- */
@@ -734,6 +986,15 @@
     ['ocr', 'ocr', 'Recognise text (OCR)', 'Convert'],
     ['pdf-extract-images', 'extract', 'Extract images', 'Convert'],
     ['pdf-compare', 'compare', 'Compare', 'Convert']
+  ]);
+
+  merge({
+    id: 'word-to-pdf', category: 'pdf', name: 'Word & Excel to PDF', icon: 'doc',
+    description: 'Turn a Word document or an Excel spreadsheet into a PDF, in the tab.',
+    keywords: ['word to pdf', 'docx to pdf', 'excel to pdf', 'xlsx to pdf', 'office to pdf', 'convert to pdf']
+  }, [
+    ['word-to-pdf', 'word', 'Word to PDF'],
+    ['excel-to-pdf', 'excel', 'Excel to PDF']
   ]);
 
   /* Size and length of the video or recording being edited. */
@@ -839,6 +1100,15 @@
     ['profile-picture-maker', 'profile', 'Profile picture']
   ]);
 
+  merge({
+    id: 'file-encryption', category: 'crypto', name: 'Encrypt & Decrypt Files and Text', icon: 'lock',
+    description: 'Encrypt a file or a piece of text with a password using AES, and decrypt it again.',
+    keywords: ['encrypt', 'decrypt', 'aes', 'password protect', 'file encryption', 'cipher']
+  }, [
+    ['file-encryption', 'files', 'Files'],
+    ['aes-cipher', 'text', 'Text (AES)']
+  ]);
+
   /* --- files ------------------------------------------------------------ */
 
   merge({
@@ -904,6 +1174,27 @@
     ['vibration-test', 'vibration', 'Vibration']
   ]);
 
+  /* --- productivity ----------------------------------------------------- */
+
+  merge({
+    id: 'habit-tracker', category: 'productivity', name: 'Habit Tracker & Checklists', icon: 'checklist',
+    description: 'Tick off daily habits and watch your streaks grow, or keep reusable checklists, all saved in this browser.',
+    keywords: ['habit tracker', 'habits', 'streak', 'checklist', 'to do list', 'todo', 'routine']
+  }, [
+    ['habit-tracker', 'habits', 'Habits'],
+    ['checklist', 'checklists', 'Checklists']
+  ]);
+
+  merge({
+    id: 'printable-calendar', category: 'productivity', name: 'Printable Calendar, Bank Holidays & Easter', icon: 'calendar',
+    description: 'Print a calendar or planner, list UK bank holidays, or find the date of Easter in any year.',
+    keywords: ['printable calendar', 'planner', 'calendar', 'bank holidays', 'uk bank holidays', 'easter date', 'when is easter']
+  }, [
+    ['printable-calendar', 'calendar', 'Printable calendar'],
+    ['uk-bank-holidays', 'bank-holidays', 'UK bank holidays'],
+    ['easter-date', 'easter', 'Easter']
+  ]);
+
   /* --- brain training and games ----------------------------------------- */
 
   merge({
@@ -937,6 +1228,35 @@
   }, [
     ['chess-clock', 'clock', 'Chess clock'],
     ['scoreboard-buzzer', 'scoreboard', 'Scoreboard & buzzer']
+  ]);
+
+  merge({
+    id: 'puzzle-maker', category: 'games', name: 'Crossword & Word Search Maker', icon: 'grid9',
+    description: 'Make a printable crossword or word search from your own words and clues.',
+    keywords: ['crossword maker', 'word search maker', 'puzzle maker', 'printable puzzle', 'wordsearch']
+  }, [
+    ['word-search-maker', 'word-search', 'Word search'],
+    ['crossword-maker', 'crossword', 'Crossword']
+  ]);
+
+  merge({
+    id: 'reaction-time-test', category: 'brain', name: 'Reaction Time & Aim Trainer', icon: 'target',
+    description: 'Test how fast you react, or train your mouse aim against targets.',
+    keywords: ['reaction time', 'reaction test', 'reflexes', 'aim trainer', 'aim test', 'mouse accuracy']
+  }, [
+    ['reaction-time-test', 'reaction', 'Reaction time'],
+    ['aim-trainer', 'aim', 'Aim trainer']
+  ]);
+
+  merge({
+    id: 'brain-training', category: 'brain', name: 'Focus & Brain Training', icon: 'brain',
+    description: 'Train focus and working memory with Schulte tables, the Stroop test, dual n-back and mental maths drills.',
+    keywords: ['brain training', 'focus', 'schulte table', 'stroop test', 'dual n-back', 'working memory', 'mental maths', 'mental arithmetic']
+  }, [
+    ['schulte-table', 'schulte', 'Schulte table'],
+    ['stroop-test', 'stroop', 'Stroop test'],
+    ['dual-n-back', 'n-back', 'Dual n-back'],
+    ['mental-maths', 'maths', 'Mental maths']
   ]);
 
   /* The Speed, Reverse & Loop tool was folded into the Video Editor before

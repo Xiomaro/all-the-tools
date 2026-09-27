@@ -90,17 +90,6 @@ module.exports = [
     const disabled = await page.$eval(Q('start'), n => n.disabled);
     return res(/^<p>(\S+ ){6}\S+<\/p>$/.test(o) && !/lorem/i.test(o) && /^7 words/.test(i) && disabled, o + ' | ' + i);
   } },
-  { name: 'slug-generator: accents, &, custom separator, length and little words (was Text to Slug)', tool: 'slug-generator', run: async page => {
-    await set(page, 'in', 'Crème Brûlée & Café!');
-    const a = await get(page, 'out');
-    await chip(page, 'sep', 'Custom'); await set(page, 'custom', '+');
-    const b = await get(page, 'out');
-    await chip(page, 'sep', '-'); await set(page, 'max', '14');
-    const c = await get(page, 'out');
-    await set(page, 'max', '0'); await tick(page, 'stop', true); await set(page, 'in', 'The Art of War');
-    const d = await get(page, 'out');
-    return res(a === 'creme-brulee-and-cafe' && b === 'creme+brulee+and+cafe' && c === 'creme-brulee' && d === 'art-war', [a, b, c, d].join(' | '));
-  } },
   { name: 'word-frequency-map: share of the whole text column (was Word Frequency, SEO)', tool: 'word-frequency-map', run: async page => {
     /* 15 words: fox and dog 2 each = 13.3%, the 4 = 26.7% */
     await set(page, 'min', '1'); await set(page, 'in', 'The quick brown fox jumps over the lazy dog. The dog barked at the fox.');

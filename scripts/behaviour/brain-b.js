@@ -178,7 +178,7 @@ module.exports = [
       await btn(page, '7×7');
       await btn(page, 'Letters');
       const disabled = await page.$$eval(`${V} .chips .chip`, cs => cs.filter(c => c.disabled).map(c => c.textContent));
-      const on5 = await page.locator(`${V} .chip.on`).first().innerText();
+      const on5 = await page.locator(`${V} .tool-pane .chip.on`).first().innerText();
       await btn(page, '4×4');
       await btn(page, 'Start');
       const letters = await page.$$eval(`${V} .sch-cell`, cs => cs.map(c => c.dataset.v).sort().join(''));

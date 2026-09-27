@@ -43,8 +43,8 @@
 
   var SHELVES = {
     image: [
-      ['Edit & convert', 'image-editor svg-tools image-to-base64 images-to-gif'],
-      ['Create', 'pixel-art-editor image-collage image-splitter image-favicon image-placeholder image-ascii signature-maker passport-photo-maker photo-booth online-whiteboard'],
+      ['Edit & convert', 'image-editor svg-tools images-to-gif'],
+      ['Create', 'pixel-art-editor image-collage image-splitter image-favicon signature-maker passport-photo-maker photo-booth online-whiteboard'],
       ['Inspect & compare', 'image-metadata image-compare']
     ],
     audio: [
@@ -54,57 +54,56 @@
     ],
     text: [
       ['Count & compare', 'word-count diff-checker unicode-inspector anagram-tool'],
-      ['Clean up & transform', 'text-transformer html-converter slug-generator'],
-      ['Split & extract', 'text-splitter list-converter column-extractor extract-from-text'],
-      ['Generate & translate', 'text-codes text-lorem ascii-art-text emoji-picker']
+      ['Clean up & transform', 'text-transformer html-converter'],
+      ['Split & extract', 'list-converter extract-from-text'],
+      ['Generate & translate', 'text-codes text-lorem ascii-art emoji-picker']
     ],
     developer: [
-      ['Format, encode & test', 'code-formatter encode-decode regex-tester'],
-      ['Markdown', 'markdown-to-html markdown-table-gen2'],
+      ['Format, encode & test', 'code-formatter encode-decode regex-tester markdown-to-html'],
       ['Web & snippets', 'code-playground selector-tester curl-converter http-status-codes code-screenshot'],
-      ['Git & ops', 'git-commit gitignore-generator license-generator docker-compose-converter cron-parser chmod-calculator semver-calculator line-endings']
+      ['Git & ops', 'repo-files docker-compose-converter cron-parser chmod-calculator semver-calculator']
     ],
     css: [
       ['Visual generators', 'css-effects css-layout svg-blob-wave'],
-      ['Motion', 'css-animation cubic-bezier'],
+      ['Motion', 'css-animation'],
       ['Units & type', 'css-unit-converter fluid-type-scale'],
-      ['Code', 'css-variables css-specificity css-to-tailwind']
+      ['Code', 'css-variables css-to-tailwind']
     ],
     network: [
-      ['IP & DNS', 'ip-address dns-lookup ip-subnet-calc mac-lookup punycode-converter'],
+      ['IP & DNS', 'ip-address dns-lookup ip-subnet-calc mac-lookup'],
       ['Email', 'email-header-analyzer'],
-      ['URLs & HTTP', 'url-builder user-agent http-headers htaccess-generator port-checker'],
-      ['Connection tests', 'ping-tool network-speed-test webrtc-leak-test']
+      ['URLs & HTTP', 'url-builder http-headers port-checker'],
+      ['Connection tests', 'ping-tool network-speed-test']
     ],
     crypto: [
       ['Hashes & passwords', 'hash-generator password-generator otp-generator jwt-decoder'],
-      ['Encryption', 'aes-cipher file-encryption pgp-tool shamir-secret-sharing steganography'],
+      ['Encryption', 'file-encryption pgp-tool shamir-secret-sharing steganography'],
       ['Keys & ciphers', 'key-generator classical-ciphers']
     ],
     math: [
-      ['Everyday', 'percentage-calc fraction-calc ratio-calc scientific-calc sig-figs roman-numerals'],
-      ['Algebra & geometry', 'equation-solver complex-calculator logarithm-calc function-grapher matrix-calc geometry-calculator'],
+      ['Everyday', 'percentage-calc fraction-calc ratio-calc scientific-calc roman-numerals'],
+      ['Algebra & geometry', 'equation-solver complex-calculator function-grapher matrix-calc geometry-calculator'],
       ['Statistics & probability', 'statistics-calc probability-calculator'],
-      ['Number theory & logic', 'number-theory number-base bitwise-calc truth-table']
+      ['Number theory & logic', 'number-theory number-base truth-table']
     ],
     converters: [
-      ['Everyday', 'unit-converter currency-converter cooking-converter size-converter sensitivity-converter beaufort-scale'],
-      ['Sizes & screens', 'aspect-ratio-calc resolution-converter screen-size-comparison paper-size-viewer online-ruler height-comparison']
+      ['Everyday', 'unit-converter currency-converter cooking-converter size-converter sensitivity-converter'],
+      ['Sizes & screens', 'aspect-ratio-calc height-comparison']
     ],
     finance: [
-      ['Pay & tax', 'uk-take-home-pay vat-calculator stamp-duty'],
-      ['Borrowing & saving', 'mortgage-calculator compound-interest rent-vs-buy inflation-calculator'],
-      ['Budgeting & spending', 'budget-planner expense-splitter journey-cost tip-calculator discount-calculator unit-price-calc'],
+      ['Pay & tax', 'uk-take-home-pay'],
+      ['Borrowing & saving', 'mortgage-calculator compound-interest inflation-calculator'],
+      ['Budgeting & spending', 'budget-planner expense-splitter journey-cost shopping-calculator'],
       ['Business', 'business-calculator']
     ],
     time: [
       ['Timers & date maths', 'timer date-calculator age-calculator timestamp-converter timesheet-calculator'],
-      ['Time zones & calendar', 'timezone-converter uk-bank-holidays easter-date ics-generator sunrise-sunset']
+      ['Time zones & calendar', 'timezone-converter ics-generator sunrise-sunset']
     ],
     games: [
       ['Random pickers', 'spin-the-wheel dice-roller deck-of-cards team-generator secret-santa'],
       ['Party & quiz', 'charades-words chess-clock bingo-caller tournament-bracket'],
-      ['Puzzles', 'word-guess minesweeper game-2048 sudoku crossword-maker word-search-maker'],
+      ['Puzzles', 'word-guess minesweeper game-2048 sudoku puzzle-maker'],
       ['Tabletop RPG', 'dm-toolkit']
     ]
   };
