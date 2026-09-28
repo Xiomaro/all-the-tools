@@ -1,5 +1,5 @@
 /* Behaviour checks for the Text Transformer. The first group are the checks
-   of the twelve tools it replaced, rewritten to run through it: each keeps
+   of the thirteen tools it replaced, rewritten to run through it: each keeps
    the old tool's id, so the harness opens #/t/<old id>, which redirects to
    #/t/text-transformer?tab=<step>, and the check also proves the preset
    opened with its step (and the old sample text) in place. Expected values
@@ -213,6 +213,27 @@ module.exports = [
   } },
 
   /* ------------------------------------------------ the pipeline itself */
+  { name: 'slug-generator: sample, accents, &, custom separator, length and little words (was Text to Slug)', tool: 'slug-generator', run: async page => {
+    const d = await out(page);
+    await setIn(page, 'Crème Brûlée & Café!');
+    const a = await out(page);
+    await chip(page, 'sep', 'Custom'); await set(page, 'custom', '+');
+    const b = await out(page);
+    await chip(page, 'sep', '-'); await set(page, 'max', '14');
+    const c = await out(page);
+    await set(page, 'max', '0'); await tick(page, 'stop', true); await setIn(page, 'The Art of War');
+    const e = await out(page);
+    return res(d === 'hello-world-this-is-a-test\ncafe-and-creme-brulee-10-tips\nthe-best-of-the-year' && a === 'creme-brulee-and-cafe' &&
+      b === 'creme+brulee+and+cafe' && c === 'creme-brulee' && e === 'art-war', [d, a, b, c, e].join(' | '));
+  } },
+  { name: 'slug-generator: underscore, ß and one slug per line with blank lines kept', tool: 'slug-generator', run: async page => {
+    await chip(page, 'sep', '_');
+    await setIn(page, 'Ünïcödé Straße Test');
+    const a = await out(page);
+    await setIn(page, 'First Post!\nSecond — Post\n\nThird');
+    const b = await out(page);
+    return res(a === 'unicode_strasse_test' && b === 'first_post\nsecond_post\n\nthird', [a, b].join(' | '));
+  } },
   { name: 'text-transformer: opens with no steps and a prompt; output and counts follow the input', tool: 'text-transformer', run: async page => {
     const steps = await order(page);
     const prompt = await page.$eval('#view .tt-empty', n => !n.hidden && /No steps yet/.test(n.textContent));
@@ -285,11 +306,11 @@ module.exports = [
   } },
   { name: 'text-transformer: retired tools are shortcuts that open their preset', tool: 'text-transformer', run: async page => {
     const got = await page.evaluate(() => ({
-      hrefs: ['duplicate-lines', 'text-prefix-suffix', 'text-sort', 'word-wrapper', 'text-remove-spaces'].map(id => Tools.href(id)).join(','),
-      gone: ['text-case', 'text-cleaner', 'text-replacer'].filter(id => Tools.get(id)).length,
+      hrefs: ['duplicate-lines', 'text-prefix-suffix', 'text-sort', 'word-wrapper', 'text-remove-spaces', 'slug-generator', 'text-slugify'].map(id => Tools.href(id)).join(','),
+      gone: ['text-case', 'text-cleaner', 'text-replacer', 'slug-generator'].filter(id => Tools.get(id)).length,
       found: Tools.search('remove duplicate lines', 3).map(t => t.id).join(',')
     }));
-    return res(got.hrefs === '#/t/text-transformer?tab=duplicates,#/t/text-transformer?tab=prefix-suffix,#/t/text-transformer?tab=sort,#/t/text-transformer?tab=wrap,#/t/text-transformer?tab=clean' &&
+    return res(got.hrefs === '#/t/text-transformer?tab=duplicates,#/t/text-transformer?tab=prefix-suffix,#/t/text-transformer?tab=sort,#/t/text-transformer?tab=wrap,#/t/text-transformer?tab=clean,#/t/text-transformer?tab=slug,#/t/text-transformer?tab=slug' &&
       got.gone === 0 && got.found.split(',')[0] === 'duplicate-lines', JSON.stringify(got));
   } }
 ];

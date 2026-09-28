@@ -1,6 +1,6 @@
 # All The Tools
 
-A local, browser-only toolbox: **285 tools in 29 categories**, grouped into six sections.
+A local, browser-only toolbox: **231 tools in 29 categories**, grouped into six sections.
 Everything runs in the tab. Nothing you paste, type or drop in is uploaded, apart from the handful
 of tools that exist to talk to the network (listed below).
 
@@ -31,7 +31,7 @@ WebCrypto don't work on `file://`, so many tools need a real `http://` origin.
 
 ## Finding a tool
 
-285 tools is too many for one list, so there are several ways in:
+231 tools is too many for one list, so there are several ways in:
 
 - **Search, paste or drop.** The box at the top of the home page searches as you type. Paste
   something instead and it says what it looks like and which tools fit: "5 kg" offers the weight
@@ -89,8 +89,10 @@ the tool that replaced it (see `ALIASES` in `assets/js/core.js`).
 Small tools that do one job between them are folded into one tool with a tab each: the 19 unit
 converters are one Unit Converter, the Base64, URL, HTML-entity, string-escape and Base32 tools
 are one Encode & Decode, the eight CSS effect generators are one CSS Effects Generator, the six
-input device tests are one Keyboard, Mouse & Controller Test, and so on. The groupings are in `assets/js/tools/merged.js`; the parts
-are still written in their own modules and render exactly as they did.
+input device tests are one Keyboard, Mouse & Controller Test, the discount, tip, VAT and unit price
+calculators are one Discount, Tip, VAT & Unit Price Calculator, and so on. The groupings are in
+`assets/js/tools/merged.js`; the parts are still written in their own modules and render exactly
+as they did.
 
 Each folded tool keeps its id and name as a **shortcut**. Search finds it when it fits the query
 better than the merged tool ("kg" finds Weight Converter), and it can be pinned, used in recipes
@@ -136,35 +138,35 @@ under 1, so any tool that reports progress that way gets this for free. See `UI.
 
 | Section | Category | Tools | What's there |
 |---|---|---|---|
-| **Documents & media** | PDF Tools | 4 | The PDF Editor (merge, split, organise, sign, protect, compress, compare, OCR and convert, including PDF to Word), plus making PDFs from photos, scans, Markdown or HTML. |
-|  | Image Tools | 16 | The Image Editor (crop, resize, rotate, adjust, remove backgrounds, mark up, compress and convert), plus SVG conversion, collages, tiles, favicons, passport photos and a pixel art editor. |
+| **Documents & media** | PDF Tools | 4 | The PDF Editor (merge, split, organise, sign, protect, compress, compare, OCR and convert, including PDF to Word), plus making PDFs from photos, scans, Word documents and spreadsheets. |
+|  | Image Tools | 13 | The Image Editor (crop, resize, rotate, adjust, remove backgrounds, mark up, compress and convert), plus SVG conversion, collages, tiles, favicons and app manifests, passport photos and a pixel art editor. |
 |  | Video Tools | 7 | The Video Editor (trim, split, merge, crop, reframe, speed, subtitles, music, watermark, compress and convert), plus side-by-side video, slideshows, subtitle files, file info, a teleprompter and a screen recorder. |
 |  | Audio & Music | 10 | The Audio Editor (cut, merge, fade, speed and pitch, volume, noise and vocal removal, convert and tag), plus recording, text to speech, analysis, a tuner, metronome and piano. |
 |  | File Tools | 6 | Unzip archives, split and join files, rename in bulk, find duplicates, inspect bytes and view fonts. |
-|  | On-Device AI | 7 | Transcribe, translate, summarise, describe images and detect objects, all in the tab. (Background removal is in the Image Editor.) |
-| **Writing & data** | Text Tools | 15 | Count, compare, split and extract text, score its readability, and clean up and transform it step by step in the Text Transformer. |
+|  | On-Device AI | 3 | Transcribe, summarise, translate, read the sentiment of text, describe images and detect objects, all in the tab. (Background removal is in the Image Editor, and the token counter is in the Word Counter.) |
+| **Writing & data** | Text Tools | 12 | Count, compare, split and extract text, score its readability, make ASCII art, and clean up and transform it step by step in the Text Transformer, URL slugs included. |
 |  | Data & JSON | 9 | Format, query, convert, compare and chart JSON, YAML, XML, CSV, SQLite and spreadsheets. |
-|  | Generators | 8 | Random data, IDs, test values, avatars, patterns, QR codes and barcodes. |
+|  | Generators | 7 | Random data, IDs, test values, avatars, patterns, QR codes and barcodes. |
 |  | Social & Media | 9 | Images, text and posts sized for social platforms. |
-| **Code & web** | Developer Tools | 18 | Formatters, encoders, regex, playgrounds, git and command-line helpers. |
-|  | CSS Tools | 10 | Generators for shadows, gradients, layouts, easing, transforms and type scales. |
-|  | Colour Tools | 8 | Convert, pick, mix, name and check colours, and build accessible palettes. |
-|  | SEO & Web | 9 | Meta tags, link previews, sitemaps, manifests, redirects and structured data. |
-|  | Network Tools | 14 | IP, DNS, email headers, SPF and DMARC, CIDR ranges, URLs and server config. |
-|  | Crypto & Security | 11 | Hashes, ciphers, keys, PGP, certificates, passwords, file encryption and secret sharing. |
-| **Numbers & science** | Maths & Numbers | 18 | Calculators for percentages, primes, matrices, equations, probability and more. |
-|  | Converters | 12 | Units, sizes, currencies, game sensitivity and real-world size comparisons. |
-|  | Science & Study | 6 | Periodic table, chemistry, physics equations, degree classifications and citations. |
-|  | Electronics | 6 | Ohm's law, resistors, capacitors, LEDs, wire gauges, 555 timers and PCB traces. |
-|  | Maps & Geo | 6 | Coordinates, grid references, distances, GPX tracks, areas, sun position and true country sizes. |
-| **Everyday life** | Finance | 14 | Loans, mortgages, stamp duty, pay rises, pensions, savings goals, budgets and bill splitting. |
-|  | Health & Fitness | 9 | BMI, body fat, calories, macros, heart-rate zones, pace, sleep and breathing. |
-|  | Home & DIY | 5 | Paint, tiles, wallpaper, concrete, heating, solar payback and running costs, plus a room planner. |
-|  | Time & Date | 10 | Timestamps, time zones, timers, a stopwatch, timesheets, bank holidays and calendar maths. |
-|  | Productivity | 8 | Notes, to-do lists, flashcards, calendars, diagrams, invoices, CVs and a meeting cost timer, kept in this browser. |
-| **Play & tests** | Games & Party | 16 | Wheels, dice, cards, puzzles, Minesweeper, 2048, a daily word game, party games, brackets and a tabletop RPG kit. |
-|  | Brain & Reaction | 8 | Reaction, aim, memory, focus, typing and mental maths tests. |
-|  | Device Tests | 6 | Test your screen, speakers, mic, camera, inputs, MIDI gear, stylus and sensors. |
+| **Code & web** | Developer Tools | 14 | Formatters, encoders, regex, a Markdown editor, selector testing, playgrounds, git and command-line helpers. |
+|  | CSS Tools | 8 | Generators for shadows, gradients, layouts, easing, transforms and type scales. |
+|  | Colour Tools | 5 | Convert, pick, mix, name and check colours, and build accessible palettes. |
+|  | SEO & Web | 6 | Meta tags, link previews, sitemaps, manifests, redirects and structured data. |
+|  | Network Tools | 10 | Your IP and browser, DNS, email headers, SPF and DMARC, CIDR ranges, URLs and server config. |
+|  | Crypto & Security | 10 | Hashes, ciphers, keys, PGP, certificates, passwords and passphrases, breach checks, a password manager, file encryption and secret sharing. |
+| **Numbers & science** | Maths & Numbers | 15 | Calculators for percentages, primes, matrices, equations, probability and more. |
+|  | Converters | 7 | Units, sizes, currencies, cooking measures and recipe scaling, screens and paper, game sensitivity and real-world size comparisons. |
+|  | Science & Study | 5 | Periodic table, chemistry, physics equations, grades, GPA, degree classifications and citations. |
+|  | Electronics | 5 | Ohm's law, resistors, capacitors, LEDs, wire gauges, 555 timers and PCB traces. |
+|  | Maps & Geo | 5 | Coordinates, grid references, distances, GPX tracks, areas, sun position and true country sizes. |
+| **Everyday life** | Finance | 9 | Loans, mortgages, stamp duty, pay rises, pensions, savings goals, budgets, discounts, VAT and bill splitting. |
+|  | Health & Fitness | 7 | BMI, body fat, calories, macros, heart-rate zones, pace, sleep and breathing. |
+|  | Home & DIY | 3 | Paint, tiles, wallpaper, concrete, heating, solar payback and running costs, plus a room planner. |
+|  | Time & Date | 8 | Timestamps, time zones, timers, a stopwatch, timesheets and calendar maths. |
+|  | Productivity | 10 | Notes, to-do lists, habits and checklists, flashcards, calendars and bank holidays, diagrams, invoices, CVs, email signatures and a meeting cost timer, kept in this browser. |
+| **Play & tests** | Games & Party | 15 | Wheels, dice, cards, puzzles, Minesweeper, 2048, a daily word game, party games, brackets and a tabletop RPG kit. |
+|  | Brain & Reaction | 4 | Reaction, aim, memory, focus, typing and mental maths tests. |
+|  | Device Tests | 5 | Test your screen, speakers, mic, camera, inputs, MIDI gear, stylus and sensors. |
 
 The full list, with ids, is in [`scripts/tools-manifest.json`](scripts/tools-manifest.json). The
 groups shown on each category page are defined in [`assets/js/shelves.js`](assets/js/shelves.js).
@@ -177,16 +179,17 @@ button.
 
 | Tool | Talks to |
 |---|---|
-| IP Address Info | ipwho.is (falls back to ipinfo.io) |
+| What’s My IP & Browser (My IP tab) | ipwho.is (falls back to ipinfo.io) |
 | DNS, WHOIS & SSL Lookup (DNS tab) | Cloudflare DNS-over-HTTPS |
 | DNS, WHOIS & SSL Lookup (WHOIS tab) | rdap.org |
 | Ping Test | the host you enter |
 | Network Speed Test | Cloudflare speed-test endpoints |
 | YouTube Thumbnail | img.youtube.com |
 | DNS, WHOIS & SSL Lookup (SPF, DKIM & DMARC tab) | Cloudflare DNS-over-HTTPS, on request |
-| WebRTC Leak Test | a STUN server (Google by default), on request |
-| Translate Text, Describe an Image | huggingface.co, on request, to download a model you don't have locally |
-| Markdown & HTML to PDF | only the remote images your own document links to, when it previews them |
+| What’s My IP & Browser (WebRTC leak test tab) | a STUN server (Google by default), on request |
+| AI Summarise, Translate & Sentiment (Translate tab), AI Image Description & Object Detection (Describe tab) | huggingface.co, on request, to download a model you don't have locally |
+| Markdown Editor (To PDF tab) | only the remote images your own document links to, when it previews them |
+| Password Generator, Checker & Manager (Check strength and Password manager tabs) | api.pwnedpasswords.com, on request, with only the first 5 characters of each password's SHA-1 hash |
 
 Currency Converter uses offline reference rates, with an optional "Fetch live rates" button.
 
@@ -204,6 +207,26 @@ Currency Converter uses offline reference rates, with an optional "Fetch live ra
   the tool download the one you need (about 110 MB per language pair, 290 MB for captioning).
 - **LLM Token Counter** gives exact counts for OpenAI's encodings. There is no public tokeniser
   for current Claude or Gemini models, so those figures are labelled estimates.
+
+### Password manager
+
+The Password manager tab of Password Generator, Checker & Manager keeps logins in an encrypted
+vault. Its code is `assets/js/tools/crypto-d.js`.
+
+- **Where it lives.** The vault is saved in this browser's `localStorage` for the address the
+  toolbox is served from, and can be downloaded as a `.vault` file at any time. The file is the
+  same encrypted envelope, so it is safe to keep in cloud storage. Opening a `.vault` file in an
+  empty browser restores it; opening one where a vault already exists offers to merge, replace,
+  or just open the file for this tab. Merging goes by entry: the newest edit of each login wins,
+  and deletions carry over.
+- **Encryption.** AES-256-GCM with a key from PBKDF2-SHA-256 (600,000 rounds) over the master
+  password. The header fields are bound in as additional data, so they can't be changed
+  unnoticed. The format is described at the top of `crypto-d.js`.
+- **Around it.** CSV imports from Chrome, Edge, Firefox, Safari and Apple Passwords, Bitwarden,
+  1Password, LastPass, KeePass, KeePassXC, Dashlane, Proton Pass and NordPass (matched by column
+  name, and adjustable), CSV export, a health check for weak, reused and breached passwords,
+  auto-lock, and clipboard clearing 30 seconds after a password is copied. Tabs of the same
+  browser pick up each other's changes.
 
 ### Figures that change
 
@@ -226,7 +249,7 @@ checked and, where it makes sense, let you edit them. As of 22 September 2026:
 `assets/data/` holds datasets built from open sources, each naming its source and licence inside
 the file: a British English word list (SCOWL), the periodic table (mendeleev, PubChem, NUBASE2020),
 the IEEE MAC vendor list (oui-data), open-source licence texts (SPDX), the Tailwind palette, the ID3
-genre list and the twitter-text URL rules.
+genre list, the twitter-text URL rules and the EFF's long word list for passphrases.
 
 ---
 

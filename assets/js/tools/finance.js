@@ -799,7 +799,7 @@
         var net, gross;
         if (mode.value === 'excl') { net = p; gross = p * (1 + r / 100); } else { gross = p; net = p / (1 + r / 100); }
         board.replaceChildren(grid(card('Price excl. VAT', money2(net), 'net'), card('VAT', money2(gross - net), 'vat', true), card('Price incl. VAT', money2(gross), 'gross')),
-          mode.value === 'incl' && r > 0 ? U.note('The VAT inside a VAT-inclusive price is ' + num2.format(r) + '/' + num2.format(100 + r) + ' of it' + (r === 20 ? ' (one sixth).' : '.')) : null);
+          mode.value === 'incl' && r > 0 ? U.note('The VAT inside a VAT-inclusive price is ' + num2.format(r) + '/' + num2.format(100 + r) + ' of it' + (r === 20 ? ' (one sixth).' : '.')) : '');
       }
       U.live([price, rate], run);
       function rateButtons(list) {
@@ -853,7 +853,7 @@
         board.replaceChildren(
           grid(card('Monthly payment', money2(a.payment + x), 'monthly', true), card('Mortgage', money2(loan), 'loan'), ltv,
             card('Total interest', money2(a.totalInterest), 'interest'), card('Total repaid', money2(a.totalPaid), 'paid')),
-          x > 0 ? U.note('Paid off in ' + yearsMonths(a.months) + ' with the overpayment. Most fixed deals allow up to 10% a year without an early repayment charge.', 'ok') : null,
+          x > 0 ? U.note('Paid off in ' + yearsMonths(a.months) + ' with the overpayment. Most fixed deals allow up to 10% a year without an early repayment charge.', 'ok') : '',
           el('h4', { text: full.input.checked ? 'Repayment schedule (all ' + a.rows.length + ' months)' : 'Repayment schedule (first 24 months)' }),
           scrollTable(['Month', 'Payment', 'Capital', 'Interest', 'Balance'], rows, true),
           U.btnrow(U.downloadBtn('Download schedule (CSV)', 'mortgage-schedule.csv', function () {

@@ -7,7 +7,8 @@
    "file-b",
    "pdf-c",
    "file-c",
-   "pdf-word"
+   "pdf-word",
+   "pdf-office"
   ],
   "ids": [
    "pdf-editor",
@@ -23,8 +24,9 @@
    "file-splitter",
    "duplicate-finder",
    "diff-checker",
-   "markdown-to-pdf",
-   "font-viewer"
+   "markdown-to-html",
+   "font-viewer",
+   "word-to-pdf"
   ]
  },
  "image-social": {
@@ -37,14 +39,14 @@
   ],
   "ids": [
    "image-editor",
-   "image-to-base64",
+   "encode-decode",
    "image-metadata",
    "image-color-picker",
    "image-collage",
    "image-favicon",
    "svg-tools",
-   "image-placeholder",
-   "image-ascii",
+   "placeholder-generator",
+   "ascii-art",
    "signature-maker",
    "online-whiteboard",
    "photo-booth",
@@ -102,12 +104,9 @@
   "ids": [
    "transcribe",
    "image-editor",
-   "ai-translate",
-   "ai-summarise",
+   "ai-text",
    "ai-image-caption",
-   "ai-object-detection",
-   "ai-sentiment",
-   "token-counter"
+   "word-count"
   ]
  },
  "text": {
@@ -129,13 +128,10 @@
    "anagram-tool",
    "classical-ciphers",
    "unicode-inspector",
-   "ascii-art-text",
+   "ascii-art",
    "emoji-picker",
    "speed-typing",
-   "slug-generator",
-   "list-converter",
-   "column-extractor",
-   "text-splitter"
+   "list-converter"
   ]
  },
  "data-generators": {
@@ -152,12 +148,11 @@
    "csv-sql-converter",
    "csv-viewer",
    "diff-checker",
-   "identicon-generator",
+   "placeholder-generator",
    "test-data-generator",
-   "svg-pattern",
    "name-generator",
    "uuid-generator",
-   "random-color",
+   "color-palette",
    "text-codes",
    "number-sequence",
    "qr-generator",
@@ -192,25 +187,20 @@
    "markdown-to-html",
    "html-converter",
    "http-status-codes",
-   "gitignore-generator",
+   "repo-files",
    "css-effects",
    "css-animation",
    "css-layout",
    "css-variables",
-   "markdown-table-gen2",
-   "css-specificity",
-   "git-commit",
+   "selector-tester",
    "svg-tools",
    "cron-parser",
    "curl-converter",
    "chmod-calculator",
    "code-screenshot",
-   "line-endings",
    "code-playground",
    "semver-calculator",
-   "docker-compose-converter",
-   "license-generator",
-   "selector-tester"
+   "docker-compose-converter"
   ]
  },
  "css-colour": {
@@ -223,11 +213,9 @@
    "color-picker",
    "color-palette",
    "color-contrast",
-   "color-blindness",
    "image-color-picker",
    "tailwind-colors",
-   "data-viz-palette",
-   "cubic-bezier",
+   "css-animation",
    "fluid-type-scale",
    "css-effects",
    "svg-blob-wave",
@@ -247,44 +235,39 @@
    "sitemap-generator",
    "word-count",
    "schema-generator",
-   "utm-builder",
+   "url-builder",
    "ip-address",
-   "user-agent",
    "http-headers",
    "dns-lookup",
    "port-checker",
    "ping-tool",
-   "htaccess-generator",
+   "redirect-generator",
    "site-files-generator",
    "ip-subnet-calc",
-   "url-builder",
    "network-speed-test",
-   "web-manifest",
-   "hreflang-generator",
+   "image-favicon",
    "heading-outline",
-   "redirect-generator",
    "email-header-analyzer",
    "mac-lookup",
-   "punycode-converter",
-   "webrtc-leak-test"
+   "encode-decode"
   ]
  },
  "security": {
   "files": [
    "crypto",
    "crypto-b",
-   "crypto-c"
+   "crypto-c",
+   "crypto-d"
   ],
   "ids": [
    "hash-generator",
    "password-generator",
-   "aes-cipher",
+   "file-encryption",
    "jwt-decoder",
    "otp-generator",
    "classical-ciphers",
    "key-generator",
    "pgp-tool",
-   "file-encryption",
    "steganography",
    "shamir-secret-sharing"
   ]
@@ -293,7 +276,8 @@
   "files": [
    "math",
    "math-b",
-   "science"
+   "science",
+   "science-b"
   ],
   "ids": [
    "percentage-calc",
@@ -304,23 +288,19 @@
    "statistics-calc",
    "matrix-calc",
    "ratio-calc",
-   "bitwise-calc",
    "fraction-calc",
    "algebra-solver",
-   "logarithm-calc",
    "geometry-calculator",
    "roman-numerals",
    "function-grapher",
    "truth-table",
-   "sig-figs",
    "probability-calculator",
    "complex-calculator",
    "periodic-table",
    "chemistry-calculator",
-   "suvat-solver",
-   "half-life",
-   "degree-classification",
-   "citation-generator"
+   "physics-calculator",
+   "citation-generator",
+   "grade-calculator"
   ]
  },
  "convert-elec-geo": {
@@ -329,33 +309,27 @@
    "electronics",
    "geo",
    "geo-b",
-   "converters-b"
+   "converters-b",
+   "converters-c"
   ],
   "ids": [
    "unit-converter",
    "currency-converter",
-   "resolution-converter",
    "aspect-ratio-calc",
-   "online-ruler",
-   "paper-size-viewer",
    "size-converter",
-   "screen-size-comparison",
    "country-size-comparison",
    "room-planner",
    "cooking-converter",
-   "pace-calculator",
+   "training-calculator",
    "resistor-color-code",
-   "beaufort-scale",
    "ohms-law",
    "wire-gauge",
    "battery-runtime",
    "timer-555",
-   "pcb-trace-width",
    "coordinate-converter",
    "distance-calculator",
    "gpx-viewer",
    "polygon-area",
-   "geohash",
    "sunrise-sunset",
    "sensitivity-converter"
   ]
@@ -371,24 +345,17 @@
   "ids": [
    "mortgage-calculator",
    "compound-interest",
-   "tip-calculator",
-   "discount-calculator",
+   "shopping-calculator",
    "business-calculator",
    "bmi-calculator",
    "calorie-calculator",
    "inflation-calculator",
-   "vat-calculator",
-   "unit-price-calc",
    "uk-take-home-pay",
    "expense-splitter",
-   "stamp-duty",
    "budget-planner",
-   "rent-vs-buy",
    "journey-cost",
    "diy-calculator",
-   "btu-calculator",
-   "energy-cost",
-   "solar-payback"
+   "energy-cost"
   ]
  },
  "health-time": {
@@ -409,12 +376,10 @@
    "sunrise-sunset",
    "ics-generator",
    "sleep-calculator",
-   "uk-bank-holidays",
-   "easter-date",
+   "printable-calendar",
    "bmi-calculator",
    "calorie-calculator",
-   "heart-rate-zones",
-   "one-rep-max",
+   "training-calculator",
    "alcohol-units",
    "due-date",
    "box-breathing"
@@ -427,7 +392,9 @@
    "games",
    "productivity-b",
    "games-b",
-   "games-c"
+   "games-c",
+   "productivity-c",
+   "productivity-d"
   ],
   "ids": [
    "notepad",
@@ -438,15 +405,16 @@
    "invoice-generator",
    "deck-of-cards",
    "sudoku",
-   "word-search-maker",
-   "crossword-maker",
+   "puzzle-maker",
    "charades-words",
    "dm-toolkit",
    "cv-builder",
    "meeting-cost-timer",
    "minesweeper",
    "game-2048",
-   "word-guess"
+   "word-guess",
+   "email-signature",
+   "habit-tracker"
   ]
  },
  "brain-devices": {
@@ -458,19 +426,15 @@
   ],
   "ids": [
    "reaction-time-test",
-   "aim-trainer",
    "memory-tests",
-   "stroop-test",
-   "dual-n-back",
-   "schulte-table",
-   "mental-maths",
+   "brain-training",
    "mic-test",
    "input-tester",
    "monitor-test",
    "webcam-test",
    "bubble-level",
    "tone-generator",
-   "browser-info"
+   "ip-address"
   ]
  }
 }

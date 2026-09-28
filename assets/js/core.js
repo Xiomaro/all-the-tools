@@ -32,7 +32,7 @@
   ];
 
   var CATEGORIES = [
-    { id: 'pdf',          section: 'media',   name: 'PDF Tools',         short: 'PDF',          hue: 0,   l: 45, ld: 72, blurb: 'Merge, split, organise, sign, protect, compare and OCR PDFs.' },
+    { id: 'pdf',          section: 'media',   name: 'PDF Tools',         short: 'PDF',          hue: 0,   l: 45, ld: 72, blurb: 'Merge, split, organise, sign, protect, compare and OCR PDFs, and turn Word and Excel files into PDFs.' },
     { id: 'image',        section: 'media',   name: 'Image Tools',       short: 'Image',        hue: 282, l: 52, ld: 76, blurb: 'Compress, resize, convert, crop, annotate, redact and edit pictures.' },
     { id: 'video',        section: 'media',   name: 'Video Tools',       short: 'Video',        hue: 313, l: 48, ld: 74, blurb: 'Trim, convert, compress, crop, caption and record video.' },
     { id: 'audio',        section: 'media',   name: 'Audio & Music',     short: 'Audio',        hue: 329, l: 48, ld: 74, blurb: 'Cut, convert, fade, tag, analyse and record audio, plus a tuner and metronome.' },
@@ -52,16 +52,16 @@
     { id: 'crypto',       section: 'code',    name: 'Crypto & Security', short: 'Security',     hue: 63,  l: 30, ld: 62, blurb: 'Hashes, ciphers, keys, PGP, certificates, passwords and file encryption.' },
 
     { id: 'math',         section: 'numbers', name: 'Maths & Numbers',   short: 'Maths',        hue: 157, l: 34, ld: 62, blurb: 'Calculators for percentages, primes, matrices, equations, probability and more.' },
-    { id: 'converters',   section: 'numbers', name: 'Converters',        short: 'Convert',      hue: 47,  l: 36, ld: 66, blurb: 'Units, sizes, currencies and real-world size comparisons.' },
-    { id: 'science',      section: 'numbers', name: 'Science & Study',   short: 'Science',      hue: 165, l: 34, ld: 62, blurb: 'Periodic table, chemistry, physics equations, degree classifications and citations.' },
+    { id: 'converters',   section: 'numbers', name: 'Converters',        short: 'Convert',      hue: 47,  l: 36, ld: 66, blurb: 'Units, sizes, currencies, cooking and recipes, and real-world size comparisons.' },
+    { id: 'science',      section: 'numbers', name: 'Science & Study',   short: 'Science',      hue: 165, l: 34, ld: 62, blurb: 'Periodic table, chemistry, physics equations, grades, GPA, degree classifications and citations.' },
     { id: 'electronics',  section: 'numbers', name: 'Electronics',       short: 'Electronics',  hue: 55,  l: 34, ld: 64, blurb: "Ohm's law, resistors, capacitors, LEDs, wire gauges, 555 timers and PCB traces." },
     { id: 'geo',          section: 'numbers', name: 'Maps & Geo',        short: 'Geo',          hue: 196, l: 38, ld: 66, blurb: 'Coordinates, grid references, distances, GPX tracks, areas and true country sizes.' },
 
-    { id: 'finance',      section: 'life',    name: 'Finance',           short: 'Finance',      hue: 125, l: 32, ld: 62, blurb: 'Loans, mortgages, stamp duty, pay, pensions, budgets and bill splitting.' },
+    { id: 'finance',      section: 'life',    name: 'Finance',           short: 'Finance',      hue: 125, l: 32, ld: 62, blurb: 'Loans, mortgages, stamp duty, pay, pensions, budgets, discounts, VAT and bill splitting.' },
     { id: 'health',       section: 'life',    name: 'Health & Fitness',  short: 'Health',       hue: 141, l: 32, ld: 62, blurb: 'BMI, body fat, calories, macros, heart-rate zones, pace, sleep and breathing.' },
     { id: 'home',         section: 'life',    name: 'Home & DIY',        short: 'Home',         hue: 39,  l: 38, ld: 66, blurb: 'Paint, tiles, wallpaper, concrete, heating and running costs, plus a room planner.' },
-    { id: 'time',         section: 'life',    name: 'Time & Date',       short: 'Time',         hue: 235, l: 52, ld: 76, blurb: 'Timestamps, time zones, timers, timesheets, bank holidays and calendar maths.' },
-    { id: 'productivity', section: 'life',    name: 'Productivity',      short: 'Productivity', hue: 227, l: 50, ld: 74, blurb: 'Notes, to-do lists, flashcards, calendars, diagrams, invoices, CVs and a meeting cost timer, kept in this browser.' },
+    { id: 'time',         section: 'life',    name: 'Time & Date',       short: 'Time',         hue: 235, l: 52, ld: 76, blurb: 'Timestamps, time zones, timers, timesheets and calendar maths.' },
+    { id: 'productivity', section: 'life',    name: 'Productivity',      short: 'Productivity', hue: 227, l: 50, ld: 74, blurb: 'Notes, to-do lists, habits, checklists, flashcards, calendars, diagrams, invoices, CVs and email signatures, kept in this browser.' },
 
     { id: 'games',        section: 'play',    name: 'Games & Party',     short: 'Games',        hue: 31,  l: 42, ld: 68, blurb: 'Wheels, dice, cards, puzzles, Minesweeper, 2048, a daily word game, party games, brackets and a tabletop RPG kit.' },
     { id: 'brain',        section: 'play',    name: 'Brain & Reaction',  short: 'Brain',        hue: 16,  l: 44, ld: 70, blurb: 'Reaction, aim, memory, focus, typing and mental maths tests.' },

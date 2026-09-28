@@ -5,6 +5,7 @@
   var U = window.UI, el = U.el;
 
   document.head.appendChild(el('style', { text: [
+    '.g-crypto [hidden]{display:none!important}',
     '.g-crypto .hashlist{display:flex;flex-direction:column;gap:8px}',
     '.g-crypto .hashrow{border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;background:var(--bg-sunken)}',
     '.g-crypto .hashrow header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px}',
@@ -810,12 +811,92 @@
     return chars.join('');
   }
 
+  /* --- Passphrases --------------------------------------------------------------
+     Words drawn uniformly from the EFF large word list (7,776 words, so 12.9
+     bits each), in assets/data/crypto-eff-wordlist.json. The optional digit
+     goes on the end of one word chosen at random. */
+  var wordsReady = null;
+  function loadWords() {
+    if (!wordsReady) {
+      wordsReady = fetch('assets/data/crypto-eff-wordlist.json').then(function (r) {
+        if (!r.ok) throw new Error('Could not load the word list (' + r.status + ')');
+        return r.json();
+      }).then(function (d) { return d.words; });
+      wordsReady.catch(function () { wordsReady = null; });
+    }
+    return wordsReady;
+  }
+
+  function makePassphrase(words, opts) {
+    var picked = [];
+    for (var i = 0; i < opts.count; i++) picked.push(words[randomInt(words.length)]);
+    if (opts.caps) picked = picked.map(function (w) { return w[0].toUpperCase() + w.slice(1); });
+    if (opts.digit) { var at = randomInt(picked.length); picked[at] += String(randomInt(10)); }
+    return picked.join(opts.sep);
+  }
+
+  function passphraseBits(opts, listSize) {
+    return opts.count * Math.log2(listSize) + (opts.digit ? Math.log2(10 * opts.count) : 0);
+  }
+
+  /* A label for a known number of bits of randomness, rather than the
+     character-class guess analyse() has to make about a typed password. */
+  function bitsLabel(bits) {
+    return bits < 40 ? { label: 'Weak', colour: '#f97316' } : bits < 60 ? { label: 'Fair', colour: '#eab308' }
+      : bits < 80 ? { label: 'Strong', colour: '#84cc16' } : { label: 'Very Strong', colour: '#16a34a' };
+  }
+
+  /* --- Breach check (Have I Been Pwned's Pwned Passwords) ----------------------
+     k-anonymity: only the first 5 hex characters of the password's SHA-1 go
+     over the network. The service answers with every suffix it knows under
+     that prefix, padded with decoys, and the match happens here. */
+  var PWNED_URL = 'https://api.pwnedpasswords.com/range/';
+
+  function sha1Hex(text) {
+    needSubtle();
+    return crypto.subtle.digest('SHA-1', bytes(text)).then(function (d) { return toHex(new Uint8Array(d)).toUpperCase(); });
+  }
+
+  function pwnedRange(prefix) {
+    return fetch(PWNED_URL + prefix, { headers: { 'Add-Padding': 'true' }, referrerPolicy: 'no-referrer' }).then(function (r) {
+      if (!r.ok) throw new Error('The breach service answered ' + r.status + '. Try again in a minute.');
+      return r.text();
+    }, function () { throw new Error('Could not reach the breach service (api.pwnedpasswords.com). Check your connection.'); });
+  }
+
+  function pwnedCountIn(rangeText, suffix) {
+    var lines = rangeText.split(/\r?\n/);
+    for (var i = 0; i < lines.length; i++) {
+      var parts = lines[i].split(':');
+      if (parts[0].trim().toUpperCase() === suffix) return +parts[1] || 0;
+    }
+    return 0;
+  }
+
+  function pwnedCount(pw) {
+    return sha1Hex(pw).then(function (h) {
+      return pwnedRange(h.slice(0, 5)).then(function (t) { return pwnedCountIn(t, h.slice(5)); });
+    });
+  }
+
+  function pwnedText(n) {
+    return n ? '✗ Found ' + n.toLocaleString('en-GB') + ' time' + (n === 1 ? '' : 's') + ' in known data breaches. Don’t use it anywhere.'
+      : '✓ Not found in any known data breach.';
+  }
+
   Tools.register({
     id: 'password-generator', category: 'crypto', name: 'Password Generator',
-    description: 'Generate strong random passwords with the character sets you choose.',
-    keywords: ['password', 'generate', 'random', 'secure', 'strong'],
+    description: 'Generate strong random passwords with the character sets you choose, or passphrases made of random words.',
+    keywords: ['password', 'generate', 'random', 'secure', 'strong', 'passphrase', 'diceware', 'words'],
     render: function (root) {
       root.classList.add('g-crypto');
+      var mode = 'chars';
+      var modeChips = U.chips([{ value: 'chars', label: 'Random characters' }, { value: 'words', label: 'Passphrase (words)' }], function (v) {
+        mode = v;
+        charOpts.hidden = v !== 'chars';
+        wordOpts.hidden = v !== 'words';
+        genBtn.textContent = v === 'chars' ? 'Generate Passwords' : 'Generate Passphrases';
+      }, 'chars');
       var len = el('input', { type: 'range', min: 4, max: 128, value: 16, 'aria-label': 'Length' });
       var lenNum = el('input', { type: 'number', min: 4, max: 128, value: 16, style: { width: '80px' }, 'aria-label': 'Length value' });
       var count = U.chips([{ value: 1, label: '1' }, { value: 5, label: '5' }, { value: 10, label: '10' }], null, 5);
@@ -824,35 +905,64 @@
       var digits = U.checkbox('Numbers (0-9)', { checked: true });
       var symbols = U.checkbox('Symbols (!@#$...)', { checked: true });
       var similar = U.checkbox('Exclude Similar (i, l, 1, o, 0)');
+      var wordCount = el('input', { type: 'range', min: 3, max: 12, value: 6, 'aria-label': 'Words' });
+      var wordNum = el('input', { type: 'number', min: 3, max: 12, value: 6, style: { width: '80px' }, 'aria-label': 'Words value' });
+      var sep = U.select({ options: [{ value: '-', label: 'Hyphen (-)' }, { value: ' ', label: 'Space' }, { value: '.', label: 'Full stop (.)' },
+        { value: '_', label: 'Underscore (_)' }, { value: '', label: 'None' }], value: '-', 'aria-label': 'Separator' });
+      var caps = U.checkbox('Capitalise each word');
+      var addDigit = U.checkbox('Add a number');
       var list = el('div', { class: 'pwlist' }, U.note('Click generate to create passwords'));
       var made = [];
 
       len.addEventListener('input', function () { lenNum.value = len.value; });
       lenNum.addEventListener('input', function () { len.value = Math.max(4, Math.min(128, +lenNum.value || 16)); });
+      wordCount.addEventListener('input', function () { wordNum.value = wordCount.value; });
+      wordNum.addEventListener('input', function () { wordCount.value = Math.max(3, Math.min(12, +wordNum.value || 6)); });
+
+      function show(rows) {
+        list.replaceChildren.apply(list, rows.map(function (r) {
+          return el('div', { class: 'pwrow' }, el('code', { text: r.p }),
+            el('span', { class: 'tag', style: { color: r.colour }, text: r.label }),
+            U.button('Copy', function () { U.copy(r.p); }, 'ghost mini'));
+        }));
+      }
 
       function generate() {
-        var n = +count.value, size = Math.max(4, Math.min(128, +len.value));
-        var opts = { upper: upper.input.checked, lower: lower.input.checked, digits: digits.input.checked, symbols: symbols.input.checked, excludeSimilar: similar.input.checked };
+        var n = +count.value;
         made = [];
+        if (mode === 'words') {
+          var wopts = { count: Math.max(3, Math.min(12, +wordCount.value)), sep: sep.value, caps: caps.input.checked, digit: addDigit.input.checked };
+          loadWords().then(function (words) {
+            var b = passphraseBits(wopts, words.length), tag = bitsLabel(b);
+            for (var i = 0; i < n; i++) made.push(makePassphrase(words, wopts));
+            show(made.map(function (p) { return { p: p, label: tag.label + ' · ' + Math.floor(b) + ' bits', colour: tag.colour }; }));
+          }).catch(function (e) { list.replaceChildren(U.note(e.message, 'err')); });
+          return;
+        }
+        var size = Math.max(4, Math.min(128, +len.value));
+        var opts = { upper: upper.input.checked, lower: lower.input.checked, digits: digits.input.checked, symbols: symbols.input.checked, excludeSimilar: similar.input.checked };
         for (var i = 0; i < n; i++) {
           var p = makePassword(size, opts);
           if (!p) { list.replaceChildren(U.note('Pick at least one character set.', 'err')); return; }
           made.push(p);
         }
-        list.replaceChildren.apply(list, made.map(function (p) {
-          var a = analyse(p);
-          return el('div', { class: 'pwrow' }, el('code', { text: p }),
-            el('span', { class: 'tag', style: { color: a.colour }, text: a.label }),
-            U.button('Copy', function () { U.copy(p); }, 'ghost mini'));
-        }));
+        show(made.map(function (p) { var a = analyse(p); return { p: p, label: a.label, colour: a.colour }; }));
       }
 
-      root.appendChild(U.panel('Options',
+      var genBtn = U.button('Generate Passwords', generate, 'primary');
+      var charOpts = el('div', { class: 'stack' },
         el('div', { class: 'field' }, el('label', { text: 'Length' }), el('div', { class: 'row' }, len, lenNum),
           el('div', { style: { display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--fg-muted)' } }, el('span', { text: '4' }), el('span', { text: '128' }))),
+        U.row(upper, lower, digits, symbols, similar));
+      var wordOpts = el('div', { class: 'stack', hidden: true },
+        el('div', { class: 'field' }, el('label', { text: 'Words' }), el('div', { class: 'row' }, wordCount, wordNum)),
+        U.field('Separator', sep),
+        U.row(caps, addDigit),
+        U.note('Words are picked at random from the EFF’s list of 7,776 memorable words, so each one adds 12.9 bits. Six words is about 77 bits, beyond any practical guessing attack.'));
+
+      root.appendChild(U.panel('Options', modeChips, charOpts, wordOpts,
         el('div', { class: 'field' }, el('label', { text: 'Count' }), count),
-        U.row(upper, lower, digits, symbols, similar),
-        U.btnrow(U.button('Generate Passwords', generate, 'primary'))));
+        U.btnrow(genBtn)));
       root.appendChild(U.panel('Generated Passwords', list, U.btnrow(
         U.copyBtn('Copy all', function () { return made.join('\n'); }),
         U.downloadBtn('Download', 'passwords.txt', function () { return made.join('\n'); }))));
@@ -863,14 +973,30 @@
 
   Tools.register({
     id: 'password-strength', category: 'crypto', name: 'Password Strength',
-    description: 'Score a password, estimate its entropy and cracking time, and list what to improve.',
-    keywords: ['password', 'strength', 'entropy', 'security', 'checker'],
+    description: 'Score a password, estimate its entropy and cracking time, list what to improve, and check whether it has turned up in a data breach.',
+    keywords: ['password', 'strength', 'entropy', 'security', 'checker', 'breach', 'pwned', 'have i been pwned', 'leaked'],
+    online: 'api.pwnedpasswords.com, only when you press Check breaches, and only with the first 5 characters of the password’s SHA-1 hash',
     render: function (root) {
       root.classList.add('g-crypto');
       var input = el('input', { type: 'password', placeholder: 'Enter your password...', autocomplete: 'off' });
       var show = U.checkbox('Show password');
       show.input.addEventListener('change', function () { input.type = show.input.checked ? 'text' : 'password'; });
       var outWrap = el('div');
+      var breach = U.note('');
+      breach.dataset.out = 'breach';
+      var breachBtn = U.button('Check breaches', function () {
+        var pw = input.value;
+        if (!pw) { breach.className = 'note err'; breach.textContent = 'Enter a password first.'; return; }
+        breach.className = 'note'; breach.textContent = 'Checking…';
+        breachBtn.disabled = true;
+        pwnedCount(pw).then(function (n) {
+          if (input.value !== pw) return;
+          breach.className = 'note ' + (n ? 'err' : 'ok');
+          breach.textContent = pwnedText(n);
+        }).catch(function (e) { breach.className = 'note err'; breach.textContent = e.message; })
+          .then(function () { breachBtn.disabled = false; });
+      });
+      input.addEventListener('input', function () { breach.className = 'note'; breach.textContent = ''; });
 
       function draw() {
         var pw = input.value;
@@ -887,8 +1013,11 @@
       }
       input.addEventListener('input', draw);
 
-      root.appendChild(U.panel('Password to Analyze', input, show, U.note('Nothing you type leaves this page.')));
+      root.appendChild(U.panel('Password to Analyze', input, show, U.note('Nothing you type leaves this page unless you press Check breaches.')));
       root.appendChild(outWrap);
+      root.appendChild(U.panel('Has it been in a data breach?',
+        U.note('Checks the password against the 900 million-plus passwords from real breaches that Have I Been Pwned has collected. Only the first 5 characters of its SHA-1 hash are sent; the service replies with every match for those 5 characters and the comparison happens here, so the password itself never leaves this page.'),
+        U.btnrow(breachBtn), breach));
     }
   });
 
@@ -1294,7 +1423,9 @@
 
   window.CryptoKit = { digest: digest, hasher: function (name) { return HC.create(name); }, parseChecksum: parseChecksum,
     hmac: hmac, toHex: toHex, toB64: toB64, fromB64: fromB64, sha224: sha224, ripemd160: ripemd160, keccak512: keccak512,
-    aesEncrypt: aesEncrypt, aesDecrypt: aesDecrypt, hotp: hotp, base32Decode: base32Decode, analyse: analyse, caesar: caesar, vigenere: vigenere };
+    aesEncrypt: aesEncrypt, aesDecrypt: aesDecrypt, hotp: hotp, base32Decode: base32Decode, analyse: analyse, caesar: caesar, vigenere: vigenere,
+    makePassword: makePassword, loadWords: loadWords, makePassphrase: makePassphrase, passphraseBits: passphraseBits, bitsLabel: bitsLabel,
+    sha1Hex: sha1Hex, pwnedRange: pwnedRange, pwnedCountIn: pwnedCountIn, pwnedCount: pwnedCount, pwnedText: pwnedText };
 
   /* --- X.509 Certificate Decoder ------------------------------------------ */
 

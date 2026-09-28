@@ -26,9 +26,11 @@ async function setValue(page, selector, value) {
   }, [selector, value]);
 }
 
+/* A merged tool's tab chips are buttons too (a Translate tab beside a
+   Translate button), so they are skipped. */
 async function click(page, label) {
   await q(page, l => {
-    const b = [...document.querySelectorAll('#view button')].find(x => x.textContent.trim() === l);
+    const b = [...document.querySelectorAll('#view button')].find(x => x.textContent.trim() === l && !x.closest('[data-role=tabs]'));
     if (!b) throw new Error('no button ' + l);
     b.click();
   }, label);

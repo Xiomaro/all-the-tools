@@ -222,6 +222,52 @@ module.exports = [
     const setsOk = a.every(p => /[A-Z]/.test(p) && /[a-z]/.test(p) && /[0-9]/.test(p) && /[^A-Za-z0-9]/.test(p));
     return eq([a.length, a.every(p => p.length === 16), setsOk, b.length, b.every(p => /^\d{32}$/.test(p))], [5, true, true, 10, true]);
   } },
+  { name: 'password-generator: passphrases of EFF words, 6 by default, with separator, capitals and a number', tool: 'password-generator', run: async page => {
+    const list = new Set(require('../../assets/data/crypto-eff-wordlist.json').words);
+    const rows = () => page.evaluate(() => [...document.querySelectorAll('#view .pwrow')].map(r => [r.querySelector('code').textContent, r.querySelector('.tag').textContent]));
+    await clickExact(page, 'Passphrase (words)');
+    await clickExact(page, 'Generate Passphrases');
+    await waitFor(page, () => document.querySelectorAll('#view .pwrow').length === 5);
+    const a = await rows();
+    await page.fill(V + ' input[aria-label="Words value"]', '4');
+    await page.selectOption(V + ' select[aria-label="Separator"]', ' ');
+    for (const l of ['Capitalise each word', 'Add a number']) await page.locator(V + ' label.check', { hasText: l }).click();
+    await clickExact(page, 'Generate Passphrases');
+    await waitFor(page, () => /57 bits/.test(document.querySelector('#view .pwrow .tag').textContent));
+    const b = await rows();
+    /* Four capitalised list words split by spaces, one of them with a digit on the end.
+       6 x log2(7776) = 77.5 bits; 4 x log2(7776) + log2(10 x 4) = 57.0. */
+    const bOk = b.every(([p]) => {
+      const w = p.split(' ');
+      return w.length === 4 && w.every(x => /^[A-Z]/.test(x)) && w.filter(x => /\d$/.test(x)).length === 1 &&
+        w.every(x => list.has(x.replace(/\d$/, '').toLowerCase()));
+    });
+    return eq([a.length, a.every(([p]) => /^[a-z]+(-[a-z]+){5,}$/.test(p)), a[0][1], b.length, bOk, b[0][1]],
+      [5, true, 'Strong · 77 bits', 5, true, 'Fair · 57 bits']);
+  } },
+  { name: 'password-strength: breach check sends only the first 5 characters of the SHA-1 and reads the count', tool: 'password-strength', run: async page => {
+    /* SHA-1("password") = 5BAA61E4C9B93F3F0682250B6CF8331B7EE68FD8. */
+    const asked = [];
+    await page.route('https://api.pwnedpasswords.com/range/*', route => {
+      const req = route.request();
+      asked.push([req.url(), req.headers()['add-padding'] || '']);
+      route.fulfill({ status: 200, contentType: 'text/plain', headers: { 'Access-Control-Allow-Origin': '*' },
+        body: '0018A45C4D1DEF81644B54AB7F969B88D65:0\r\n1E4C9B93F3F0682250B6CF8331B7EE68FD8:9659365\r\n1E4C9B93F3F0682250B6CF8331B7EE68FD9:0' });
+    });
+    try {
+      await fill(page, 'input[type=password]', 'password');
+      await clickExact(page, 'Check breaches');
+      await waitFor(page, () => /Found|Not found|reach/.test(document.querySelector('#view [data-out=breach]').textContent));
+      const found = await text(page, '[data-out=breach]');
+      await fill(page, 'input[type=password]', 'Zq8#Lm3$Vt6@Wp1*Rk4%');
+      await clickExact(page, 'Check breaches');
+      await waitFor(page, () => /Found|Not found|reach/.test(document.querySelector('#view [data-out=breach]').textContent));
+      const clean = await text(page, '[data-out=breach]');
+      return eq([found, clean, asked[0], asked.length, asked.every(([u]) => /\/range\/[0-9A-F]{5}$/.test(u))],
+        ['✗ Found 9,659,365 times in known data breaches. Don’t use it anywhere.', '✓ Not found in any known data breach.',
+          ['https://api.pwnedpasswords.com/range/5BAA6', 'true'], 2, true]);
+    } finally { await page.unroute('https://api.pwnedpasswords.com/range/*'); }
+  } },
   { name: 'password-strength: scores, entropy and crack time', tool: 'password-strength', run: async page => {
     const read = async pw => {
       await fill(page, 'input[type=password]', pw);

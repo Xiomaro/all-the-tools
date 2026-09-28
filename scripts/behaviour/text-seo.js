@@ -143,15 +143,6 @@ module.exports = [
     const r = await get(page, 'result');
     return res(/^Finished! \d+ WPM at 100% accuracy/.test(r), r);
   } },
-  { name: 'slug-generator: underscore, accents and bulk', tool: 'slug-generator', run: async page => {
-    const d = await get(page, 'out');
-    await chip(page, 'sep', '_');
-    await set(page, 'in', 'Ünïcödé Straße Test');
-    const a = await get(page, 'out');
-    await set(page, 'bulk', 'First Post!\nSecond — Post');
-    const b = await get(page, 'bulkout');
-    return res(d === 'hello-world-this-is-a-test' && a === 'unicode_strasse_test' && b === 'first_post\nsecond_post', [d, a, b].join(' | '));
-  } },
   { name: 'braille-translator: letters, numbers and back', tool: 'braille-translator', run: async page => {
     await set(page, 'in', 'abc 123');
     const a = await get(page, 'out');

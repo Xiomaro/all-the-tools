@@ -1,4 +1,4 @@
-/* Text Transformer: one tool for the small jobs twelve single-purpose text
+/* Text Transformer: one tool for the small jobs thirteen single-purpose text
    tools used to do. The text runs through a list of steps from top to
    bottom and the output updates as you type. Each step is one of the old
    tools with every one of its options; their code moved here from text.js
@@ -534,6 +534,35 @@
     }
   });
 
+  /* ---------- Make slugs (was Slug Generator) ----------
+     Each line becomes a URL slug, so one title or a whole list works the
+     same way. The slug maker itself stays in text.js (TextKit.makeSlug). */
+  step({
+    id: 'slug', name: 'Make URL slugs', group: 'Change',
+    defaults: { sep: '-', custom: '~', lower: true, stop: false, max: '0' },
+    sample: 'Hello World! This is a Test\nCafé & Crème Brûlée: 10 Tips\nThe Best of the Year',
+    build: function (s, b) {
+      var custom = b.text('custom', 'Custom separator', 'any text');
+      custom.hidden = s.opts.sep !== 'custom';
+      var sep = b.chips('sep', [{ value: '-', label: '-' }, { value: '_', label: '_' }, { value: '.', label: '.' }, { value: 'custom', label: 'Custom' }]);
+      sep.addEventListener('click', function () { custom.hidden = s.opts.sep !== 'custom'; });
+      return [el('div', { class: 'field' }, el('label', { text: 'Separator' }), sep),
+        b.grid(custom, b.num('max', 'Maximum length (0 for none)', 0, 500)),
+        b.checks(b.check('lower', 'Lowercase'), b.check('stop', 'Leave out little words (a, the, of…)'))];
+    },
+    run: function (t, o) {
+      if (!window.TextKit || !TextKit.makeSlug) return { text: t, err: true, info: 'The slug maker isn’t loaded.' };
+      var opts = { sep: o.sep === 'custom' ? o.custom : o.sep, lower: !!o.lower, stop: !!o.stop, max: intOf(o.max, 0, 0, 500) };
+      var made = 0;
+      var text = lines(t).map(function (l) {
+        if (!l.trim()) return l;
+        made++;
+        return TextKit.makeSlug(l, opts);
+      }).join('\n');
+      return { text: text, info: plural(made, 'slug') };
+    }
+  });
+
   /* ---------- Number lines (was Add Line Numbers) ---------- */
   step({
     id: 'number-lines', name: 'Number lines', group: 'Add',
@@ -591,10 +620,10 @@
 
   Tools.register({
     id: 'text-transformer', category: 'text', name: 'Text Transformer',
-    description: 'Runs text through steps you stack up: change case, find and replace, clean up, sort, remove duplicate lines, wrap, truncate, pad, number, add a prefix and suffix, reverse or repeat.',
+    description: 'Runs text through steps you stack up: change case, find and replace, clean up, sort, remove duplicate lines, wrap, truncate, pad, make URL slugs, number, add a prefix and suffix, reverse or repeat.',
     keywords: ['transform', 'transformer', 'pipeline', 'steps', 'chain', 'batch', 'case', 'uppercase', 'lowercase', 'find and replace', 'replace',
       'regex', 'clean', 'cleaner', 'trim', 'whitespace', 'sort', 'sort lines', 'alphabetical', 'duplicate', 'remove duplicates', 'dedupe', 'unique',
-      'wrap', 'word wrap', 'truncate', 'shorten', 'pad', 'padding', 'line numbers', 'prefix', 'suffix', 'reverse', 'repeat', 'lines', 'list'],
+      'wrap', 'word wrap', 'truncate', 'shorten', 'pad', 'padding', 'slug', 'slugify', 'line numbers', 'prefix', 'suffix', 'reverse', 'repeat', 'lines', 'list'],
     render: function (root, params) {
       root.classList.add('g-textt');
       params = params || {};
@@ -846,7 +875,10 @@
         'double spaces', 'trim', 'trim lines', 'blank lines', 'empty lines', 'remove spaces', 'smart quotes', 'curly quotes',
         'control characters', 'non-breaking space', 'line endings', 'normalise', 'normalize', 'tidy']],
     ['text-replacer', 'replace', 'Text Find & Replace', 'Applies several find-and-replace rules in order, with optional regex.',
-      ['find', 'replace', 'regex', 'substitute', 'search', 'rules', 'batch']]
+      ['find', 'replace', 'regex', 'substitute', 'search', 'rules', 'batch']],
+    ['slug-generator', 'slug', 'Slug Generator', 'Turns titles into URL slugs, folding accents and "&" into plain letters, with any separator, a length limit and a bulk mode.',
+      ['slug', 'slugify', 'text to slug', 'url', 'permalink', 'seo', 'friendly url', 'bulk', 'accents', 'separator',
+        'hyphen', 'underscore', 'kebab', 'stop words', 'max length']]
   ];
   if (Tools.shortcut) {
     RETIRED.forEach(function (r) {

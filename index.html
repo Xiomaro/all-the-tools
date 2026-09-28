@@ -78,13 +78,13 @@
      group in isolation). -->
 <script>
 (function () {
-  var files = ["video", "video-b", "audio-b", "audio-c", "pdf", "pdf-b", "pdf-c", "pdf-word", "file", "file-b", "file-c", "image",
+  var files = ["video", "video-b", "audio-b", "audio-c", "pdf", "pdf-b", "pdf-c", "pdf-word", "pdf-office", "file", "file-b", "file-c", "image",
     "image-b", "image-c", "text", "text-b", "text-c", "text-transformer", "seo", "seo-b", "developer-a", "developer-b",
-    "developer-c", "developer-d", "data-b", "data-c", "math", "math-b", "science", "finance", "finance-b",
-    "finance-c", "converters", "converters-b", "electronics", "geo", "geo-b", "home", "home-b", "color",
-    "color-b", "css-b", "crypto", "crypto-b", "crypto-c", "network", "network-b", "generators",
+    "developer-c", "developer-d", "data-b", "data-c", "math", "math-b", "science", "science-b", "finance", "finance-b",
+    "finance-c", "converters", "converters-b", "converters-c", "electronics", "geo", "geo-b", "home", "home-b", "color",
+    "color-b", "css-b", "crypto", "crypto-b", "crypto-c", "crypto-d", "network", "network-b", "generators",
     "generators-b", "games", "games-b", "games-c", "time", "time-b", "time-c", "health", "productivity",
-    "productivity-b", "social", "social-b", "devices", "devices-b", "brain", "brain-b", "ai"];
+    "productivity-b", "productivity-c", "productivity-d", "social", "social-b", "devices", "devices-b", "brain", "brain-b", "ai"];
   var only = /[?&]only=([^&#]*)/.exec(location.search);
   if (only) files = files.filter(function (f) { return decodeURIComponent(only[1]).split(',').indexOf(f) > -1; });
   /* Always last and always loaded: it folds small tools into bigger ones. */
