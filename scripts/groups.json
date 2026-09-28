@@ -256,7 +256,8 @@
   "files": [
    "crypto",
    "crypto-b",
-   "crypto-c"
+   "crypto-c",
+   "crypto-d"
   ],
   "ids": [
    "hash-generator",

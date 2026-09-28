@@ -129,7 +129,7 @@
  {"id": "steganography", "name": "Hide Text in an Image", "category": "crypto"},
  {"id": "jwt-decoder", "name": "JWT Decoder & Generator", "category": "crypto"},
  {"id": "otp-generator", "name": "OTP Generator", "category": "crypto"},
- {"id": "password-generator", "name": "Password Generator & Strength Checker", "category": "crypto"},
+ {"id": "password-generator", "name": "Password Generator, Checker & Manager", "category": "crypto"},
  {"id": "pgp-tool", "name": "PGP Encrypt, Decrypt & Sign", "category": "crypto"},
  {"id": "shamir-secret-sharing", "name": "Shamir Secret Sharing", "category": "crypto"},
  {"id": "geometry-calculator", "name": "Geometry Calculator", "category": "math"},

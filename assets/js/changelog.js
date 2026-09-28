@@ -11,6 +11,17 @@
 
   window.Changelog = [
     {
+      date: '2026-09-28',
+      changes: [
+        { type: 'added', text: 'Password manager, a new tab of the password tool: keep your logins in an encrypted vault that is saved in this browser and can be downloaded as a .vault file to back it up or move it to another browser, where it can be merged in. Import from Chrome, Firefox, Safari, Bitwarden, 1Password, LastPass, KeePass and more, and a health check finds weak, reused and breached passwords.',
+          tools: ['password-manager'] },
+        { type: 'added', text: 'Passphrases in the Password Generator: random words from the EFF’s list of 7,776, with your choice of separator, capitals and a number, and the exact strength in bits.',
+          tools: ['password-generator'] },
+        { type: 'added', text: 'Password Strength can now check whether a password has turned up in a data breach, using Have I Been Pwned. Only the first 5 characters of the password’s hash are sent, and only when you press Check breaches.',
+          tools: ['password-strength'] }
+      ]
+    },
+    {
       date: '2026-09-27',
       changes: [
         { type: 'added', text: 'Word & Excel to PDF: turn a Word document or a spreadsheet into a PDF in the tab. Word files keep their headings, formatting, lists, tables, pictures, headers and footers; spreadsheets let you pick the sheets, paper, orientation and gridlines. Nothing is uploaded.',

@@ -153,7 +153,7 @@ under 1, so any tool that reports progress that way gets this for free. See `UI.
 |  | Colour Tools | 5 | Convert, pick, mix, name and check colours, and build accessible palettes. |
 |  | SEO & Web | 6 | Meta tags, link previews, sitemaps, manifests, redirects and structured data. |
 |  | Network Tools | 10 | Your IP and browser, DNS, email headers, SPF and DMARC, CIDR ranges, URLs and server config. |
-|  | Crypto & Security | 10 | Hashes, ciphers, keys, PGP, certificates, passwords, file encryption and secret sharing. |
+|  | Crypto & Security | 10 | Hashes, ciphers, keys, PGP, certificates, passwords and passphrases, breach checks, a password manager, file encryption and secret sharing. |
 | **Numbers & science** | Maths & Numbers | 15 | Calculators for percentages, primes, matrices, equations, probability and more. |
 |  | Converters | 7 | Units, sizes, currencies, cooking measures and recipe scaling, screens and paper, game sensitivity and real-world size comparisons. |
 |  | Science & Study | 5 | Periodic table, chemistry, physics equations, grades, GPA, degree classifications and citations. |
@@ -189,6 +189,7 @@ button.
 | What’s My IP & Browser (WebRTC leak test tab) | a STUN server (Google by default), on request |
 | AI Summarise, Translate & Sentiment (Translate tab), AI Image Description & Object Detection (Describe tab) | huggingface.co, on request, to download a model you don't have locally |
 | Markdown Editor (To PDF tab) | only the remote images your own document links to, when it previews them |
+| Password Generator, Checker & Manager (Check strength and Password manager tabs) | api.pwnedpasswords.com, on request, with only the first 5 characters of each password's SHA-1 hash |
 
 Currency Converter uses offline reference rates, with an optional "Fetch live rates" button.
 
@@ -206,6 +207,26 @@ Currency Converter uses offline reference rates, with an optional "Fetch live ra
   the tool download the one you need (about 110 MB per language pair, 290 MB for captioning).
 - **LLM Token Counter** gives exact counts for OpenAI's encodings. There is no public tokeniser
   for current Claude or Gemini models, so those figures are labelled estimates.
+
+### Password manager
+
+The Password manager tab of Password Generator, Checker & Manager keeps logins in an encrypted
+vault. Its code is `assets/js/tools/crypto-d.js`.
+
+- **Where it lives.** The vault is saved in this browser's `localStorage` for the address the
+  toolbox is served from, and can be downloaded as a `.vault` file at any time. The file is the
+  same encrypted envelope, so it is safe to keep in cloud storage. Opening a `.vault` file in an
+  empty browser restores it; opening one where a vault already exists offers to merge, replace,
+  or just open the file for this tab. Merging goes by entry: the newest edit of each login wins,
+  and deletions carry over.
+- **Encryption.** AES-256-GCM with a key from PBKDF2-SHA-256 (600,000 rounds) over the master
+  password. The header fields are bound in as additional data, so they can't be changed
+  unnoticed. The format is described at the top of `crypto-d.js`.
+- **Around it.** CSV imports from Chrome, Edge, Firefox, Safari and Apple Passwords, Bitwarden,
+  1Password, LastPass, KeePass, KeePassXC, Dashlane, Proton Pass and NordPass (matched by column
+  name, and adjustable), CSV export, a health check for weak, reused and breached passwords,
+  auto-lock, and clipboard clearing 30 seconds after a password is copied. Tabs of the same
+  browser pick up each other's changes.
 
 ### Figures that change
 
@@ -228,7 +249,7 @@ checked and, where it makes sense, let you edit them. As of 22 September 2026:
 `assets/data/` holds datasets built from open sources, each naming its source and licence inside
 the file: a British English word list (SCOWL), the periodic table (mendeleev, PubChem, NUBASE2020),
 the IEEE MAC vendor list (oui-data), open-source licence texts (SPDX), the Tailwind palette, the ID3
-genre list and the twitter-text URL rules.
+genre list, the twitter-text URL rules and the EFF's long word list for passphrases.
 
 ---
 

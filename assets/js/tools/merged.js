@@ -234,12 +234,14 @@
   ]);
 
   merge({
-    id: 'password-generator', category: 'crypto', name: 'Password Generator & Strength Checker', icon: 'key',
-    description: 'Generate strong random passwords, or score one you already have and see how long it would take to crack.',
-    keywords: ['password', 'password generator', 'strong password', 'password strength', 'passphrase']
+    id: 'password-generator', category: 'crypto', name: 'Password Generator, Checker & Manager', icon: 'key',
+    description: 'Generate strong passwords and passphrases, check one for strength and known breaches, or keep your logins in an encrypted vault in this browser and as a .vault file.',
+    keywords: ['password', 'password generator', 'strong password', 'password strength', 'passphrase', 'password manager', 'vault',
+      'breach', 'pwned', 'have i been pwned', 'diceware', 'keepass', 'bitwarden']
   }, [
     ['password-generator', 'generate', 'Generate'],
-    ['password-strength', 'strength', 'Check strength']
+    ['password-strength', 'strength', 'Check strength'],
+    ['password-manager', 'manager', 'Password manager']
   ]);
 
   merge({

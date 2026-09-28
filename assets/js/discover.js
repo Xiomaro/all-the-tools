@@ -59,7 +59,7 @@
         'sql-formatter', 'yaml-to-json'] },
     { id: 'security', name: 'Security & network', short: 'Security', icon: 'shield',
       categories: ['network', 'crypto', 'file'],
-      top: ['password-generator', 'ip-address', 'network-speed-test', 'dns-lookup', 'password-strength', 'whois-lookup',
+      top: ['password-generator', 'password-manager', 'ip-address', 'network-speed-test', 'dns-lookup', 'password-strength', 'whois-lookup',
         'ping-tool', 'hash-generator', 'spf-dmarc-tool', 'webrtc-leak-test', 'ssl-checker', 'file-encryption',
         'exif-remover', 'email-header-analyzer'] },
     { id: 'study', name: 'Study & science', short: 'Study', icon: 'book',
