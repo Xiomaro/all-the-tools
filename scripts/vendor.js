@@ -121,6 +121,10 @@ const DIRS = {
    in the same shapes as FILES, DIRS and MODEL_URLS below. */
 const VENDOR_D = path.join(__dirname, 'vendor.d');
 const EXTRA_MODELS = {};
+/* ES module bundles built with esbuild (dest dir under assets/vendor :
+   entry under scripts/bundles), for libraries such as CodeMirror that ship
+   as many small packages with bare imports rather than one browser build. */
+const BUNDLES = {};
 if (fs.existsSync(VENDOR_D)) {
   for (const name of fs.readdirSync(VENDOR_D).filter(f => f.endsWith('.json')).sort()) {
     const spec = JSON.parse(fs.readFileSync(path.join(VENDOR_D, name), 'utf8'));
@@ -128,6 +132,7 @@ if (fs.existsSync(VENDOR_D)) {
     Object.assign(DIRS, spec.dirs || {});
     Object.assign(MODEL_URLS_EXTRA, spec.models || {});
     Object.assign(EXTRA_MODELS, spec.extraModels || {});
+    Object.assign(BUNDLES, spec.bundles || {});
   }
 }
 
@@ -201,7 +206,18 @@ function download(url, dest) {
     if (!fs.existsSync(from)) { console.error('missing ' + src); missing++; continue; }
     copyDir(from, path.join(VENDOR, dest));
   }
-  console.log('Vendored ' + (Object.keys(FILES).length + Object.keys(DIRS).length - missing) + ' libraries into assets/vendor');
+  for (const [dest, entry] of Object.entries(BUNDLES)) {
+    let esbuild;
+    try { esbuild = require('esbuild'); } catch (e) { console.error('missing esbuild (run npm install)'); missing++; continue; }
+    const outdir = path.join(VENDOR, dest);
+    fs.rmSync(outdir, { recursive: true, force: true });
+    await esbuild.build({
+      entryPoints: { [path.basename(entry, '.js')]: path.join(__dirname, 'bundles', entry) },
+      bundle: true, format: 'esm', splitting: true, minify: true, legalComments: 'none',
+      outdir, chunkNames: 'lang/[name]-[hash]', logLevel: 'warning'
+    });
+  }
+  console.log('Vendored ' + (Object.keys(FILES).length + Object.keys(DIRS).length + Object.keys(BUNDLES).length - missing) + ' libraries into assets/vendor');
 
   if (process.argv.some(a => a === '--models' || a === '--models=all')) {
     for (const [repo, files] of Object.entries(MODEL_FILES)) {

@@ -1,0 +1,2 @@
+/* Proves snippets load: */
+body { --fixture-snippet-loaded: 1; }

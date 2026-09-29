@@ -1,0 +1,51 @@
+{
+	"nodes": [
+		{
+			"id": "a1",
+			"type": "text",
+			"text": "# Canvas card\nWith **markdown**.",
+			"x": 0,
+			"y": 0,
+			"width": 260,
+			"height": 140,
+			"color": "4"
+		},
+		{
+			"id": "b2",
+			"type": "file",
+			"file": "Ideas.md",
+			"x": 360,
+			"y": 0,
+			"width": 400,
+			"height": 300
+		},
+		{
+			"id": "c3",
+			"type": "link",
+			"url": "https://obsidian.md",
+			"x": 0,
+			"y": 220,
+			"width": 260,
+			"height": 120
+		},
+		{
+			"id": "g1",
+			"type": "group",
+			"label": "A group",
+			"x": -40,
+			"y": -60,
+			"width": 860,
+			"height": 440
+		}
+	],
+	"edges": [
+		{
+			"id": "e1",
+			"fromNode": "a1",
+			"fromSide": "right",
+			"toNode": "b2",
+			"toSide": "left",
+			"label": "leads to"
+		}
+	]
+}

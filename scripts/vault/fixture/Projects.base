@@ -1,0 +1,20 @@
+filters:
+  and:
+    - file.inFolder("Projects")
+properties:
+  status:
+    displayName: Status
+formulas:
+  overdue: 'due < today()'
+views:
+  - type: table
+    name: All projects
+    order:
+      - file.name
+      - status
+      - due
+    sort:
+      - property: file.name
+        direction: ASC
+  - type: cards
+    name: Cards

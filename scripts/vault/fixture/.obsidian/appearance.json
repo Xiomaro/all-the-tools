@@ -1,0 +1,8 @@
+{
+  "theme": "obsidian",
+  "accentColor": "",
+  "baseFontSize": 16,
+  "enabledCssSnippets": [
+    "fixture-snippet"
+  ]
+}
