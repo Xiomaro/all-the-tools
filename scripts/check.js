@@ -71,6 +71,12 @@ function waitForServer(timeoutMs) {
     browser = await chromium.launch({ ...launchOpts, executablePath: fallback });
   }
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  /* Every page load starts with no remembered tool settings (memory.js), so
+     each check sees a tool's own defaults. A check can still test memory by
+     changing the hash, which doesn't reload. */
+  await page.addInitScript(() => {
+    try { Object.keys(localStorage).filter(k => k.indexOf('att-mem:') === 0).forEach(k => localStorage.removeItem(k)); } catch (e) { /* no storage */ }
+  });
 
   let problems = [];
   let scope = 'startup';

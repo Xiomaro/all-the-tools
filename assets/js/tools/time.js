@@ -354,61 +354,7 @@
     }
   });
 
-  Tools.register({
-    id: 'timezone-converter', category: 'time', name: 'Time Zone Converter',
-    description: 'Convert a date and time from one world time zone to several others at once.',
-    /* Multi-Timezone Converter was merged into this tool; its name and
-       keywords stay here so search still finds it. */
-    keywords: ['timezone', 'time zone', 'convert', 'world', 'utc', 'gmt', 'meeting', 'multi-timezone converter',
-      'multiple time zones', 'meeting planner'],
-    render: function (root) {
-      root.classList.add('g-time');
-      var now = new Date();
-      var when = U.input({ label: 'Date & Time', type: 'datetime-local', value: localDT(now) });
-      var from = U.select({ label: 'From Timezone', options: TZ21.map(function (z) { return { value: z[0], label: z[1] + ' (' + z[2] + ')' }; }), value: 'America/New_York' });
-      var shown = { 'America/Los_Angeles': 1, 'Europe/London': 1, 'Asia/Kolkata': 1, 'Asia/Tokyo': 1 };
-      var chipWrap = el('div', { class: 'chips' });
-      TZ21.forEach(function (z) {
-        var chip = el('button', { class: 'chip' + (shown[z[0]] ? ' on' : ''), type: 'button', dataset: { zone: z[0] }, onclick: function () {
-          if (shown[z[0]]) delete shown[z[0]]; else shown[z[0]] = 1;
-          chip.classList.toggle('on', !!shown[z[0]]);
-          draw();
-        } }, z[1]);
-        chipWrap.appendChild(chip);
-      });
-      var cards = el('div', { class: 'cards' });
-      var status = U.note('');
-      var h12 = U.checkbox('12-hour clock');
-
-      function draw() {
-        var v = val(when);
-        var m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(v);
-        cards.replaceChildren();
-        if (!m) { status.textContent = 'Pick a date and time.'; return; }
-        status.textContent = '';
-        var zone = val(from);
-        var instant = zonedToUtc(zone, +m[1], +m[2], +m[3], +m[4], +m[5]);
-        var fz = TZ21.filter(function (z) { return z[0] === zone; })[0];
-        status.textContent = m[4] + ':' + m[5] + ' in ' + fz[1] + ' (' + offsetDecimal(zoneOffset(zone, instant)) + ') is ' +
-          instant.toISOString().slice(11, 16) + ' UTC.';
-        TZ21.forEach(function (z) {
-          if (!shown[z[0]]) return;
-          var off = zoneOffset(z[0], instant);
-          cards.appendChild(el('div', { class: 'card', dataset: { zone: z[0] } },
-            el('h4', { text: z[1] + ' (' + z[2] + ')' }),
-            el('div', { class: 'mid tz-time', text: h12.input.checked ? time12(z[0], instant) : time24(z[0], instant) }),
-            el('div', { class: 'muted', text: shortDay(z[0], instant) }),
-            el('div', { class: 'muted', text: offsetDecimal(off) })));
-        });
-        if (!cards.children.length) cards.appendChild(U.note('Choose at least one time zone to show.'));
-      }
-      U.live([when, from, h12], draw);
-
-      root.appendChild(U.panel(null, U.row(when, from, U.button('Now', function () { setVal(when, localDT(new Date())); draw(); }), h12), status));
-      root.appendChild(U.panel('Show Timezones', chipWrap));
-      root.appendChild(U.panel(null, cards));
-    }
-  });
+  /* The Time Zone Converter and World Clock are in time-d.js. */
 
   var ZODIAC = [
     [1, 20, 'Capricorn'], [2, 19, 'Aquarius'], [3, 20, 'Pisces'], [4, 20, 'Aries'], [5, 21, 'Taurus'], [6, 21, 'Gemini'],
@@ -549,58 +495,6 @@
     ['🇦🇺', 'Adelaide', 'Australia/Adelaide'], ['🇦🇺', 'Brisbane', 'Australia/Brisbane'], ['🇫🇯', 'Fiji', 'Pacific/Fiji']
   ];
   function zoneExists(z) { try { new Intl.DateTimeFormat('en-US', { timeZone: z }); return true; } catch (e) { return false; } }
-
-  Tools.register({
-    id: 'world-clock', category: 'time', name: 'World Clock',
-    description: 'Live clocks for cities around the world, with offsets and day or night.',
-    keywords: ['time', 'world', 'timezone', 'world clock', 'current time', 'cities'],
-    render: function (root) {
-      root.classList.add('g-time');
-      var search = U.input({ type: 'search', placeholder: 'Search cities, or an offset like UTC+1...' });
-      var h24 = U.checkbox('24-hour clock', { checked: true });
-      var grid = el('div', { class: 'cards' });
-      var all = CITIES.concat(MORE_CITIES).filter(function (c) { return zoneExists(c[2]); });
-
-      function noDst(zone, now) {
-        var y = now.getUTCFullYear();
-        var a = zoneOffset(zone, new Date(Date.UTC(y, 0, 15))), b = zoneOffset(zone, new Date(Date.UTC(y, 6, 15)));
-        return a === b ? a : null;
-      }
-      function draw() {
-        var now = new Date();
-        var q = String(val(search)).trim().toLowerCase().replace(/\s+/g, '');
-        var list = q ? all : CITIES;
-        grid.replaceChildren();
-        list.forEach(function (c) {
-          var off = zoneOffset(c[2], now);
-          var offText = offsetClock(off);
-          if (q) {
-            var hay = (c[1] + ' ' + c[2] + ' ' + offText + ' ' + (c[3] || '')).toLowerCase().replace(/\s+/g, '');
-            var qq = q.replace(/^gmt/, 'utc');
-            if (hay.indexOf(qq) === -1 && offText.toLowerCase() !== qq) return;
-          }
-          var hour = zoneParts(c[2], now).h;
-          var sub;
-          if (c[2] === 'UTC') sub = c[3];
-          else if (noDst(c[2], now) === 0) sub = 'UTC all year, no daylight saving';
-          else sub = hour >= 6 && hour < 18 ? '☀️ Day' : '🌙 Night';
-          grid.appendChild(el('div', { class: 'card', dataset: { zone: c[2] } },
-            el('h4', el('span', { text: c[0] + ' ' }), c[2] === 'UTC' ? 'UTC' : c[1] + ' · ' + offText),
-            el('div', { class: 'mid wc-time', text: h24.input.checked ? time24(c[2], now, true) : time12(c[2], now, true) }),
-            el('div', { class: 'muted', text: shortDay(c[2], now) }),
-            el('div', { class: 'daynight muted', text: sub })));
-        });
-        if (!grid.children.length) grid.appendChild(U.note('No city matches that search.'));
-      }
-      draw();
-      var timer = setInterval(draw, 1000);
-      U.onTeardown(root, function () { clearInterval(timer); });
-      U.live([search, h24], draw);
-      root.appendChild(U.panel(null, U.row(el('div', { class: 'grow' }, search), h24),
-        U.note('Your time zone: ' + Intl.DateTimeFormat().resolvedOptions().timeZone)));
-      root.appendChild(U.panel(null, grid));
-    }
-  });
 
   /* --- chess clock ---------------------------------------------------------- */
 
@@ -1400,5 +1294,11 @@
       root.appendChild(U.panel(null, which, U.row(t, cycle, latency), lead, out));
       root.appendChild(U.panel('How much sleep', ages, U.note('Sleep runs in cycles of roughly 90 minutes that end in light sleep; an alarm at a cycle boundary feels far better than one 20 minutes into deep sleep. The average adult takes about 14 minutes to fall asleep. Recommendations are the National Sleep Foundation figures.')));
     }
+  });
+  /* For time-d.js (the time zone planner and world clock). */
+  window.TimeKit = Object.assign(window.TimeKit || {}, {
+    pad: pad, DAYS: DAYS, MONTHS: MONTHS, localDT: localDT, zoneParts: zoneParts, zoneOffset: zoneOffset, zonedToUtc: zonedToUtc,
+    offsetDecimal: offsetDecimal, offsetClock: offsetClock, time12: time12, time24: time24, shortDay: shortDay,
+    zoneExists: zoneExists, TZ21: TZ21, CITIES: CITIES, MORE_CITIES: MORE_CITIES
   });
 })();

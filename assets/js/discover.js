@@ -580,7 +580,7 @@
       blurb: 'Find a time that works for everyone, then send the invite.',
       steps: [
         { tool: 'timezone-converter', title: 'Find a time that works',
-          text: 'Enter a proposed time and see it in everyone’s zone at once.' },
+          text: 'Add everyone’s places, then drag across the hours to find a slot that’s daytime for all of them.' },
         { tool: 'ics-generator', title: 'Send the invite',
           text: 'Make a calendar invite in your time zone. Everyone’s calendar shows it at the right local time.' }
       ] },

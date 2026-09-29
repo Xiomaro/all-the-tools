@@ -88,10 +88,10 @@
 
   merge({
     id: 'timezone-converter', category: 'time', name: 'Time Zone Converter & World Clock', icon: 'globe',
-    description: 'Convert a time from one time zone to several others at once, or keep live clocks for cities around the world.',
-    keywords: ['time zone', 'timezone converter', 'world clock', 'utc', 'gmt', 'time difference']
+    description: 'Plan a meeting across time zones by dragging across the hours, convert one exact time, or keep live clocks for your places.',
+    keywords: ['time zone', 'timezone converter', 'world clock', 'utc', 'gmt', 'time difference', 'meeting planner', 'world time buddy']
   }, [
-    ['timezone-converter', 'convert', 'Convert a time'],
+    ['timezone-converter', 'convert', 'Plan & convert'],
     ['world-clock', 'clocks', 'World clock']
   ]);
 

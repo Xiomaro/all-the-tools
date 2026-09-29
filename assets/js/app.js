@@ -151,6 +151,22 @@
 
   /* --- tool cards ------------------------------------------------------- */
 
+  /* Shown when the tool has remembered settings (memory.js): forget them
+     and open the tool afresh with its defaults. */
+  function resetButton(tool) {
+    if (!window.Memory || !Memory.has(tool)) return '';
+    return el('button', {
+      type: 'button', class: 'btn ghost mem-reset', text: 'Reset',
+      title: 'Forget the settings this tool remembered and start again with its defaults',
+      onclick: function () {
+        Memory.forgetTool(tool);
+        if (currentTool) { currentTool.dispatchEvent(new CustomEvent('tool-teardown')); currentTool = null; }
+        route();
+        U.toast('Back to the defaults');
+      }
+    });
+  }
+
   function pinButton(tool, onToggle) {
     var button = el('button', {
       type: 'button', class: 'pin-btn',
@@ -946,6 +962,7 @@
         el('div', { class: 'tool-head-text' },
           el('h1', { text: tool.name }),
           el('p', { text: tool.description || '' })),
+        resetButton(tool),
         button),
       tool.online ? el('div', { class: 'banner info', text: 'Network use: ' + tool.online }) : '',
       host);
@@ -958,6 +975,9 @@
         host.appendChild(el('div', { class: 'banner', text: 'This tool failed to start: ' + (err.message || err) }));
         if (window.console) console.error(err);
       }
+      /* Put back what was last set in it (merged tools do this per tab).
+         Something pasted or dropped in from the home page wins. */
+      if (window.Memory && !tool.parts) Memory.attach(host, tool, { restore: !hand });
     }
     if (hand) deliverHandoff(hand, host);
 
