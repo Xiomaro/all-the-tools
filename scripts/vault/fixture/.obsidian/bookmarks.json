@@ -1,0 +1,31 @@
+{
+  "items": [
+    {
+      "type": "file",
+      "ctime": 1700000000000,
+      "path": "Welcome.md"
+    },
+    {
+      "type": "group",
+      "ctime": 1700000000001,
+      "title": "Work",
+      "items": [
+        {
+          "type": "file",
+          "ctime": 1700000000002,
+          "path": "Projects/Project Alpha.md"
+        },
+        {
+          "type": "search",
+          "ctime": 1700000000003,
+          "query": "tag:#project"
+        }
+      ]
+    },
+    {
+      "type": "folder",
+      "ctime": 1700000000004,
+      "path": "Projects"
+    }
+  ]
+}

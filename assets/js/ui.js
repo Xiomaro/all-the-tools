@@ -587,7 +587,8 @@
      ?tab=, so a link or a bookmark reopens the same tab. */
   function tabbed(root, def, parts, params) {
     var pane = null, current = null;
-    var wanted = params && params.tab;
+    /* No tab in the address: reopen the one used last time. */
+    var wanted = (params && params.tab) || (global.Memory && Memory.lastTab(def.id));
     var start = parts.filter(function (p) { return p.tab === wanted; })[0] || parts[0];
     var about = el('p', { class: 'note tool-tab-about' });
     var options = parts.map(function (p) { return { value: p.tab, label: p.label }; });
@@ -614,6 +615,10 @@
       } catch (err) {
         pane.appendChild(el('div', { class: 'banner', text: 'This tool failed to start: ' + (err.message || err) }));
         if (global.console) console.error(err);
+      }
+      if (global.Memory) {
+        Memory.attach(pane, part.tool, { restore: !pending || pending.taken });
+        Memory.lastTab(def.id, part.tab);
       }
       var hash = '#/t/' + def.id + (part === parts[0] ? '' : '?tab=' + encodeURIComponent(part.tab));
       if (location.hash !== hash && history.replaceState) history.replaceState(null, '', hash);

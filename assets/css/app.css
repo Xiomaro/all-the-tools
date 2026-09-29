@@ -688,6 +688,7 @@ a.btn { display: inline-block; text-decoration: none; }
 :root[data-density="compact"] .feature-card .tool-desc { display: none; }
 
 .tool-head .pin-btn { position: static; opacity: 1; width: 34px; height: 34px; border: 1px solid var(--border); }
+.tool-head .mem-reset { align-self: flex-start; height: 34px; padding: 0 12px; font-size: 13px; }
 .tool-head .pin-btn svg { width: 19px; height: 19px; }
 
 /* --- command palette ---------------------------------------------------- */

@@ -1,0 +1,19 @@
+{
+  "bundles": {
+    "codemirror": "codemirror.js",
+    "lucide": "lucide.js"
+  },
+  "files": {
+    "codemirror-licence/LICENSE-codemirror.txt": "@codemirror/view/LICENSE",
+    "codemirror-licence/LICENSE-codemirror-vim.txt": "@replit/codemirror-vim/LICENSE",
+    "codemirror-licence/LICENSE-lucide.txt": "lucide/LICENSE",
+    "katex/katex.min.js": "katex/dist/katex.min.js",
+    "katex/katex.min.css": "katex/dist/katex.min.css",
+    "katex/LICENSE": "katex/LICENSE",
+    "moment/moment.min.js": "moment/min/moment.min.js",
+    "moment/LICENSE": "moment/LICENSE"
+  },
+  "dirs": {
+    "katex/fonts": "katex/dist/fonts"
+  }
+}

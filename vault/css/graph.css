@@ -1,0 +1,106 @@
+/* Graph view: the canvas, the settings panel in its top right corner
+   (Obsidian's .graph-controls markup) and the hidden elements the renderer
+   reads its colours from. Themes can restyle any of these as they do in
+   Obsidian, or just set the --graph-* variables. */
+
+.workspace-leaf-content[data-type="graph"] > .view-content,
+.workspace-leaf-content[data-type="localgraph"] > .view-content {
+  padding: 0; overflow: hidden; position: relative; background-color: var(--background-primary);
+}
+.mod-sidedock .workspace-leaf-content[data-type="localgraph"] > .view-content { background-color: var(--background-secondary); }
+.graph-view-container > canvas { position: absolute; inset: 0; display: block; outline: none; cursor: grab; }
+.graph-view-container > canvas.is-panning { cursor: grabbing; }
+
+/* Where the renderer reads colours from (Obsidian's classes). */
+.graph-view.color-fill { color: var(--graph-node); }
+.graph-view.color-fill-focused { color: var(--graph-node-focused); }
+.graph-view.color-fill-tag { color: var(--graph-node-tag); }
+.graph-view.color-fill-attachment { color: var(--graph-node-attachment); }
+.graph-view.color-fill-unresolved { color: var(--graph-node-unresolved); }
+.graph-view.color-fill-highlight { color: var(--color-accent); }
+.graph-view.color-line { color: var(--graph-line); }
+.graph-view.color-line-highlight { color: var(--color-accent); }
+.graph-view.color-arrow { color: var(--graph-line); }
+.graph-view.color-text { color: var(--graph-text); }
+.graph-view.color-circle { color: var(--text-normal); }
+
+.graph-empty-state {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none;
+  color: var(--text-faint); font-size: var(--font-ui-small); padding: var(--size-4-4); text-align: center;
+}
+
+/* --- the settings panel ----------------------------------------------------------- */
+
+.graph-controls {
+  position: absolute; top: var(--size-4-2); right: var(--size-4-2); z-index: 2;
+  width: var(--graph-controls-width); max-width: calc(100% - var(--size-4-4)); max-height: calc(100% - var(--size-4-4));
+  overflow-y: auto; overflow-x: hidden;
+  padding: var(--size-4-2) var(--size-4-3) var(--size-4-2) var(--size-4-2);
+  background-color: var(--background-secondary); border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-m); box-shadow: var(--shadow-s);
+  font-size: var(--font-ui-small); color: var(--text-normal); user-select: none;
+}
+.mod-sidedock .graph-controls { background-color: var(--background-primary); }
+.graph-controls.is-close {
+  width: auto; min-width: 0; padding: 0; background-color: transparent; border-color: transparent; box-shadow: none; overflow: visible;
+}
+
+.graph-controls-button { position: absolute; top: var(--size-4-1); display: none; }
+.graph-controls-button.mod-close { right: var(--size-4-1); }
+.graph-controls-button.mod-reset { right: calc(var(--size-4-1) + 28px); }
+.graph-controls:not(.is-close):hover .graph-controls-button.mod-close,
+.graph-controls:not(.is-close):hover .graph-controls-button.mod-reset,
+.graph-controls:not(.is-close):focus-within .graph-controls-button.mod-close,
+.graph-controls:not(.is-close):focus-within .graph-controls-button.mod-reset { display: inline-flex; }
+.graph-controls.is-close .graph-controls-button.mod-open { display: inline-flex; position: static; }
+.graph-controls-button svg.svg-icon { width: var(--icon-s, 16px); height: var(--icon-s, 16px); }
+
+/* Sections: Filters, Groups, Display, Forces. */
+.graph-control-section + .graph-control-section { border-top: 1px solid var(--background-modifier-border); margin-top: var(--size-4-1); padding-top: var(--size-4-1); }
+.graph-control-section { position: relative; }
+.graph-control-section > .tree-item-self {
+  position: relative; display: flex; align-items: center; margin: 0;
+  padding: var(--size-4-1) var(--size-4-2) var(--size-4-1) var(--size-4-5);
+  border-radius: var(--radius-s); cursor: var(--cursor); color: var(--text-normal); font-size: var(--font-ui-small);
+}
+.graph-control-section > .tree-item-self:hover { background-color: var(--background-modifier-hover); color: var(--text-normal); }
+.graph-control-section > .tree-item-self > .tree-item-inner { flex: 1 1 auto; min-width: 0; }
+.graph-control-section-header { font-size: var(--font-ui-small); font-weight: var(--font-semibold, 600); }
+.graph-control-section > .tree-item-self > .collapse-icon {
+  position: absolute; inset-inline-start: 0; top: 0; bottom: 0; width: var(--size-4-5); height: auto; margin: 0; padding: 0;
+  display: flex; align-items: center; justify-content: center; color: var(--collapse-icon-color);
+}
+.graph-control-section > .tree-item-self > .collapse-icon svg.svg-icon { width: 10px; height: 10px; margin: 0; stroke-width: 4px; transition: transform 100ms ease-in-out; }
+.graph-control-section > .tree-item-self > .collapse-icon.is-collapsed svg.svg-icon { transform: rotate(-90deg); }
+.graph-control-section > .tree-item-children { padding: 0 0 var(--size-4-2) var(--size-4-1); margin: 0; border: 0; }
+
+.graph-controls .setting-item { border-top: 0; padding: var(--size-4-1) 0; gap: var(--size-4-2); flex-wrap: wrap; }
+.graph-controls .setting-item-name { font-size: var(--font-ui-small); color: var(--text-muted); }
+.graph-controls .setting-item-description { display: none; }
+.graph-controls .setting-item.mod-slider { display: block; }
+.graph-controls .setting-item.mod-slider .setting-item-control { justify-content: stretch; padding-top: var(--size-4-1); }
+.graph-controls .setting-item.mod-slider input[type=range].slider { width: 100%; }
+.graph-controls .setting-item.mod-button .setting-item-info { display: none; }
+.graph-controls .setting-item.mod-button .setting-item-control { flex: 1 1 auto; }
+.graph-controls .setting-item.mod-button button { width: 100%; }
+.graph-controls .setting-item.mod-search-setting .setting-item-control { flex: 1 1 auto; justify-content: stretch; }
+
+/* Search boxes (the filter and each group's query) use the shared
+   .search-input-container from the panes; just fit them to the panel. */
+.graph-controls .search-input-container { position: relative; flex: 1 1 auto; min-width: 0; }
+.graph-controls .search-input-container input { width: 100%; padding-inline-end: 24px; }
+.graph-controls .search-input-container input::-webkit-search-cancel-button { display: none; }
+
+/* Colour groups. */
+.graph-color-groups-container { display: flex; flex-direction: column; gap: var(--size-4-1); padding: var(--size-4-1) 0; }
+.graph-color-group { display: flex; align-items: center; gap: var(--size-4-1); }
+.graph-color-group input[type=color] {
+  flex: 0 0 auto; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 50%; background: none; cursor: var(--cursor); overflow: hidden;
+}
+.graph-color-group input[type=color]::-webkit-color-swatch-wrapper { padding: 0; }
+.graph-color-group input[type=color]::-webkit-color-swatch { border: 1px solid var(--background-modifier-border); border-radius: 50%; }
+.graph-color-group input[type=color]::-moz-color-swatch { border: 1px solid var(--background-modifier-border); border-radius: 50%; }
+.graph-color-group .clickable-icon { flex: 0 0 auto; padding: var(--size-2-1); }
+.graph-color-group .clickable-icon svg { width: 14px; height: 14px; }
+.graph-color-button-container { display: flex; justify-content: center; padding: var(--size-4-1) 0; }
+.graph-color-button-container button { width: 100%; }

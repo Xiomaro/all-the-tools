@@ -199,6 +199,7 @@
  {"id": "flashcards", "name": "Flashcards", "category": "productivity"},
  {"id": "invoice-generator", "name": "Invoice Generator", "category": "productivity"},
  {"id": "mermaid-editor", "name": "Mermaid Diagram Editor", "category": "productivity"},
+ {"id": "obsidian-vault", "name": "Vault: Obsidian-Compatible Notes", "category": "productivity"},
  {"id": "notepad", "name": "Notepad", "category": "productivity"},
  {"id": "printable-calendar", "name": "Printable Calendar, Bank Holidays & Easter", "category": "productivity"},
  {"id": "kanban-board", "name": "To-Do List & Kanban Board", "category": "productivity"},
