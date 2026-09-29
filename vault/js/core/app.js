@@ -57,6 +57,16 @@ export class App {
     this.workspace.ready();
     this.plugins.onLayoutReady();
 
+    /* Views close themselves when their own file is deleted; notes inside a
+       deleted folder need closing here, as only the folder's event fires. */
+    this.vault.on('delete', f => {
+      if (!f.isFolder) return;
+      this.workspace.iterateAllLeaves(l => {
+        const v = l.view;
+        if (v && v.file && v.file.path.startsWith(f.path + '/')) l.detachOrEmpty();
+      });
+    });
+
     this.listenForKeys();
     this.watch();
     window.addEventListener('beforeunload', e => {

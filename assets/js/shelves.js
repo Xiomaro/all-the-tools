@@ -29,6 +29,7 @@
     health: ['bmi-calculator', 'calorie-calculator'],
     home: ['diy-calculator'],
     time: ['timer', 'date-calculator'],
+    productivity: ['obsidian-vault'],
     games: ['dm-toolkit'],
     brain: ['memory-tests'],
     devices: ['input-tester', 'mic-test']

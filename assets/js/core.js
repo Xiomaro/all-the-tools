@@ -61,7 +61,7 @@
     { id: 'health',       section: 'life',    name: 'Health & Fitness',  short: 'Health',       hue: 141, l: 32, ld: 62, blurb: 'BMI, body fat, calories, macros, heart-rate zones, pace, sleep and breathing.' },
     { id: 'home',         section: 'life',    name: 'Home & DIY',        short: 'Home',         hue: 39,  l: 38, ld: 66, blurb: 'Paint, tiles, wallpaper, concrete, heating and running costs, plus a room planner.' },
     { id: 'time',         section: 'life',    name: 'Time & Date',       short: 'Time',         hue: 235, l: 52, ld: 76, blurb: 'Timestamps, time zones, timers, timesheets and calendar maths.' },
-    { id: 'productivity', section: 'life',    name: 'Productivity',      short: 'Productivity', hue: 227, l: 50, ld: 74, blurb: 'Notes, to-do lists, habits, checklists, flashcards, calendars, diagrams, invoices, CVs and email signatures, kept in this browser.' },
+    { id: 'productivity', section: 'life',    name: 'Productivity',      short: 'Productivity', hue: 227, l: 50, ld: 74, blurb: 'An Obsidian-compatible notes app, plus notes, to-do lists, habits, checklists, flashcards, calendars, diagrams, invoices, CVs and email signatures, kept in this browser.' },
 
     { id: 'games',        section: 'play',    name: 'Games & Party',     short: 'Games',        hue: 31,  l: 42, ld: 68, blurb: 'Wheels, dice, cards, puzzles, Minesweeper, 2048, a daily word game, party games, brackets and a tabletop RPG kit.' },
     { id: 'brain',        section: 'play',    name: 'Brain & Reaction',  short: 'Brain',        hue: 16,  l: 44, ld: 70, blurb: 'Reaction, aim, memory, focus, typing and mental maths tests.' },

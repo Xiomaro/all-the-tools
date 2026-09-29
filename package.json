@@ -1,12 +1,13 @@
 {
   "name": "all-the-tools",
   "version": "2.0.0",
-  "description": "A local, browser-only toolbox of 231 tools in 29 categories, all running in the tab.",
+  "description": "A local, browser-only toolbox of 232 tools in 29 categories, all running in the tab.",
   "private": true,
   "scripts": {
     "start": "python serve.py",
     "vendor": "node scripts/vendor.js",
-    "check": "node scripts/check.js"
+    "check": "node scripts/check.js",
+    "check:vault": "node scripts/vault/check.js"
   },
   "keywords": [
     "tools",

@@ -1,6 +1,6 @@
 # All The Tools
 
-A local, browser-only toolbox: **231 tools in 29 categories**, grouped into six sections.
+A local, browser-only toolbox: **232 tools in 29 categories**, grouped into six sections.
 Everything runs in the tab. Nothing you paste, type or drop in is uploaded, apart from the handful
 of tools that exist to talk to the network (listed below).
 
@@ -31,7 +31,7 @@ WebCrypto don't work on `file://`, so many tools need a real `http://` origin.
 
 ## Finding a tool
 
-231 tools is too many for one list, so there are several ways in:
+232 tools is too many for one list, so there are several ways in:
 
 - **Search, paste or drop.** The box at the top of the home page searches as you type. Paste
   something instead and it says what it looks like and which tools fit: "5 kg" offers the weight
@@ -121,6 +121,31 @@ The tools themselves are unchanged and still download their results as before. T
 watches (`UI.onSave`, and the `files-chosen` event a drop zone fires) rather than intercepts, so
 nothing behaves differently inside it. See `UI.workspace` in `assets/js/ui.js`.
 
+### Tools remember your settings
+
+Converters and calculators pick up where you left off. The Unit Converter reopens on your last
+conversion, the Mortgage Calculator keeps your figures, and a tool with tabs reopens on the tab you
+used last. This covers the Converters, Time & Date, Finance, Health, Home, Electronics, Maths,
+Science, Colour, CSS and Maps categories; a tool elsewhere can opt in with `remember: true` (or out
+with `remember: false`). Fields are matched by their label, so the saved values survive a tool
+gaining or losing fields. Date and time fields that open on "now" stay live, and passwords, files and
+long text are never kept. A **Reset** button on the tool page forgets what it remembered. Everything
+is in this browser's `localStorage` (`att-mem:*`); see `assets/js/memory.js`. Tools with state that
+isn't a form field use `Memory.state(key)`: the time zone tools keep your places and home zone this
+way, shared between the planner and the World Clock.
+
+### Time zones: planner and World Clock
+
+The Time Zone Converter is laid out like World Time Buddy: one row per place, each showing the 24
+hours of your home day, shaded for night, early or late, and working hours (which you can set).
+Drag across the hours to pick a meeting (snapping to 1 hour, 30 or 15 minutes), drag its edges to
+change the length, drag the middle to move it, or use the arrow keys. Every place's times and the
+duration are listed underneath, with Copy, an .ics file, a Google Calendar link and a link that
+reopens the same plan. Add places by city, IANA name, abbreviation (EST) or offset (UTC+5:45),
+reorder them by dragging, and make any of them home. The Date & Time and From Timezone fields still
+convert one exact time. The World Clock shows the same places first, with each one's difference from
+home. See `assets/js/tools/time-d.js`.
+
 ### Work carries on in the background
 
 Leaving a tool partway through a long job (compressing a video, hashing a big file, running OCR)
@@ -163,7 +188,7 @@ under 1, so any tool that reports progress that way gets this for free. See `UI.
 |  | Health & Fitness | 7 | BMI, body fat, calories, macros, heart-rate zones, pace, sleep and breathing. |
 |  | Home & DIY | 3 | Paint, tiles, wallpaper, concrete, heating, solar payback and running costs, plus a room planner. |
 |  | Time & Date | 8 | Timestamps, time zones, timers, a stopwatch, timesheets and calendar maths. |
-|  | Productivity | 10 | Notes, to-do lists, habits and checklists, flashcards, calendars and bank holidays, diagrams, invoices, CVs, email signatures and a meeting cost timer, kept in this browser. |
+|  | Productivity | 11 | Vault (an Obsidian-compatible notes app, below), notes, to-do lists, habits and checklists, flashcards, calendars and bank holidays, diagrams, invoices, CVs, email signatures and a meeting cost timer, kept in this browser. |
 | **Play & tests** | Games & Party | 15 | Wheels, dice, cards, puzzles, Minesweeper, 2048, a daily word game, party games, brackets and a tabletop RPG kit. |
 |  | Brain & Reaction | 4 | Reaction, aim, memory, focus, typing and mental maths tests. |
 |  | Device Tests | 5 | Test your screen, speakers, mic, camera, inputs, MIDI gear, stylus and sensors. |
@@ -190,6 +215,7 @@ button.
 | AI Summarise, Translate & Sentiment (Translate tab), AI Image Description & Object Detection (Describe tab) | huggingface.co, on request, to download a model you don't have locally |
 | Markdown Editor (To PDF tab) | only the remote images your own document links to, when it previews them |
 | Password Generator, Checker & Manager (Check strength and Password manager tabs) | api.pwnedpasswords.com, on request, with only the first 5 characters of each password's SHA-1 hash |
+| Vault (web viewer, web page cards in Canvas, images linked from the web in notes) | only the pages and images your own notes link to, when you open them |
 
 Currency Converter uses offline reference rates, with an optional "Fetch live rates" button.
 
@@ -228,6 +254,50 @@ vault. Its code is `assets/js/tools/crypto-d.js`.
   auto-lock, and clipboard clearing 30 seconds after a password is copied. Tabs of the same
   browser pick up each other's changes.
 
+### Vault: Obsidian-compatible notes
+
+`vault/` is a notes app that works on the same files as [Obsidian](https://obsidian.md): open it at
+`http://localhost:8000/vault/` (or from the Productivity category) and pick your vault's folder. It
+reads and writes the Markdown files in place and uses the vault's own `.obsidian` settings, so you
+can switch between it and Obsidian on the same folder. Nothing is uploaded; there's no server side.
+
+- **Where the notes live.** In Chrome, Edge, Opera, Brave, Vivaldi and Arc it edits the folder on
+  your computer directly (File System Access API) and remembers it for next time, though the browser
+  asks again for permission each visit. Firefox and Safari can't write to a folder, so they keep
+  *browser vaults* in the browser's private storage instead: import a folder or a zip, and export a
+  zip when you want the files back. Changes made by other apps (Obsidian, a sync client) are picked
+  up when you return to the tab and every few seconds.
+- **Editing.** Live preview, source mode and reading view, with wikilinks and embeds (headings,
+  blocks, images, audio, video, PDFs, other notes, canvases and bases), callouts, tables, tasks,
+  KaTeX maths, Mermaid, footnotes, comments, highlights and code highlighting. Link, heading, block
+  and tag suggestions as you type, smart lists, folding, find and replace, vim mode, pasted images
+  saved as attachments and pasted HTML converted to Markdown. Properties are edited with Obsidian's
+  typed editors, following `types.json`.
+- **Settings carry over.** `app.json` (every editor and files-and-links option), `appearance.json`
+  (light or dark, accent colour, fonts, installed themes from `.obsidian/themes` and CSS snippets from
+  `.obsidian/snippets`), `hotkeys.json`, `core-plugins.json`, `workspace.json` (open tabs and splits),
+  `bookmarks.json`, `graph.json`, `types.json` and each core plugin's own file. They're written back
+  in Obsidian's format, keeping any keys the app doesn't know. The interface uses Obsidian's class
+  names and CSS variables, so themes and snippets style it.
+- **Core plugins.** Files, Search (Obsidian's full query language), Backlinks (also in the note),
+  Outgoing links, Outline, Tags, Bookmarks, Properties view, Graph view (global and local), Canvas,
+  Bases (table, cards and list views, filters, formulas, summaries), Page preview, Quick switcher,
+  Command palette, Daily notes, Templates, Note composer, Unique note creator, Random note, Word
+  count, File recovery, Slides, Audio recorder, Workspaces, Slash commands, Format converter,
+  Footnotes view and Web viewer, each with its settings page. Renaming or moving a note updates the
+  links to it.
+- **What a browser can't do.** Community plugins, Sync and Publish aren't available. Ctrl+N,
+  Ctrl+T, Ctrl+W and Ctrl+Tab belong to the browser, so commands bound to them also answer to the
+  same keys with Alt added. Deleted files go to the vault's `.trash` folder, not the system bin.
+  Pop-out windows open as tabs; most websites refuse to load in the web viewer or in canvas web
+  cards; Export to PDF uses the browser's print dialog; maths uses KaTeX rather than MathJax; file
+  creation times aren't available, so the modified time is used. The app says so where each comes up.
+
+The code is plain ES modules with no build step; `vault/ARCHITECTURE.md` explains how it's put
+together. Its libraries are vendored like the rest: CodeMirror 6 and the Lucide icons are bundled
+with esbuild by `npm run vendor` (entries in `scripts/bundles/`), plus KaTeX, moment, js-yaml,
+marked, turndown, mermaid and JSZip.
+
 ### Figures that change
 
 Tools that depend on rates or limits keep them in one named constant, show the date they were
@@ -263,6 +333,7 @@ assets/js/shelves.js     the groups on each category page and "related tools"
 assets/js/ui.js          DOM helpers, lazy loaders (UI.script / UI.module), progress bars
 assets/js/icons.js       the icon set, and the rules that pick one per tool
 assets/js/prefs.js       pinned tools, recently used, home page modes and density, in localStorage
+assets/js/memory.js      remembers each tool's last settings and tab, in localStorage
 assets/js/lib/           small in-house libraries (hashing, QR, CSV, diff, markdown, PDF helpers…)
 assets/js/tools/         the tool modules; each registers its tools. A "-b" (or "-c", "-d") file
                          extends the module before it and may use helpers it exports
@@ -284,6 +355,9 @@ scripts/behaviour/       input→output assertions for each module
 scripts/groups.json      named subsets for check.js --group
 scripts/tools-manifest.json   every id, name and category
 tool-demand.md           the search and traffic evidence behind the popular tools and recipes
+vault/                   the Obsidian-compatible notes app (see vault/ARCHITECTURE.md)
+scripts/bundles/         esbuild entries for the CodeMirror and Lucide bundles
+scripts/vault/           the Vault app's checks, harness and sample vault
 ```
 
 Vendored libraries: pdf-lib, pdf.js, ffmpeg.wasm, transformers.js (+ onnxruntime-web), MediaPipe
@@ -322,6 +396,15 @@ Enigma and cipher vectors, GOV.UK bank holiday data, and hand-worked figures for
 Named groups in `scripts/groups.json`: pdf-files, image-social, media, ai, text, data-generators,
 developer, css-colour, seo-network, security, maths-science, convert-elec-geo, finance-home,
 health-time, productivity-games, brain-devices.
+
+The Vault app has its own checks. Each opens a sample vault (`scripts/vault/fixture/`, with a bit of
+every feature and a `.obsidian` folder) in headless Chromium and drives the real app with the
+keyboard and mouse:
+
+```bash
+npm run check:vault                           # all of them
+node scripts/vault/check.js --only=editor-view,graph-view
+```
 
 ---
 

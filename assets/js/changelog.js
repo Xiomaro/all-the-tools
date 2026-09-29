@@ -11,6 +11,19 @@
 
   window.Changelog = [
     {
+      date: '2026-09-29',
+      changes: [
+        { type: 'added', text: 'Vault, an Obsidian-compatible notes app that runs in the tab: open your Obsidian vault (or any folder of Markdown) and work in it with live preview, links and backlinks, search, the graph, Canvas, Bases, daily notes, templates and the rest of Obsidian’s core plugins. It uses your vault’s own settings, hotkeys, themes and CSS snippets, and saves straight back to the folder. Firefox and Safari can keep vaults in the browser instead.',
+          tools: ['obsidian-vault'] },
+        { type: 'improved', text: 'The Time Zone Converter is now a meeting planner: a row of hours for each of your places, shaded for night, early, late and working hours. Drag across the hours to pick a meeting, drag its edges to change its length, and see everyone’s times with the duration, then copy them, download an .ics or open Google Calendar. Add any city or time zone, reorder them and pick your home zone.',
+          tools: ['timezone-converter'] },
+        { type: 'improved', text: 'The World Clock shows your places first, each with the difference from your own time. Star a city to add it. The time zone tools share the same list, and it’s remembered in this browser.',
+          tools: ['world-clock'] },
+        { type: 'improved', text: 'Converters and calculators remember what you last set: the Unit Converter reopens on your last conversion, and the finance, health, home, maths, science, colour and CSS tools keep your figures. Tools with tabs reopen on the tab you used last. Dates that start on today still start on today, and a Reset button on the tool puts the defaults back. Kept in this browser only.',
+          tools: ['unit-converter', 'mortgage-calculator'] }
+      ]
+    },
+    {
       date: '2026-09-28',
       changes: [
         { type: 'added', text: 'Password manager, a new tab of the password tool: keep your logins in an encrypted vault that is saved in this browser and can be downloaded as a .vault file to back it up or move it to another browser, where it can be merged in. Import from Chrome, Firefox, Safari, Bitwarden, 1Password, LastPass, KeePass and more, and a health check finds weak, reused and breached passwords.',

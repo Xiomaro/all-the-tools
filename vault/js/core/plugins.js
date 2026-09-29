@@ -31,7 +31,10 @@ export class CorePlugin extends Component {
   async loadData() { return this.app.config.readJson(this.id, null); }
   async saveData(data) { return this.app.config.writeJson(this.id, data); }
 
+  /* Like Obsidian, a core plugin's commands are listed under its name
+     ("Daily notes: Open today's daily note"). */
   addCommand(cmd) {
+    if (!this.def.builtin && cmd.name && !cmd.name.startsWith(this.def.name + ': ')) cmd = Object.assign({}, cmd, { name: this.def.name + ': ' + cmd.name });
     const full = this.app.commands.add(cmd);
     this.register(() => this.app.commands.remove(full.id));
     return full;

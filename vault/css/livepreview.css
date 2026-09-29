@@ -1,0 +1,414 @@
+/* How notes look in the editor: Obsidian's token and line classes in live
+   preview and source mode, and the live-preview widgets (checkboxes,
+   bullets, rules, links, tags, images, embeds, callouts, tables, maths,
+   code blocks). Everything is drawn from Obsidian's CSS variables, and
+   selectors are kept low so themes and snippets win. */
+
+/* --- text ------------------------------------------------------------------ */
+
+.markdown-source-view.mod-cm6 .cm-scroller {
+  font-family: var(--font-text);
+  font-size: var(--font-text-size);
+  line-height: var(--line-height-normal);
+}
+
+.cm-editor .cm-formatting { color: var(--text-faint); }
+.cm-editor .cm-header { font-variant: var(--h1-variant); }
+.cm-editor .cm-header-1 { font-size: var(--h1-size); line-height: var(--h1-line-height); font-weight: var(--h1-weight); color: var(--h1-color); font-family: var(--h1-font); font-style: var(--h1-style); font-variant: var(--h1-variant); letter-spacing: -0.015em; }
+.cm-editor .cm-header-2 { font-size: var(--h2-size); line-height: var(--h2-line-height); font-weight: var(--h2-weight); color: var(--h2-color); font-family: var(--h2-font); font-style: var(--h2-style); font-variant: var(--h2-variant); letter-spacing: -0.011em; }
+.cm-editor .cm-header-3 { font-size: var(--h3-size); line-height: var(--h3-line-height); font-weight: var(--h3-weight); color: var(--h3-color); font-family: var(--h3-font); font-style: var(--h3-style); font-variant: var(--h3-variant); letter-spacing: -0.008em; }
+.cm-editor .cm-header-4 { font-size: var(--h4-size); line-height: var(--h4-line-height); font-weight: var(--h4-weight); color: var(--h4-color); font-family: var(--h4-font); font-style: var(--h4-style); font-variant: var(--h4-variant); }
+.cm-editor .cm-header-5 { font-size: var(--h5-size); line-height: var(--h5-line-height); font-weight: var(--h5-weight); color: var(--h5-color); font-family: var(--h5-font); font-style: var(--h5-style); font-variant: var(--h5-variant); }
+.cm-editor .cm-header-6 { font-size: var(--h6-size); line-height: var(--h6-line-height); font-weight: var(--h6-weight); color: var(--h6-color); font-family: var(--h6-font); font-style: var(--h6-style); font-variant: var(--h6-variant); }
+.cm-editor .cm-header .cm-header { font-size: inherit; line-height: inherit; }
+.cm-editor .cm-formatting-header { color: var(--heading-formatting); }
+
+.cm-editor .cm-strong { font-weight: var(--bold-weight); color: var(--bold-color); }
+.cm-editor .cm-em { font-style: italic; color: var(--italic-color); }
+.cm-editor .cm-strikethrough { text-decoration: line-through; }
+.cm-editor .cm-highlight { background-color: var(--text-highlight-bg); color: var(--text-normal); }
+.cm-editor .cm-highlight .cm-highlight { background-color: transparent; }
+.cm-editor .cm-formatting-highlight { color: var(--text-faint); }
+
+.cm-editor .cm-inline-code {
+  font-family: var(--font-monospace);
+  font-size: var(--code-size);
+  color: var(--code-normal);
+  background-color: var(--code-background);
+  border: var(--code-border-width) solid var(--code-border-color);
+  border-radius: var(--code-radius);
+  padding: 0.1em 0.25em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.cm-editor .cm-inline-code .cm-inline-code { background: none; border: 0; padding: 0; font-size: inherit; }
+.cm-editor .cm-inline-code .cm-formatting-code { color: var(--text-faint); }
+
+.cm-editor .cm-comment,
+.cm-editor .cm-comment .cm-formatting { color: var(--text-faint); }
+.cm-editor .cm-blockid { color: var(--text-faint); }
+.cm-editor .cm-hmd-escape-backslash { color: var(--text-faint); }
+.cm-editor .cm-math { color: var(--text-muted); }
+.cm-editor .cm-math .cm-formatting-math { color: var(--text-faint); }
+.cm-editor .cm-hr { color: var(--text-faint); }
+
+.cm-editor .cm-quote { color: var(--blockquote-color); font-style: var(--blockquote-font-style); }
+.cm-editor .cm-formatting-quote { color: var(--text-faint); }
+.cm-editor .cm-callout-type { color: var(--text-muted); }
+
+/* --- links and tags -------------------------------------------------------- */
+
+.cm-editor .cm-hmd-internal-link,
+.cm-editor .cm-link { color: var(--link-color); }
+.cm-editor .cm-link .cm-formatting-link,
+.cm-editor .cm-formatting-link { color: var(--text-faint); }
+.cm-editor .cm-url { color: var(--link-external-color); text-decoration: var(--link-external-decoration); }
+.cm-editor .cm-string.cm-url,
+.cm-editor .cm-formatting-link-string { color: var(--text-faint); text-decoration: none; }
+.cm-editor .cm-underline {
+  cursor: var(--cursor-link);
+  text-decoration-line: var(--link-decoration);
+  text-decoration-thickness: var(--link-decoration-thickness);
+}
+.cm-editor .cm-underline:hover { color: var(--link-color-hover); text-decoration-line: var(--link-decoration-hover); }
+.cm-editor .cm-underline[data-lp-url] { color: var(--link-external-color); text-decoration-line: var(--link-external-decoration); }
+.cm-editor .cm-underline[data-lp-url]:hover { color: var(--link-external-color-hover); }
+.cm-editor .cm-url.cm-underline { color: var(--link-external-color); }
+.cm-editor .is-unresolved,
+.cm-editor .cm-hmd-internal-link .is-unresolved {
+  color: var(--link-unresolved-color);
+  opacity: var(--link-unresolved-opacity);
+  filter: var(--link-unresolved-filter);
+  text-decoration-style: var(--link-unresolved-decoration-style);
+  text-decoration-color: var(--link-unresolved-decoration-color);
+}
+.cm-editor .cm-hmd-internal-link .cm-hmd-internal-link { opacity: 1; }
+.cm-editor .cm-lp-subpath-sep { color: var(--text-faint); }
+
+/* The arrow after a rendered external link. */
+.cm-editor span.external-link {
+  display: inline-block;
+  width: 0.8em;
+  height: 0.8em;
+  margin-inline-start: 0.15em;
+  vertical-align: baseline;
+  background-color: var(--link-external-color);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 3h6v6'/%3E%3Cpath d='M10 14 21 3'/%3E%3Cpath d='M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 3h6v6'/%3E%3Cpath d='M10 14 21 3'/%3E%3Cpath d='M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6'/%3E%3C/svg%3E") center / contain no-repeat;
+  opacity: 0.8;
+}
+
+/* Tags are pills: the "#" and the name are two spans that join up. */
+.cm-editor .cm-hashtag {
+  background-color: var(--tag-background);
+  border: var(--tag-border-width) solid var(--tag-border-color);
+  color: var(--tag-color);
+  font-size: var(--tag-size);
+  font-weight: var(--tag-weight);
+  text-decoration: var(--tag-decoration);
+  padding: var(--tag-padding-y) var(--tag-padding-x);
+  line-height: 1;
+  cursor: var(--cursor-link);
+}
+.cm-editor .cm-hashtag.cm-hashtag-begin { border-start-start-radius: var(--tag-radius); border-end-start-radius: var(--tag-radius); border-inline-end: none; padding-inline-end: 0; }
+.cm-editor .cm-hashtag.cm-hashtag-end { border-start-end-radius: var(--tag-radius); border-end-end-radius: var(--tag-radius); border-inline-start: none; padding-inline-start: 0; }
+.cm-editor .cm-hashtag.cm-formatting { color: var(--tag-color); }
+.cm-editor .cm-hashtag:hover { background-color: var(--tag-background-hover); border-color: var(--tag-border-color-hover); color: var(--tag-color-hover); text-decoration: var(--tag-decoration-hover); }
+
+/* Footnotes. */
+.cm-editor .cm-footref,
+.cm-editor .cm-hmd-footnote { color: var(--text-muted); }
+.cm-editor .cm-footref-rendered { font-size: var(--font-smallest); vertical-align: super; line-height: 0; color: var(--link-color); }
+.is-live-preview .cm-inline-footnote { font-size: var(--footnote-size); color: var(--text-muted); }
+.is-live-preview .cm-inline-footnote .cm-formatting-inline-footnote { color: var(--text-faint); }
+
+/* --- lists and tasks ------------------------------------------------------- */
+
+.cm-editor .cm-formatting-list { color: var(--list-marker-color); }
+.cm-editor .cm-formatting-list-ol { font-variant-numeric: tabular-nums; }
+
+/* A rendered bullet is a 1em box with the dot in the middle (the list
+   indent in livepreview.js counts on that width). */
+.cm-editor .list-bullet { position: relative; display: inline-block; width: 1em; text-indent: 0; color: transparent; overflow: hidden; vertical-align: top; }
+.cm-editor .list-bullet * { color: transparent; }
+.cm-editor .list-bullet::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--list-bullet-size);
+  height: var(--list-bullet-size);
+  border: var(--list-bullet-border);
+  border-radius: var(--list-bullet-radius);
+  background-color: var(--list-marker-color);
+  transform: translate(-50%, -50%) var(--list-bullet-transform);
+}
+.cm-editor .cm-line:hover .list-bullet::after { background-color: var(--list-marker-color-hover); }
+
+/* Indentation guides for nested list items (live preview, like Obsidian). */
+.is-live-preview .cm-hmd-list-indent .cm-indent { position: relative; }
+.is-live-preview .cm-hmd-list-indent .cm-indent::before {
+  content: '';
+  position: absolute;
+  top: -0.2em;
+  bottom: -0.2em;
+  inset-inline-start: calc(var(--indentation-guide-editing-indent, 0.85em) - 0.4em);
+  border-inline-start: var(--indentation-guide-width) solid var(--indentation-guide-color);
+}
+
+.cm-editor .task-list-label { cursor: default; }
+.cm-editor input.task-list-item-checkbox {
+  -webkit-appearance: none;
+  appearance: none;
+  box-sizing: border-box;
+  width: var(--checkbox-size);
+  height: var(--checkbox-size);
+  margin: 0 6px 0 0;
+  padding: 0;
+  position: relative;
+  top: 0.15em;
+  border: 1px solid var(--checkbox-border-color);
+  border-radius: var(--checkbox-radius);
+  background: transparent;
+  cursor: var(--cursor);
+  vertical-align: baseline;
+  text-indent: 0;
+  flex-shrink: 0;
+}
+.cm-editor input.task-list-item-checkbox:hover { border-color: var(--checkbox-border-color-hover); }
+.cm-editor input.task-list-item-checkbox:checked { background-color: var(--checkbox-color); border-color: var(--checkbox-color); }
+.cm-editor input.task-list-item-checkbox:checked:hover { background-color: var(--checkbox-color-hover); border-color: var(--checkbox-color-hover); }
+.cm-editor input.task-list-item-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: var(--checkbox-marker-color);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center / 75% no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center / 75% no-repeat;
+}
+.is-live-preview .HyperMD-task-line[data-task]:not([data-task=" "]) { text-decoration: var(--checklist-done-decoration); color: var(--checklist-done-color); }
+.is-live-preview .HyperMD-task-line[data-task]:not([data-task=" "]) .task-list-label { text-decoration: none; }
+
+/* --- code ------------------------------------------------------------------ */
+
+.cm-editor .cm-line.HyperMD-codeblock {
+  font-family: var(--font-monospace);
+  font-size: var(--code-size);
+  color: var(--code-normal);
+  background-color: var(--code-background);
+  padding-inline: var(--size-4-4);
+}
+.cm-editor .cm-line.HyperMD-codeblock-begin { border-start-start-radius: var(--code-radius); border-start-end-radius: var(--code-radius); position: relative; }
+.cm-editor .cm-line.HyperMD-codeblock-end { border-end-start-radius: var(--code-radius); border-end-end-radius: var(--code-radius); }
+.cm-editor .cm-line.HyperMD-codeblock .cm-formatting-code-block { color: var(--text-faint); }
+.is-live-preview .cm-line.HyperMD-codeblock-begin,
+.is-live-preview .cm-line.HyperMD-codeblock-end { min-height: 0.75em; line-height: 0.75; }
+.is-live-preview .cm-line.HyperMD-codeblock-begin:has(.cm-formatting-code-block),
+.is-live-preview .cm-line.HyperMD-codeblock-end:has(.cm-formatting-code-block) { line-height: inherit; }
+
+.cm-editor .code-block-flair {
+  position: absolute;
+  top: 0.35em;
+  inset-inline-end: var(--size-4-2);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--size-2-2);
+  padding: var(--size-2-1) var(--size-2-3);
+  border-radius: var(--radius-s);
+  font-family: var(--font-interface);
+  font-size: var(--font-ui-smaller);
+  line-height: 1.4;
+  color: var(--text-faint);
+  cursor: var(--cursor);
+  opacity: 0;
+  transition: opacity 120ms ease-in-out;
+}
+.cm-editor .code-block-flair .svg-icon { width: var(--icon-xs); height: var(--icon-xs); }
+.cm-editor .cm-line.HyperMD-codeblock-begin:hover .code-block-flair,
+.cm-editor .cm-content:hover .code-block-flair { opacity: 1; }
+.cm-editor .code-block-flair:hover { color: var(--text-muted); background-color: var(--background-modifier-hover); }
+
+/* Code colours (CodeMirror 5 names, Obsidian's --code-* variables). */
+.cm-editor .HyperMD-codeblock .cm-keyword,
+.cm-editor .cm-html .cm-keyword { color: var(--code-keyword); }
+.cm-editor .HyperMD-codeblock .cm-def,
+.cm-editor .HyperMD-codeblock .cm-function { color: var(--code-function); }
+.cm-editor .HyperMD-codeblock .cm-variable,
+.cm-editor .HyperMD-codeblock .cm-variable-2,
+.cm-editor .HyperMD-codeblock .cm-variable-3 { color: var(--code-normal); }
+.cm-editor .HyperMD-codeblock .cm-property,
+.cm-editor .HyperMD-codeblock .cm-attribute,
+.cm-editor .cm-html .cm-attribute,
+.cm-editor .HyperMD-html .cm-attribute { color: var(--code-property); }
+.cm-editor .HyperMD-codeblock .cm-string,
+.cm-editor .HyperMD-codeblock .cm-string-2,
+.cm-editor .cm-html .cm-string,
+.cm-editor .HyperMD-html .cm-string { color: var(--code-string); }
+.cm-editor .HyperMD-codeblock .cm-number,
+.cm-editor .HyperMD-codeblock .cm-atom { color: var(--code-value); }
+.cm-editor .HyperMD-codeblock .cm-comment { color: var(--code-comment); }
+.cm-editor .HyperMD-codeblock .cm-operator { color: var(--code-operator); }
+.cm-editor .HyperMD-codeblock .cm-punctuation,
+.cm-editor .HyperMD-codeblock .cm-bracket { color: var(--code-punctuation); }
+.cm-editor .HyperMD-codeblock .cm-tag,
+.cm-editor .cm-html .cm-tag,
+.cm-editor .HyperMD-html .cm-tag { color: var(--code-tag); }
+.cm-editor .HyperMD-codeblock .cm-type,
+.cm-editor .HyperMD-codeblock .cm-builtin,
+.cm-editor .HyperMD-codeblock .cm-meta { color: var(--code-important); }
+.cm-editor .HyperMD-codeblock .cm-header { color: var(--code-keyword); font-size: inherit; }
+.cm-editor .HyperMD-codeblock .cm-error { color: var(--text-error); }
+.cm-editor .HyperMD-codeblock .cm-positive { color: var(--color-green); }
+.cm-editor .HyperMD-codeblock .cm-negative { color: var(--color-red); }
+.cm-editor .cm-html,
+.cm-editor .HyperMD-html { color: var(--text-muted); }
+
+/* --- frontmatter (shown as YAML) ----------------------------------------- */
+
+.cm-editor .cm-line.HyperMD-frontmatter { font-family: var(--font-monospace); font-size: var(--code-size); color: var(--code-normal); }
+.cm-editor .HyperMD-frontmatter .cm-def { color: var(--text-faint); }
+.cm-editor .HyperMD-frontmatter .cm-atom { color: var(--code-property); }
+.cm-editor .HyperMD-frontmatter .cm-meta { color: var(--code-punctuation); }
+.cm-editor .HyperMD-frontmatter .cm-string { color: var(--code-string); }
+.cm-editor .HyperMD-frontmatter .cm-number { color: var(--code-value); }
+.cm-editor .HyperMD-frontmatter .cm-keyword { color: var(--code-keyword); }
+.cm-editor .HyperMD-frontmatter .cm-comment { color: var(--code-comment); }
+
+/* --- quotes ---------------------------------------------------------------- */
+
+/* One bar per quote level, drawn on the line so it runs unbroken. */
+.is-live-preview .cm-line.HyperMD-quote {
+  --lp-quote-step: 1.5em;
+  position: relative;
+  background-color: var(--blockquote-background-color);
+  padding-inline-start: calc(var(--lp-quote-depth, 1) * var(--lp-quote-step));
+}
+.is-live-preview .cm-line.HyperMD-quote::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  inset-inline-start: 0;
+  width: calc(var(--lp-quote-depth, 1) * var(--lp-quote-step));
+  background-image: repeating-linear-gradient(to right, var(--blockquote-border-color) 0, var(--blockquote-border-color) var(--blockquote-border-thickness), transparent var(--blockquote-border-thickness), transparent var(--lp-quote-step));
+  pointer-events: none;
+}
+.is-live-preview .cm-line.HyperMD-quote-2 { --lp-quote-depth: 2; }
+.is-live-preview .cm-line.HyperMD-quote-3 { --lp-quote-depth: 3; }
+.is-live-preview .cm-line.HyperMD-quote-4 { --lp-quote-depth: 4; }
+.is-live-preview .cm-line.HyperMD-quote-5 { --lp-quote-depth: 5; }
+.is-live-preview .cm-line.HyperMD-quote-6 { --lp-quote-depth: 6; }
+
+/* --- rules, maths, HTML ---------------------------------------------------- */
+
+.cm-editor hr.cm-hr-widget {
+  display: inline-block;
+  width: 100%;
+  margin: 0;
+  vertical-align: middle;
+  border: none;
+  border-top: var(--hr-thickness) solid var(--hr-color);
+}
+.cm-editor .math-inline.cm-math-widget { cursor: text; }
+.cm-editor .math-inline.is-error,
+.cm-editor .math-block.is-error { color: var(--text-error); font-family: var(--font-monospace); font-size: var(--code-size); }
+.cm-editor .cm-html-embed img { max-width: 100%; }
+
+/* --- block widgets --------------------------------------------------------- */
+
+/* Rendered content flows like reading view, not like editor text. */
+.cm-editor .cm-embed-block,
+.cm-editor .cm-html-embed,
+.cm-editor .internal-embed,
+.cm-editor .math { white-space: normal; }
+
+.cm-editor .cm-embed-block {
+  position: relative;
+  overflow-x: auto;
+  cursor: text;
+  border-radius: var(--radius-s);
+}
+.cm-editor .cm-embed-block:not(.cm-table-widget):not(.cm-lp-embed):hover { box-shadow: 0 0 0 1px var(--background-modifier-border); }
+.cm-editor .edit-block-button {
+  position: absolute;
+  top: var(--size-2-2);
+  inset-inline-end: var(--size-2-2);
+  display: flex;
+  padding: var(--size-2-2) var(--size-2-3);
+  border-radius: var(--radius-s);
+  color: var(--text-faint);
+  cursor: var(--cursor);
+  opacity: 0;
+  z-index: 2;
+  transition: opacity 120ms ease-in-out;
+}
+.cm-editor .edit-block-button .svg-icon { width: var(--icon-s); height: var(--icon-s); }
+.cm-editor .cm-embed-block:hover > .edit-block-button { opacity: 1; }
+.cm-editor .edit-block-button:hover { color: var(--text-muted); background-color: var(--background-modifier-hover); }
+
+.cm-editor .cm-embed-block.math-block { text-align: center; padding: var(--size-2-2) 0; }
+.cm-editor .cm-embed-block.math-block .katex-display { margin: 0.25em 0; }
+.cm-editor .cm-math-preview { opacity: 0.85; border-top: 1px dashed var(--background-modifier-border); border-radius: 0; }
+.cm-editor .cm-embed-block.cm-lang-mermaid { text-align: center; padding: var(--size-4-2) 0; }
+.cm-editor .cm-embed-block .mermaid svg { max-width: 100%; height: auto; }
+.cm-editor .mermaid-error,
+.cm-editor .cm-lp-error { color: var(--text-error); font-size: var(--font-smaller); font-family: var(--font-monospace); padding: var(--size-4-2); }
+
+/* Rendered Markdown inside widgets (callout bodies, embeds, table cells) is
+   styled by markdown.css, as in reading view. */
+
+/* Tables. */
+.cm-editor .cm-embed-block.cm-table-widget { padding: var(--size-2-2) 0; overflow-x: auto; }
+.cm-editor .cm-table-widget .table-wrapper { display: inline-block; max-width: 100%; }
+.cm-editor .cm-table-widget table {
+  border-collapse: collapse;
+  background-color: var(--table-background);
+  font-size: var(--table-text-size);
+  color: var(--table-text-color);
+  white-space: var(--table-white-space);
+}
+.cm-editor .cm-table-widget th,
+.cm-editor .cm-table-widget td {
+  padding: var(--size-2-2) var(--size-4-2);
+  border: var(--table-border-width) solid var(--table-border-color);
+  min-width: var(--table-column-min-width);
+  max-width: var(--table-column-max-width);
+  vertical-align: var(--table-cell-vertical-alignment);
+  text-align: start;
+  line-height: var(--line-height-tight);
+}
+.cm-editor .cm-table-widget th {
+  font-weight: var(--table-header-weight);
+  font-size: var(--table-header-size);
+  font-family: var(--table-header-font);
+  color: var(--table-header-color);
+  background-color: var(--table-header-background);
+  border: var(--table-header-border-width) solid var(--table-header-border-color);
+}
+.cm-editor .cm-table-widget th:hover { background-color: var(--table-header-background-hover); }
+.cm-editor .cm-table-widget tbody tr:nth-child(2n) { background-color: var(--table-row-alt-background); }
+.cm-editor .cm-table-widget tbody tr:hover { background-color: var(--table-row-background-hover); }
+.cm-editor .cm-table-widget td:hover,
+.cm-editor .cm-table-widget th:hover { box-shadow: inset 0 0 0 1px var(--background-modifier-border-hover); }
+.cm-editor .cm-table-widget .edit-block-button { top: var(--size-2-3); }
+.cm-editor .cm-line.HyperMD-table-row .cm-hmd-table-sep { color: var(--text-faint); }
+
+/* Callouts: the callout itself is styled by markdown.css (reading view);
+   in the editor it sits flush in its block. */
+.cm-editor .cm-embed-block.cm-callout { overflow: visible; }
+.cm-editor .cm-callout > .callout { margin: 0; }
+.cm-editor .cm-callout .callout-content > :last-child > :last-child { margin-bottom: 0; }
+.cm-editor .cm-callout > .edit-block-button { top: var(--size-2-3); }
+
+/* Embeds. */
+.cm-editor .internal-embed { cursor: text; }
+.cm-editor .image-embed { display: inline-block; max-width: 100%; vertical-align: bottom; }
+.cm-editor .image-embed img { max-width: 100%; height: auto; border-radius: var(--image-radius); display: block; cursor: default; }
+.cm-editor .image-embed img[height] { height: revert-layer; }
+.cm-editor .image-embed.mod-empty,
+.cm-editor .cm-lp-missing { color: var(--text-muted); font-size: var(--font-smaller); font-style: italic; }
+.cm-editor .cm-lp-embed { padding: var(--size-2-2) 0; }
+.cm-editor .cm-lp-embed > .internal-embed { display: block; }
+.cm-editor .media-embed audio { width: 100%; max-width: 480px; }
+.cm-editor .media-embed video { max-width: 100%; }

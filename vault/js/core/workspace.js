@@ -821,7 +821,9 @@ export class Workspace extends Events {
     leaf.containerEl.classList.add('mod-active');
     leaf.parent.containerEl.classList.add('mod-active-tab-group');
     leaf.parent.selectTab(leaf);
-    if (opts.focus && leaf.view) setTimeout(() => leaf.view.focus());
+    /* Focus a moment later, unless a dialog opened meanwhile (a quick
+       switcher opened straight after a note must keep the keyboard). */
+    if (opts.focus && leaf.view) setTimeout(() => { if (!document.querySelector('.modal-container') && leaf.view) leaf.view.focus(); });
     leaf.updateHeader();
     if (changed) {
       this.trigger('active-leaf-change', leaf);

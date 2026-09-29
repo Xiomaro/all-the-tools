@@ -30,8 +30,19 @@ export class EmptyView extends View {
   }
 }
 
+/* Views here follow their own file: reload when it changes, retitle when
+   it's renamed, close when it's deleted. (The markdown, canvas and base
+   views do the same for themselves.) */
+function followFile(view) {
+  const vault = view.app.vault;
+  view.registerEvent(vault.on('modify', f => { if (f === view.file) view.onModify(f); }));
+  view.registerEvent(vault.on('rename', f => { if (f === view.file) view.onRename(f); }));
+  view.registerEvent(vault.on('delete', f => { if (f === view.file) view.onDelete(f); }));
+}
+
 /* Images, audio, video and PDFs load from a blob URL of the file. */
 class MediaView extends FileView {
+  onload() { followFile(this); }
   async onLoadFile(file) {
     this.contentEl.replaceChildren();
     const url = await this.app.vault.getResourceUrl(file);
@@ -77,6 +88,7 @@ export class PdfView extends MediaView {
 export class UnknownFileView extends FileView {
   constructor(leaf) { super(leaf); this.icon = 'file-question'; }
   getViewType() { return 'unknown-file'; }
+  onload() { followFile(this); }
   async onLoadFile(file) {
     this.contentEl.replaceChildren(h('div.empty-state', h('div.empty-state-container',
       h('div.empty-state-title', { text: 'This file type can’t be shown here.' }),

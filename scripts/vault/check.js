@@ -28,7 +28,9 @@ const ONLY = arg('only') ? arg('only').split(',') : null;
     const started = Date.now();
     try {
       await require(path.join(dir, name + '.js'))({ h, page, assert, log: (...a) => console.log('   ', ...a) });
-      const errs = h.errors.filter(e => !/favicon|net::ERR_/.test(e));
+      /* Sites that refuse to be framed (web page cards, the web viewer) make
+         the browser log an error; that's the site's choice, not a bug. */
+      const errs = h.errors.filter(e => !/favicon|net::ERR_|Refused to (display|frame)|frame-ancestors|X-Frame-Options/.test(e));
       if (errs.length) throw new Error('Errors in the page:\n  ' + errs.join('\n  '));
       console.log('ok   ' + name + ' (' + (Date.now() - started) + ' ms)');
     } catch (err) {

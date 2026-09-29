@@ -1,1 +1,147 @@
-/* Styles for the settings module. */
+/* The settings window, styled like Obsidian's: a wide modal with the list
+   of pages on a secondary background to the left and the page on the
+   right. Class names are Obsidian's (.mod-settings, .vertical-tab-header,
+   .vertical-tab-nav-item, .vertical-tab-content, .setting-hotkey), so
+   themes that restyle Obsidian's settings restyle these too. */
+
+.modal.mod-settings {
+  --settings-sidebar-width: 220px;
+  width: var(--dialog-width, 90vw);
+  max-width: var(--dialog-max-width, 1100px);
+  height: var(--dialog-max-height, 85vh);
+  max-height: var(--dialog-max-height, 85vh);
+  padding: 0;
+  overflow: hidden;
+}
+.modal.mod-settings .modal-header { display: none; }
+.modal.mod-settings .modal-close-button { z-index: 2; }
+.modal.mod-settings .modal-content.vertical-tabs-container {
+  display: flex; flex-direction: row; gap: 0; height: 100%; min-height: 0;
+}
+
+/* the list of pages */
+.vertical-tab-header {
+  flex: 0 0 var(--settings-sidebar-width); width: var(--settings-sidebar-width);
+  background-color: var(--background-secondary); border-right: 1px solid var(--background-modifier-border);
+  display: flex; flex-direction: column; min-height: 0;
+  padding: var(--size-4-3) var(--size-4-2) var(--size-4-3) var(--size-4-3);
+}
+.vertical-tab-header .settings-search-container { flex: 0 0 auto; margin-bottom: var(--size-4-2); }
+.settings-search-container input[type=search] { width: 100%; }
+.vertical-tab-header-groups { flex: 1 1 auto; overflow-y: auto; min-height: 0; padding-bottom: var(--size-4-4); }
+.vertical-tab-header-group { padding-bottom: var(--size-4-3); }
+.vertical-tab-header-group-title {
+  padding: var(--size-4-2) var(--size-4-2) var(--size-4-1);
+  font-size: var(--font-ui-smaller); font-weight: var(--font-semibold); color: var(--text-muted); letter-spacing: 0.01em;
+}
+.vertical-tab-header-group-items { display: flex; flex-direction: column; gap: 1px; }
+.vertical-tab-nav-item {
+  padding: var(--size-4-1) var(--size-4-2); border-radius: var(--radius-s);
+  font-size: var(--font-ui-small); line-height: var(--line-height-tight); color: var(--nav-item-color);
+  cursor: var(--cursor); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.vertical-tab-nav-item:hover { background-color: var(--nav-item-background-hover); color: var(--nav-item-color-hover); }
+.vertical-tab-nav-item.is-active { background-color: var(--nav-item-background-active); color: var(--nav-item-color-active); font-weight: var(--nav-item-weight-active, var(--font-medium)); }
+.vertical-tab-nav-item.mod-unsupported { color: var(--text-faint); }
+
+/* the page */
+.vertical-tab-content-container { flex: 1 1 auto; min-width: 0; overflow-y: auto; background-color: var(--background-primary); }
+.vertical-tab-content { padding: var(--size-4-8) var(--size-4-12) var(--size-4-16); max-width: 900px; }
+.vertical-tab-content > .setting-item-heading:first-child { padding-top: 0; }
+.vertical-tab-content .setting-item-heading .setting-item-name { font-size: var(--font-ui-medium); font-weight: var(--font-semibold); }
+.vertical-tab-content .setting-item-heading + .setting-item { border-top: 0; }
+.vertical-tab-content .setting-item-heading { margin-top: var(--size-4-4); border-bottom: 1px solid var(--background-modifier-border); padding-bottom: var(--size-4-2); }
+.vertical-tab-content .setting-item-heading:first-child { margin-top: 0; }
+.vertical-tab-content .setting-item-control input[type=text] { width: 220px; max-width: 100%; }
+.vertical-tab-content .setting-item-description strong { color: var(--text-normal); font-weight: var(--font-semibold); }
+.settings-page-intro { padding-bottom: var(--size-4-3); }
+.settings-error { color: var(--text-error); }
+
+/* things the browser can't do */
+.settings-browser-note {
+  display: flex; align-items: flex-start; gap: var(--size-2-3); margin-top: var(--size-4-1);
+  color: var(--text-muted); font-size: var(--font-ui-smaller); line-height: var(--line-height-tight);
+}
+.settings-browser-note svg.svg-icon { --icon-size: 14px; width: 14px; height: 14px; margin-top: 1px; color: var(--text-accent); flex-shrink: 0; }
+.settings-browser-note.mod-warning svg.svg-icon { color: var(--text-warning); }
+.setting-item.mod-unavailable .setting-item-name { color: var(--text-muted); }
+.settings-support-list, .settings-limits-list { margin: var(--size-4-1) 0 0; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: var(--size-2-2); }
+.settings-limits-list { padding-left: 1.2em; list-style: disc; }
+.settings-support-list li { display: flex; gap: var(--size-4-2); }
+.settings-support-mark { width: 1em; flex-shrink: 0; font-weight: var(--font-bold); }
+.settings-support-list li.mod-yes .settings-support-mark { color: var(--text-success); }
+.settings-support-list li.mod-no .settings-support-mark { color: var(--text-faint); }
+.setting-item.settings-support .setting-item-control { display: none; }
+
+/* sliders show their value */
+.settings-slider-value { min-width: 3em; text-align: right; font-size: var(--font-ui-small); color: var(--text-muted); font-variant-numeric: tabular-nums; }
+
+/* fonts */
+.settings-font-current { margin-top: var(--size-2-2); color: var(--text-normal); font-size: var(--font-ui-small); }
+
+/* search across settings */
+.settings-search-group { margin-bottom: var(--size-4-6); }
+.settings-search-group-title button { height: auto; padding: 2px var(--size-4-2); font-size: var(--font-ui-smaller); }
+.settings-search-empty, .settings-empty { color: var(--text-muted); font-size: var(--font-ui-small); padding: var(--size-4-3) 0; }
+
+/* list editors: Excluded files, fonts */
+.modal.mod-settings-list-editor { width: 480px; }
+.settings-list-editor {
+  display: flex; flex-direction: column; border: 1px solid var(--background-modifier-border); border-radius: var(--radius-m);
+  max-height: 300px; overflow-y: auto; margin: var(--size-4-2) 0;
+}
+.settings-list-editor-item { display: flex; align-items: center; gap: var(--size-2-2); padding: var(--size-2-2) var(--size-2-2) var(--size-2-2) var(--size-4-3); border-top: 1px solid var(--background-modifier-border); }
+.settings-list-editor-item:first-child { border-top: 0; }
+.settings-list-editor-text { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--font-ui-small); }
+.settings-list-editor-empty { padding: var(--size-4-3); color: var(--text-faint); font-size: var(--font-ui-small); }
+.settings-list-editor-add { display: flex; gap: var(--size-4-2); }
+.settings-list-editor-add input { flex: 1 1 auto; }
+.settings-list-editor-foot { margin-top: var(--size-4-2); }
+
+/* the CSS snippet editor */
+.modal.mod-snippet-editor { width: 760px; height: 80vh; }
+.modal.mod-snippet-editor .modal-content { flex: 1 1 auto; min-height: 0; }
+.settings-snippet-textarea {
+  flex: 1 1 auto; min-height: 240px; width: 100%; resize: none;
+  font-family: var(--font-monospace); font-size: var(--font-ui-small); line-height: 1.5; tab-size: 2; white-space: pre;
+}
+.modal.mod-snippet-editor .modal-button-container { justify-content: flex-start; }
+.settings-spacer { flex: 1 1 auto; }
+
+/* hotkeys */
+.setting-item.hotkey-search-container { display: flex; align-items: center; gap: var(--size-4-2); padding-top: 0; border-top: 0; }
+.hotkey-search-container .search-input-container { flex: 1 1 auto; }
+.hotkey-search-container .search-input-container input { width: 100%; }
+.setting-filter-by-hotkey.is-active { color: var(--text-accent); background-color: var(--background-modifier-hover); }
+.setting-hotkey-filter:empty { display: none; }
+.setting-hotkeys-note { padding: 0 0 var(--size-4-2); }
+.setting-hotkey-count { font-size: var(--font-ui-smaller); color: var(--text-faint); padding: var(--size-4-1) 0 var(--size-4-2); border-bottom: 1px solid var(--background-modifier-border); }
+.hotkey-list-container .setting-item { padding: var(--size-4-2) 0; }
+.hotkey-list-container .setting-item:first-child { border-top: 0; }
+.setting-hotkey-row .setting-item-control { gap: var(--size-2-2); flex-wrap: nowrap; }
+.setting-command-hotkeys { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--size-2-2); }
+.setting-hotkey {
+  display: inline-flex; align-items: center; gap: var(--size-2-1);
+  font-size: var(--font-ui-smaller); line-height: 1.4; white-space: nowrap;
+  background-color: var(--interactive-normal); box-shadow: var(--input-shadow); border-radius: var(--radius-s);
+  padding: 2px var(--size-2-2) 2px var(--size-4-2); color: var(--text-normal);
+}
+.setting-hotkey.mod-empty { color: var(--text-faint); padding-right: var(--size-4-2); background: transparent; box-shadow: none; }
+.setting-hotkey.mod-active { background-color: var(--interactive-accent); color: var(--text-on-accent); padding-right: var(--size-4-2); }
+.setting-hotkey.has-conflict { background-color: rgba(var(--color-red-rgb), 0.2); color: var(--text-error); }
+.setting-hotkey-icon { display: inline-flex; align-items: center; border-radius: var(--radius-s); cursor: var(--cursor); color: var(--icon-color); }
+.setting-hotkey-icon svg.svg-icon { --icon-size: 12px; width: 12px; height: 12px; }
+.setting-delete-hotkey:hover { background-color: var(--background-modifier-hover); color: var(--text-normal); }
+.setting-hotkey-warning { color: var(--text-warning); cursor: help; }
+.setting-hotkey.has-conflict .setting-delete-hotkey { color: var(--text-error); }
+.setting-hotkey-row .extra-setting-button.is-active { color: var(--text-accent); }
+.setting-item.has-custom-hotkeys .setting-item-name::after { content: '•'; color: var(--text-accent); margin-left: var(--size-2-3); }
+
+/* phones and narrow windows: the page list goes on top */
+@media (max-width: 700px) {
+  .modal.mod-settings { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 0; }
+  .modal.mod-settings .modal-content.vertical-tabs-container { flex-direction: column; }
+  .vertical-tab-header { flex: 0 0 auto; width: auto; max-height: 38vh; border-right: 0; border-bottom: 1px solid var(--background-modifier-border); padding-right: var(--size-4-12); }
+  .vertical-tab-content { padding: var(--size-4-4); }
+  .setting-item { flex-wrap: wrap; }
+}

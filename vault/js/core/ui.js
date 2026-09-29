@@ -7,8 +7,12 @@ export async function loadIcons() {
   const mod = await import('../../../assets/vendor/lucide/lucide.js');
   ICONS = mod.default;
 }
-export function hasIcon(name) { return !!ICONS[String(name).replace(/^lucide-/, '')]; }
-export function iconNames() { return Object.keys(ICONS); }
+/* Icons Obsidian has that Lucide doesn't (links-coming-in, right-triangle),
+   in Lucide's form: [[tag, attrs], ...] on a 24x24 grid. Like addIcon. */
+const EXTRA_ICONS = {};
+export function addIcon(name, nodes) { EXTRA_ICONS[name] = nodes; }
+export function hasIcon(name) { const n = String(name).replace(/^lucide-/, ''); return !!(EXTRA_ICONS[n] || ICONS[n]); }
+export function iconNames() { return Object.keys(ICONS).concat(Object.keys(EXTRA_ICONS)); }
 
 const SVG = 'http://www.w3.org/2000/svg';
 
@@ -45,7 +49,7 @@ function append(node, kids) {
 
 export function icon(name, cls) {
   name = String(name || '').replace(/^lucide-/, '');
-  const node = ICONS[name] || ICONS['file-question'] || [];
+  const node = EXTRA_ICONS[name] || ICONS[name] || ICONS['file-question'] || [];
   const svg = document.createElementNS(SVG, 'svg');
   svg.setAttribute('xmlns', SVG);
   svg.setAttribute('width', '24');
@@ -151,10 +155,10 @@ export class Menu {
         live.forEach((i, n) => i.dom.classList.toggle('selected', n === this.selected));
       } else if (e.key === 'Enter' && this.selected > -1) { e.preventDefault(); e.stopPropagation(); live[this.selected].dom.click(); }
     };
-    setTimeout(() => {
-      document.addEventListener('mousedown', this._outside, true);
-      document.addEventListener('keydown', this._key, true);
-    });
+    /* Keys straight away (an Escape right after the right-click must
+       reach the menu); outside clicks only after the click that opened it. */
+    document.addEventListener('keydown', this._key, true);
+    setTimeout(() => document.addEventListener('mousedown', this._outside, true));
     window.addEventListener('blur', this._blur = () => this.hide());
     return this;
   }
@@ -213,7 +217,9 @@ export class Modal {
     this.containerEl.addEventListener('keydown', this.scope);
     this.onOpen();
     const f = this.modalEl.querySelector('input, textarea, select, button.mod-cta');
-    if (f && !this.noAutoFocus) setTimeout(() => f.focus());
+    /* Focus now, not on a timer: keys typed straight after opening must
+       land here rather than in the editor behind. */
+    if (f && !this.noAutoFocus) f.focus();
     else this.modalEl.tabIndex = -1, this.modalEl.focus();
     return this;
   }
@@ -242,11 +248,10 @@ export function promptText(app, title, value = '', opts = {}) {
         h('button', { text: 'Cancel', onclick: () => m.close() })));
     m.onClose = () => { if (!done) resolve(null); };
     m.open();
-    setTimeout(() => {
-      input.focus();
-      const dot = opts.selectBase ? value.lastIndexOf('.') : -1;
-      input.setSelectionRange(0, dot > 0 ? dot : value.length);
-    });
+    /* Straight away, so nothing typed quickly gets selected and replaced. */
+    input.focus();
+    const dot = opts.selectBase ? value.lastIndexOf('.') : -1;
+    input.setSelectionRange(0, dot > 0 ? dot : value.length);
   });
 }
 
@@ -308,7 +313,9 @@ export function highlighted(text, matches, offset = 0) {
   for (const [s0, e0] of matches || []) {
     const s = s0 - offset, e = e0 - offset;
     if (e <= 0 || s >= text.length) continue;
-    const a = Math.max(0, s), b = Math.min(text.length, e);
+    /* Ranges can overlap (words matched in any order); never repeat text. */
+    const a = Math.max(0, s, at), b = Math.min(text.length, e);
+    if (b <= a) continue;
     if (a > at) frag.append(text.slice(at, a));
     frag.append(h('span.suggestion-highlight', { text: text.slice(a, b) }));
     at = b;
@@ -345,7 +352,7 @@ export class SuggestModal extends Modal {
 
   setPlaceholder(p) { this.inputEl.placeholder = p; }
 
-  onOpen() { this.update(); setTimeout(() => this.inputEl.focus()); }
+  onOpen() { this.inputEl.focus(); this.update(); }
 
   async update() {
     const query = this.inputEl.value;

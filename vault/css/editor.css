@@ -1,1 +1,403 @@
-/* Styles for the editor module. */
+/* The markdown view's frame: the editor (cursor, selection, gutters, fold
+   indicators, indentation guides, the inline title, readable line width),
+   the reading view's page, the find bar and the suggestion popup. Tokens
+   and live-preview widgets are styled in livepreview.css, rendered
+   Markdown in markdown.css. Everything uses Obsidian's variables and class
+   names, and selectors are kept low so themes and snippets win. */
+
+body {
+  --caret-color: var(--text-normal);
+  --text-highlight-bg-active: rgba(255, 128, 0, 0.4);
+  --vault-suggestion-width: 350px;
+}
+
+/* --- layout ---------------------------------------------------------------------- */
+
+.workspace-leaf-content[data-type="markdown"] > .view-content {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+}
+.markdown-source-view,
+.markdown-reading-view {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  position: relative;
+}
+.markdown-reading-view { display: flex; flex-direction: column; }
+.markdown-reading-view > .markdown-preview-view { flex: 1 1 auto; min-height: 0; }
+
+.markdown-source-view.mod-cm6 {
+  display: flex;
+  flex-direction: column;
+  color: var(--text-normal);
+  font-family: var(--font-text);
+  font-size: var(--font-text-size);
+  line-height: var(--line-height-normal);
+}
+.markdown-source-view.mod-cm6 .cm-editor {
+  flex: 1 1 0;
+  min-height: 0;
+  height: 100%;
+  background: transparent;
+  color: inherit;
+}
+.markdown-source-view.mod-cm6 .cm-editor.cm-focused { outline: none; }
+.markdown-source-view.mod-cm6 .cm-scroller {
+  padding: var(--file-margins);
+  padding-bottom: 0;
+  font-family: var(--font-text);
+  line-height: var(--line-height-normal);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.markdown-source-view.mod-cm6 .cm-sizer {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding-bottom: 50vh;
+  margin-inline: auto;
+}
+.markdown-source-view.mod-cm6.is-readable-line-width .cm-sizer {
+  max-width: var(--file-line-width);
+  width: 100%;
+}
+.markdown-source-view.mod-cm6 .cm-contentContainer {
+  display: flex;
+  align-items: flex-start;
+  flex: 1 0 auto;
+  min-width: 0;
+}
+.markdown-source-view.mod-cm6 .cm-content {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  caret-color: var(--caret-color);
+  font-family: inherit;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  tab-size: var(--tab-size, 4);
+}
+.markdown-source-view.mod-cm6 .cm-line { padding: 0; }
+.markdown-source-view.mod-cm6.is-rtl .cm-content { direction: rtl; }
+
+/* Room in the margin for the fold arrows, without moving the text. */
+.markdown-source-view.mod-cm6.is-folding .cm-contentContainer {
+  padding-inline-start: var(--file-folding-offset);
+  margin-inline-start: calc(var(--file-folding-offset) * -1);
+}
+
+/* --- cursor, selection, brackets, search matches ------------------------------------- */
+
+.markdown-source-view.mod-cm6 .cm-cursor,
+.markdown-source-view.mod-cm6 .cm-dropCursor {
+  border-left: 1.5px solid var(--caret-color);
+  margin-left: -0.75px;
+}
+.markdown-source-view.mod-cm6 .cm-editor .cm-selectionBackground,
+.markdown-source-view.mod-cm6 .cm-editor.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground {
+  background-color: var(--text-selection);
+}
+.markdown-source-view.mod-cm6 .cm-content ::selection { background-color: transparent; }
+.markdown-source-view.mod-cm6 .cm-editor:not(.cm-focused) .cm-selectionBackground { background-color: var(--text-selection); opacity: 0.6; }
+.markdown-source-view.mod-cm6 .cm-activeLine { background-color: transparent; }
+.markdown-source-view.mod-cm6 .cm-editor .cm-matchingBracket,
+.markdown-source-view.mod-cm6 .cm-editor.cm-focused .cm-matchingBracket {
+  background-color: transparent;
+  color: inherit;
+  outline: 1px solid var(--background-modifier-border-focus);
+  border-radius: 2px;
+}
+.markdown-source-view.mod-cm6 .cm-editor .cm-nonmatchingBracket,
+.markdown-source-view.mod-cm6 .cm-editor.cm-focused .cm-nonmatchingBracket { background-color: transparent; color: inherit; }
+.markdown-source-view.mod-cm6 .cm-searchMatch,
+.obsidian-search-match-highlight {
+  background-color: var(--text-highlight-bg);
+  color: var(--text-normal);
+  border-radius: 2px;
+  box-shadow: none;
+  outline: none;
+}
+.markdown-source-view.mod-cm6 .cm-searchMatch.cm-searchMatch-selected,
+.markdown-source-view.mod-cm6 .cm-searchMatch-selected .cm-searchMatch,
+.obsidian-search-match-highlight.is-active {
+  background-color: var(--text-highlight-bg-active);
+}
+.markdown-source-view.mod-cm6 .cm-selectionMatch { background-color: transparent; }
+.markdown-source-view.mod-cm6 .cm-line.is-flashing,
+.markdown-source-view.mod-cm6 .is-flashing {
+  background-color: var(--text-highlight-bg);
+  transition: background-color 0.5s ease;
+}
+.markdown-source-view.mod-cm6 .cm-crosshair,
+.markdown-source-view.mod-cm6 .cm-crosshair .cm-content { cursor: crosshair; }
+
+/* The search panel CodeMirror wants open while searching is never shown:
+   the find bar above the note stands in for it. */
+.markdown-source-view.mod-cm6 .cm-hidden-search-panel { display: none; }
+.markdown-source-view.mod-cm6 .cm-panels-top:has(> .cm-hidden-search-panel:only-child) { display: none; }
+.markdown-source-view.mod-cm6 .cm-panels {
+  background-color: var(--background-primary);
+  color: var(--text-normal);
+  border-color: var(--background-modifier-border);
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-small);
+}
+.markdown-source-view.mod-cm6 .cm-panels-bottom { border-top: 1px solid var(--background-modifier-border); padding: 2px var(--size-4-2); }
+.markdown-source-view.mod-cm6 .cm-panels-bottom input { font-family: var(--font-monospace); border: none; box-shadow: none; background: transparent; height: auto; padding: 0; }
+.markdown-source-view.mod-cm6 .cm-fat-cursor { background: var(--interactive-accent) !important; color: var(--text-on-accent) !important; }
+.markdown-source-view.mod-cm6 .cm-editor:not(.cm-focused) .cm-fat-cursor { background: none !important; outline: 1px solid var(--interactive-accent); }
+
+/* --- gutters and line numbers -------------------------------------------------------- */
+
+/* Line numbers hang in the margin, so the text stays lined up with the
+   title. */
+.markdown-source-view.mod-cm6 .cm-contentContainer { position: relative; }
+.markdown-source-view.mod-cm6 .cm-gutters {
+  position: absolute !important;
+  top: 0;
+  inset-inline-start: auto;
+  inset-inline-end: 100%;
+  background-color: transparent;
+  border: none;
+  color: var(--text-faint);
+  font-size: var(--font-ui-smaller);
+  font-family: var(--font-interface, inherit);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+  z-index: 1;
+}
+.markdown-source-view.mod-cm6.show-line-number .cm-scroller { padding-inline-start: calc(var(--file-margins) + 36px); }
+.markdown-source-view.mod-cm6 .cm-lineNumbers .cm-gutterElement {
+  padding: 0 var(--size-2-2) 0 var(--size-4-2);
+  min-width: 28px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  line-height: calc(var(--font-text-size) * var(--line-height-normal));
+}
+.markdown-source-view.mod-cm6 .cm-lineNumbers .cm-gutterElement.cm-activeLineGutter { color: var(--text-muted); }
+
+/* --- folding ------------------------------------------------------------------------- */
+
+.markdown-source-view.mod-cm6 .cm-fold-indicator {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 1em;
+  vertical-align: baseline;
+  line-height: 1;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.markdown-source-view.mod-cm6 .cm-fold-indicator .collapse-indicator {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  padding-inline-end: var(--size-2-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--collapse-icon-color);
+  opacity: 0;
+  cursor: var(--cursor);
+  transition: opacity 0.1s ease-in-out;
+}
+.markdown-source-view.mod-cm6 .cm-fold-indicator .collapse-indicator svg.svg-icon {
+  width: var(--icon-xs);
+  height: var(--icon-xs);
+  stroke-width: 3px;
+  transition: transform 0.1s ease-in-out;
+}
+.markdown-source-view.mod-cm6 .cm-line:hover .cm-fold-indicator .collapse-indicator,
+.markdown-source-view.mod-cm6 .cm-fold-indicator .collapse-indicator:hover { opacity: 1; }
+.markdown-source-view.mod-cm6 .cm-fold-indicator .collapse-indicator:hover { color: var(--text-muted); }
+.markdown-source-view.mod-cm6 .cm-fold-indicator.is-collapsed .collapse-indicator { opacity: 1; color: var(--collapse-icon-color-collapsed); }
+.markdown-source-view.mod-cm6 .cm-fold-indicator.is-collapsed .collapse-indicator svg.svg-icon { transform: rotate(-90deg); }
+.markdown-source-view.mod-cm6.is-rtl .cm-fold-indicator.is-collapsed .collapse-indicator svg.svg-icon { transform: rotate(90deg); }
+.markdown-source-view.mod-cm6 .cm-foldPlaceholder {
+  background-color: transparent;
+  border: none;
+  color: var(--text-faint);
+  margin: 0 0 0 0.3em;
+  padding: 0 0.25em;
+  border-radius: var(--radius-s);
+  cursor: var(--cursor);
+  font-family: var(--font-text);
+}
+.markdown-source-view.mod-cm6 .cm-foldPlaceholder:hover { background-color: var(--background-modifier-hover); color: var(--text-muted); }
+
+/* --- indentation guides -------------------------------------------------------------- */
+
+/* The syntax marks each level of a nested list's indentation as .cm-indent
+   (livepreview.css draws the guide in live preview); here: source mode
+   too, and none at all when "Indentation guides" is off. */
+.markdown-source-view.mod-cm6.show-indentation-guide:not(.is-live-preview) .cm-hmd-list-indent .cm-indent { position: relative; }
+.markdown-source-view.mod-cm6.show-indentation-guide:not(.is-live-preview) .cm-hmd-list-indent .cm-indent::before {
+  content: '';
+  position: absolute;
+  top: -0.2em;
+  bottom: -0.2em;
+  inset-inline-start: 0.2em;
+  border-inline-start: var(--indentation-guide-width) solid var(--indentation-guide-color);
+  pointer-events: none;
+}
+.markdown-source-view.mod-cm6:not(.show-indentation-guide) .cm-indent::before { display: none; }
+
+/* --- the inline title ----------------------------------------------------------------- */
+
+.markdown-source-view .inline-title {
+  font-size: var(--inline-title-size);
+  font-weight: var(--inline-title-weight);
+  font-family: var(--inline-title-font);
+  font-style: var(--inline-title-style);
+  font-variant: var(--inline-title-variant);
+  line-height: var(--inline-title-line-height);
+  color: var(--inline-title-color);
+  letter-spacing: -0.015em;
+  margin-bottom: var(--inline-title-margin-bottom);
+  outline: none;
+  cursor: text;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  user-select: text;
+  -webkit-user-select: text;
+  caret-color: var(--caret-color);
+}
+.markdown-source-view .inline-title:empty::before { content: attr(data-placeholder); color: var(--text-faint); }
+.markdown-source-view .inline-title.mod-invalid { color: var(--text-error); }
+.markdown-source-view .metadata-host { display: block; }
+.metadata-host:empty { display: none; }
+
+/* --- reading view --------------------------------------------------------------------- */
+
+.markdown-preview-view .markdown-preview-pusher { pointer-events: none; }
+.markdown-preview-view pre.markdown-preview-fallback {
+  white-space: pre-wrap;
+  font-family: var(--font-text);
+  font-size: var(--font-text-size);
+  background: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* --- find and replace ------------------------------------------------------------------ */
+
+.document-search-container {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-4-2);
+  padding: var(--size-4-2) var(--size-4-3);
+  background-color: var(--background-primary);
+  border-bottom: 1px solid var(--background-modifier-border);
+  font-size: var(--font-ui-small);
+  z-index: 2;
+}
+.document-search,
+.document-replace {
+  display: flex;
+  align-items: center;
+  gap: var(--size-4-2);
+  width: 100%;
+  max-width: calc(var(--file-line-width) + 2 * var(--file-margins));
+  margin: 0 auto;
+}
+.document-search .search-input-container,
+.document-replace .search-input-container {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.document-search-container input[type=search],
+.document-search-container input[type=text] {
+  width: 100%;
+  padding-inline-end: 28px;
+}
+.document-search-container input::-webkit-search-cancel-button { display: none; }
+.document-search-container input.is-invalid { border-color: var(--text-error); box-shadow: 0 0 0 1px var(--text-error); }
+.document-search .search-input-clear-button {
+  position: absolute;
+  inset-inline-end: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  cursor: var(--cursor);
+  color: var(--text-faint);
+  display: none;
+}
+.document-search .search-input-clear-button::before { content: '×'; display: block; text-align: center; line-height: 16px; font-size: 16px; }
+.document-search .search-input-clear-button:hover { color: var(--text-muted); }
+.document-search .search-input-container:has(input:not(:placeholder-shown)) .search-input-clear-button { display: block; }
+.document-search-count {
+  flex: 0 0 auto;
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  white-space: nowrap;
+  min-width: 64px;
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+.document-search-buttons,
+.document-replace-buttons { display: flex; align-items: center; gap: 2px; flex: 0 0 auto; }
+.document-replace-buttons { gap: var(--size-4-2); }
+.document-search-button.clickable-icon { padding: var(--size-2-2); }
+.document-search-button.clickable-icon.is-active { background-color: var(--background-modifier-hover); color: var(--text-accent); }
+.document-replace-button { font-size: var(--font-ui-small); height: var(--input-height); padding: 0 var(--size-4-3); }
+.document-search-close-button { flex: 0 0 auto; }
+
+/* --- suggestions while typing ---------------------------------------------------------- */
+
+.suggestion-container {
+  position: fixed;
+  z-index: var(--layer-popover);
+  width: var(--vault-suggestion-width);
+  max-width: calc(100vw - 16px);
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-s);
+  overflow: hidden;
+}
+.suggestion-container > .suggestion {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: var(--size-2-3);
+}
+.suggestion-container .suggestion-item {
+  padding: var(--size-4-1) var(--size-4-2);
+  font-size: var(--font-ui-small);
+  border-radius: var(--radius-s);
+  line-height: var(--line-height-tight);
+}
+.suggestion-container .suggestion-item.mod-complex { align-items: flex-start; }
+.suggestion-container .suggestion-note { font-size: var(--font-ui-smaller); }
+.suggestion-container .suggestion-item.mod-block .suggestion-title { white-space: normal; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.suggestion-container .suggestion-item.mod-unresolved .suggestion-title { opacity: 0.8; }
+.suggestion-container .suggestion-aux { gap: var(--size-2-3); align-self: center; }
+.suggestion-container .suggestion-flair-text {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+.suggestion-container .prompt-instructions {
+  padding: var(--size-2-3) var(--size-4-3);
+  gap: var(--size-4-2) var(--size-4-3);
+  font-size: var(--font-ui-smaller);
+}
+
+/* --- the editor menu's submenus --------------------------------------------------------- */
+
+.menu .menu-item.has-submenu .menu-item-icon.mod-submenu { margin-inline-start: auto; color: var(--text-faint); }
+.menu.mod-submenu { position: fixed; }

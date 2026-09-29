@@ -363,7 +363,8 @@
    "time",
    "time-b",
    "health",
-   "time-c"
+   "time-c",
+   "time-d"
   ],
   "ids": [
    "timestamp-converter",
@@ -398,6 +399,7 @@
   ],
   "ids": [
    "notepad",
+   "obsidian-vault",
    "kanban-board",
    "flashcards",
    "printable-calendar",

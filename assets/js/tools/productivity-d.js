@@ -56,6 +56,8 @@
       '.g-prodd .hb-arch > span { flex: 1 1 160px; min-width: 0; overflow-wrap: anywhere; }',
       /* checklists */
       '.g-prodd .cl-progress { display: flex; flex-direction: column; gap: 6px; }',
+      '.vault-support { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }',
+      '.vault-support .ok b { color: var(--ok); } .vault-support .no b { color: var(--warn); }',
       '.g-prodd .cl-bar { height: 10px; border-radius: 999px; background: var(--bg-sunken); border: 1px solid var(--border); overflow: hidden; }',
       '.g-prodd .cl-bar i { display: block; height: 100%; width: 0; background: var(--ok); transition: width .2s; }',
       '.g-prodd .cl-items { display: flex; flex-direction: column; }',
@@ -962,6 +964,56 @@
             fileButton('Import lists', '.json,application/json', importLists, 'Import checklists file')),
           U.note('Your lists are saved only in this browser, never uploaded. To move them to another browser or device, export a file here and import it there.')));
       draw();
+    }
+  });
+
+  /* --- Vault (the Obsidian-compatible notes app in vault/) --------------------
+     The app is a full-window page of its own; this tool introduces it, says
+     what this browser can do with it, and opens it. */
+  Tools.register({
+    id: 'obsidian-vault', category: 'productivity', name: 'Vault: Obsidian-Compatible Notes', icon: 'note',
+    description: 'Open a folder of Markdown notes, or an Obsidian vault, and work in it with live preview, links, graph, canvas and search, all in the browser.',
+    keywords: ['obsidian', 'notes', 'markdown', 'vault', 'zettelkasten', 'second brain', 'wiki links', 'backlinks', 'graph view',
+      'canvas', 'daily notes', 'knowledge base', 'pkm', 'note taking app', 'markdown editor', 'live preview'],
+    render: function (root) {
+      var folder = typeof window.showDirectoryPicker === 'function';
+      var opfs = !!(navigator.storage && navigator.storage.getDirectory);
+      var observer = typeof window.FileSystemObserver === 'function';
+      function line(ok, text) {
+        return el('li', { class: ok ? 'ok' : 'no' }, el('b', { text: ok ? '✓ ' : '✗ ' }), text);
+      }
+      root.appendChild(U.panel(null,
+        el('p', { text: 'Vault is a notes app that reads and writes the same files as Obsidian: plain Markdown in a folder, with the vault’s own settings in its .obsidian folder, hotkeys and themes included. It runs entirely in this tab. Your notes are never uploaded; the app edits the folder on your computer directly.' }),
+        U.btnrow(
+          U.button('Open Vault', function () { window.open('vault/', '_blank', 'noopener'); }, 'primary'),
+          el('a', { class: 'btn', href: 'vault/', text: 'Open in this tab' })),
+        U.note('Tip: from the Vault page, use your browser’s “Install app” option to give it its own window and a spot on your taskbar.')));
+
+      root.appendChild(U.panel('In this browser',
+        el('ul', { class: 'vault-support' },
+          line(folder, folder ? 'Can open a folder on your computer and save straight back to it.'
+            : 'Can’t edit a folder on your computer directly (only Chrome, Edge, Opera, Brave, Vivaldi and Arc can). Use a browser vault instead: import a folder or a zip, and export a zip when you want the files back.'),
+          line(opfs, 'Can keep vaults in the browser’s private storage.'),
+          line(observer || !folder, observer ? 'Sees changes made by other apps straight away.'
+            : 'Picks up changes made by other apps (Obsidian, a sync client) when you come back to the tab, and every few seconds.'))));
+
+      root.appendChild(U.panel('What it does',
+        el('ul', {},
+          ['Live preview, source mode and reading view, with wikilinks, embeds, callouts, tables, tasks, maths, Mermaid, footnotes and code highlighting.',
+            'Your vault’s settings: app.json, appearance.json (themes, accent, fonts, CSS snippets), hotkeys.json, core-plugins.json, workspace.json and each core plugin’s options, read and written in Obsidian’s format.',
+            'Tabs, splits, sidebars, the file explorer, search with Obsidian’s operators, backlinks, outgoing links, outline, tags, bookmarks and properties.',
+            'Graph view, Canvas, Bases, daily notes, templates, the quick switcher and command palette, note composer, unique notes, random note, word count, file recovery, slides, audio recorder and workspaces.',
+            'Renaming a note updates the links to it.'
+          ].map(function (t) { return el('li', { text: t }); }))));
+
+      root.appendChild(U.panel('What a browser can’t do',
+        el('ul', {},
+          ['Community plugins, Obsidian Sync and Obsidian Publish.',
+            'Ctrl+N, Ctrl+T, Ctrl+W and Ctrl+Tab belong to the browser. Commands bound to them also work with Alt added (Ctrl+Alt+W closes a tab).',
+            'The browser asks for permission to edit the folder each time you come back.',
+            'Deleted files go to the vault’s .trash folder rather than the system bin.',
+            'Pop-out windows open as tabs, and many websites refuse to load in the web viewer.'
+          ].map(function (t) { return el('li', { text: t }); }))));
     }
   });
 })();

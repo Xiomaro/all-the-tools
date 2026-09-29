@@ -183,7 +183,7 @@ export class FileManager {
       fn(data);
       const body = fm ? text.slice(fm.bodyStart) : text;
       if (!Object.keys(data).length) return fm ? body : text;
-      return '---\n' + yaml.dump(data) + '---\n' + body;
+      return '---\n' + yaml.dumpFrontmatter(data, fm && fm.raw) + '---\n' + body;
     });
   }
 }
