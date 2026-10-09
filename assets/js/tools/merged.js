@@ -331,10 +331,12 @@
 
   merge({
     id: 'markdown-to-html', category: 'developer', name: 'Markdown Editor', icon: 'doc',
-    description: 'Write Markdown with a live preview and export it as HTML or PDF, or build a Markdown table.',
-    keywords: ['markdown', 'markdown editor', 'md', 'markdown to html', 'markdown to pdf', 'markdown table', 'preview']
+    description: 'Write Markdown with a live preview and export it as HTML, Word or PDF, copy an Obsidian note as rich text for Word, or build a Markdown table.',
+    keywords: ['markdown', 'markdown editor', 'md', 'markdown to html', 'markdown to pdf', 'markdown to word', 'docx', 'obsidian', 'rich text',
+      'markdown table', 'preview']
   }, [
     ['markdown-to-html', 'editor', 'Editor & HTML'],
+    ['markdown-to-word', 'word', 'To Word'],
     ['markdown-to-pdf', 'pdf', 'To PDF'],
     ['markdown-table-gen2', 'table', 'Table']
   ]);
